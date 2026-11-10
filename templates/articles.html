@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="{{META_DESCRIPTION}}">
+<title>{{TITLE}}</title>
+<!-- [dev-css] -->
+<style>
+@font-face{font-family:"Inter";font-style:normal;font-weight:400 800;font-display:swap;src:url(../fonts/inter-latin-ext.woff2) format("woff2");unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C4,U+2113,U+2C60-2C7F,U+A720-A7FF}
+@font-face{font-family:"Inter";font-style:normal;font-weight:400 800;font-display:swap;src:url(../fonts/inter-latin.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+</style>
+<link rel="stylesheet" href="style.css">
+<!-- [/dev-css] -->
+</head>
+<body>
+
+<a class="saut" href="#contenu"><span class="fr" lang="fr">Aller au contenu</span><span class="en" lang="en">Skip to content</span></a>
+
+<header class="cadre entete">
+  <a class="marque" href="/">JustPrivacy</a>
+  <nav class="nav" aria-label="Navigation">
+    <a href="/articles"{{NAV_ARTICLES}}>Articles</a>
+    <a href="/benchmark"{{NAV_BENCHMARK}}>Benchmark</a>
+    <a href="/apropos"{{NAV_APROPOS}}><span class="fr" lang="fr">À propos</span><span class="en" lang="en">About</span></a>
+  </nav>
+</header>
+
+<main id="contenu">
+
+  <section class="page">
+    <div class="cadre">
+      <header>
+        <h1 class="grand">Articles</h1>
+        <p class="chapeau"><span class="fr" lang="fr">Des textes de référence, tenus à jour, organisés par thème.</span><span class="en" lang="en">Reference texts, kept up to date, organized by theme.</span></p>
+      </header>
+      <div class="filtre">
+        <span class="fr" lang="fr"><input class="bas" type="checkbox" id="masquer-en"><label for="masquer-en" class="bouton secondaire"><span class="m-a">Masquer les articles en anglais (<!-- [dev-start:COUNT_EN_ONLY] -->1<!-- [dev-end:COUNT_EN_ONLY] -->)</span><span class="m-b">Afficher les articles en anglais (<!-- [dev-start:COUNT_EN_ONLY] -->1<!-- [dev-end:COUNT_EN_ONLY] -->)</span></label></span>
+        <span class="en" lang="en"><input class="bas" type="checkbox" id="afficher-fr"><label for="afficher-fr" class="bouton secondaire"><span class="f-a">Show articles in French (<!-- [dev-start:COUNT_FR_ONLY] -->1<!-- [dev-end:COUNT_FR_ONLY] -->)</span><span class="f-b">Hide articles in French (<!-- [dev-start:COUNT_FR_ONLY] -->1<!-- [dev-end:COUNT_FR_ONLY] -->)</span></label></span>
+      </div>
+<!-- [dev-start:ARTICLES_BY_CATEGORY] -->
+      <h2 class="moyen" style="margin-bottom:var(--e3)"><span class="fr" lang="fr">Communiquer</span><span class="en" lang="en">Communicate</span></h2>
+      <ul style="margin-bottom:var(--e5)">
+        <li class="theme"><h3><span class="fr" lang="fr">Messageries et chiffrement</span><span class="en" lang="en">Messaging and encryption</span></h3><p><span class="fr" lang="fr">Ce que protège le chiffrement de bout en bout, et ce qu'il laisse visible : métadonnées, sauvegardes, notifications.</span><span class="en" lang="en">What end-to-end encryption protects, and what it leaves visible: metadata, backups, notifications.</span></p><a href="/articles/messageries"><span class="fr" lang="fr">Lire</span><span class="en" lang="en">Read</span></a></li>
+      </ul>
+      <h2 class="moyen" style="margin-bottom:var(--e3)"><span class="fr" lang="fr">Vos droits</span><span class="en" lang="en">Your rights</span></h2>
+      <ul>
+        <li class="theme"><h3><span class="fr" lang="fr">Le droit d'accès</span><span class="en" lang="en">The right of access</span></h3><p><span class="fr" lang="fr">Obtenir une copie des données qu'une organisation détient sur vous.</span><span class="en" lang="en">Getting a copy of the data an organization holds about you.</span></p><a href="/articles/acces"><span class="fr" lang="fr">Lire</span><span class="en" lang="en">Read</span></a></li>
+      </ul>
+<!-- [dev-end:ARTICLES_BY_CATEGORY] -->
+    </div>
+  </section>
+
+</main>
+
+<footer class="pied">
+  <div class="cadre">
+    <div class="pied-colonnes">
+      <div class="pied-id">
+        <p class="marque">JustPrivacy</p>
+        <p>Because it's a right.</p>
+      </div>
+      <nav>
+        <p class="pied-nav-titre"><span class="fr" lang="fr">Contenu</span><span class="en" lang="en">Content</span></p>
+        <ul class="pied-nav-liste">
+          <li><a href="/articles">Articles</a></li>
+          <li><a href="/benchmark">Benchmark</a></li>
+          <li><a href="/apropos"><span class="fr" lang="fr">À propos</span><span class="en" lang="en">About</span></a></li>
+        </ul>
+      </nav>
+      <nav>
+        <p class="pied-nav-titre"><span class="fr" lang="fr">Projet</span><span class="en" lang="en">Project</span></p>
+        <ul class="pied-nav-liste">
+          <li><a href="/mentions"><span class="fr" lang="fr">Mentions légales</span><span class="en" lang="en">Legal notice</span></a></li>
+          <li><a href="/privacy"><span class="fr" lang="fr">Confidentialité et CGU</span><span class="en" lang="en">Privacy &amp; terms</span></a></li>
+          <li><a href="https://codeberg.org/org/JustPrivacy" rel="noopener noreferrer"><span class="fr" lang="fr">Code source</span><span class="en" lang="en">Source code</span><svg class="icone-ext" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a></li>
+        </ul>
+      </nav>
+    </div>
+    <div class="pied-barre">
+      <p class="pied-licence">Copyleft · <a class="fr" lang="fr" href="https://creativecommons.org/licenses/by-sa/4.0/deed.fr" rel="noopener noreferrer">CC BY-SA 4.0</a><a class="en" lang="en" href="https://creativecommons.org/licenses/by-sa/4.0/deed.en" rel="noopener noreferrer">CC BY-SA 4.0</a></p>
+      <div class="reglages">
+        <fieldset class="groupe"><legend class="cache">Langue · Language</legend>
+        <input class="bas" type="radio" name="langue" id="l-en" checked><label for="l-en"><span lang="en">English</span></label>
+        <input class="bas" type="radio" name="langue" id="l-fr"><label for="l-fr"><span lang="fr">Français</span></label>
+      </fieldset>
+        <fieldset class="groupe"><legend class="cache"><span class="fr" lang="fr">Thème</span><span class="en" lang="en">Theme</span></legend>
+        <input class="bas" type="radio" name="theme" id="t-clair"><label for="t-clair"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><span class="cache"><span class="fr" lang="fr">Clair</span><span class="en" lang="en">Light</span></span></label>
+        <input class="bas" type="radio" name="theme" id="t-systeme" checked><label for="t-systeme"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg><span class="cache"><span class="fr" lang="fr">Système</span><span class="en" lang="en">System</span></span></label>
+        <input class="bas" type="radio" name="theme" id="t-sombre"><label for="t-sombre"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z"/></svg><span class="cache"><span class="fr" lang="fr">Sombre</span><span class="en" lang="en">Dark</span></span></label>
+      </fieldset>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var K = 'justprivacy-reglages', saved = {};
+  try { saved = JSON.parse(localStorage.getItem(K)) || {}; } catch (e) {}
+  var pref = (navigator.languages && navigator.languages[0]) || navigator.language || '';
+  if (!saved.langue) saved.langue = /^fr/i.test(pref) ? 'l-fr' : 'l-en';
+  function memo() { try { localStorage.setItem(K, JSON.stringify(saved)); } catch (e) {} }
+  function lang() { document.documentElement.lang = document.getElementById('l-fr').checked ? 'fr' : 'en'; }
+  ['langue', 'theme'].forEach(function (nom) {
+    document.querySelectorAll('input[name="' + nom + '"]').forEach(function (r) {
+      if (saved[nom] && r.id === saved[nom]) r.checked = true;
+      r.addEventListener('change', function () { saved[nom] = r.id; memo(); lang(); });
+    });
+  });
+  ['masquer-en', 'afficher-fr'].forEach(function (id) {
+    var c = document.getElementById(id);
+    if (!c) return;
+    if (saved[id] !== undefined) c.checked = !!saved[id];
+    c.addEventListener('change', function () { saved[id] = c.checked; memo(); });
+  });
+  lang();
+})();
+</script>
+</body>
+</html>

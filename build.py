@@ -7,6 +7,10 @@ Usage:
 Outputs dist/ — one self-contained HTML file per URL.
 Each page embeds the CSS and fonts as base64 so the browser
 needs only a single request to fully render the page.
+
+Compatibility: the pages work without JavaScript (language is switched with
+sibling selectors, see style.css). Declarations that use var() get a literal
+fallback value injected at build time, for browsers without custom properties.
 """
 
 import base64
@@ -21,6 +25,7 @@ CONTENT_DIR = os.path.join(ROOT, 'content', 'articles')
 TEMPLATES_DIR = os.path.join(ROOT, 'templates')
 FONTS_DIR = os.path.join(ROOT, 'fonts')
 DIST_DIR = os.path.join(ROOT, 'dist')
+STATIC_VARS = {}
 
 
 # ---------------------------------------------------------------------------
@@ -199,11 +204,66 @@ def load_articles():
 
 
 # ---------------------------------------------------------------------------
+# var() fallbacks — for browsers without CSS custom properties
+# ---------------------------------------------------------------------------
+
+VAR_RE = re.compile(r'var\((--[\w-]+)\)')
+
+
+def static_vars(css):
+    """Static (light, non-clamp) values of the first top-level :root block."""
+    m = re.search(r'(?m)^:root\{(.*?)\}', css, re.DOTALL)
+    values = {}
+    if m:
+        for decl in m.group(1).split(';'):
+            if ':' in decl:
+                k, v = decl.split(':', 1)
+                values[k.strip()] = v.strip()
+    return values
+
+
+def decl_fallbacks(decls, values):
+    """'a:var(--x);b:2' -> 'a:<literal>;a:var(--x);b:2' (only where resolvable)."""
+    out = []
+    for decl in decls.split(';'):
+        if not decl.strip():
+            continue
+        name, _, value = decl.partition(':')
+        if not name.strip().startswith('--') and 'var(' in value:
+            names = VAR_RE.findall(value)
+            if names and all(n in values for n in names):
+                literal = VAR_RE.sub(lambda m: values[m.group(1)], value)
+                out.append('%s:%s' % (name, literal))
+        out.append(decl)
+    return ';'.join(out)
+
+
+def add_css_fallbacks(css, values):
+    def block(m):
+        selector, body = m.group(1), m.group(2)
+        if selector.strip().startswith((':root', '@font-face')):
+            return m.group(0)
+        return '%s{%s}' % (selector, decl_fallbacks(body, values))
+    return re.sub(r'([^{}]+)\{([^{}]*)\}', block, css)
+
+
+def add_inline_fallbacks(html, values):
+    def attr(m):
+        return 'style="%s"' % decl_fallbacks(m.group(1), values)
+    return re.sub(r'style="([^"]*var\([^"]*)"', attr, html)
+
+
+# ---------------------------------------------------------------------------
 # CSS — fonts embedded as base64 data URIs
 # ---------------------------------------------------------------------------
 
 def strip_css_comments(css):
     return re.sub(r'/\*.*?\*/', '', css, flags=re.DOTALL)
+
+
+def strip_js_comments(js):
+    # Only /* ... */ blocks (the script uses no // comments).
+    return re.sub(r'/\*.*?\*/', '', js, flags=re.DOTALL).strip()
 
 
 def build_css():
@@ -223,8 +283,8 @@ def build_css():
         'U+FEFF,U+FFFD}\n'
     ) % (latin_ext, latin)
 
-    raw_css = read_file(os.path.join(TEMPLATES_DIR, 'style.css'))
-    return font_css + strip_css_comments(raw_css)
+    raw_css = strip_css_comments(read_file(os.path.join(TEMPLATES_DIR, 'style.css')))
+    return font_css + add_css_fallbacks(raw_css, static_vars(raw_css))
 
 
 # ---------------------------------------------------------------------------
@@ -236,7 +296,7 @@ def validate():
     for fname in ('inter-latin.woff2', 'inter-latin-ext.woff2'):
         if not os.path.exists(os.path.join(FONTS_DIR, fname)):
             errors.append('Missing font: fonts/%s' % fname)
-    for tname in ('style.css', 'home.html', 'articles.html',
+    for tname in ('style.css', 'reglages.js', 'home.html', 'articles.html',
                   'article.html', 'benchmark.html', 'about.html', 'legal.html', 'privacy.html'):
         if not os.path.exists(os.path.join(TEMPLATES_DIR, tname)):
             errors.append('Missing template: templates/%s' % tname)
@@ -299,6 +359,7 @@ def render_page(template_name, replacements):
     page = page.replace('{{NAV_ARTICLES}}', '')
     page = page.replace('{{NAV_BENCHMARK}}', '')
     page = page.replace('{{NAV_APROPOS}}', '')
+    page = add_inline_fallbacks(page, STATIC_VARS)
     return minify_html(page)
 
 
@@ -476,13 +537,15 @@ def build():
         shutil.rmtree(DIST_DIR)
 
     css = build_css()
+    STATIC_VARS.update(static_vars(strip_css_comments(read_file(os.path.join(TEMPLATES_DIR, 'style.css')))))
+    js = strip_js_comments(read_file(os.path.join(TEMPLATES_DIR, 'reglages.js')))
     articles = load_articles()
     articles_map = {a['slug']: a for a in articles}
 
     count_fr_only = sum(1 for a in articles if a.get('lang') == 'fr')
     count_en_only = sum(1 for a in articles if a.get('lang') == 'en')
 
-    base_vars = {'CSS': css, 'NAV_ARTICLES': '', 'NAV_BENCHMARK': '', 'NAV_APROPOS': ''}
+    base_vars = {'CSS': css, 'JS': js, 'NAV_ARTICLES': '', 'NAV_BENCHMARK': '', 'NAV_APROPOS': ''}
 
     # Homepage
     home_vars = dict(base_vars)

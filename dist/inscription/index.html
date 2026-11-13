@@ -254,13 +254,13 @@ cap-widget:hover{--cap-border-color:var(--encre)}
 .aide{color:#67645d;color:var(--encre-3);font-size:.875rem;line-height:1.4}
 .aide-texte{color:#4a4843;color:var(--encre-2)}
 .auth-carte cap-widget{max-width:none;margin-top:0}
-.cap-info{margin-top:calc(.5rem * -1);margin-top:calc(var(--e1) * -1);color:#67645d;color:var(--encre-3);font-size:.875rem;line-height:1.4}
-.cap-info summary{display:flex;align-items:center;gap:.5rem;min-height:2.25rem;cursor:pointer;list-style:none}
-.cap-info summary::-webkit-details-marker{display:none}
-.cap-q{display:inline-flex;align-items:center;justify-content:center;width:1.25rem;height:1.25rem;border:1.5px solid #67645d;border:1.5px solid var(--encre-3);border-radius:50%;font-size:.75rem;font-weight:700;color:#4a4843;color:var(--encre-2)}
-.cap-info summary:hover .cap-q,.cap-info[open] .cap-q{border-color:#0c5a44;border-color:var(--accent);background:#0c5a44;background:var(--accent);color:#f3f1ea;color:var(--accent-texte)}
-.cap-info summary:focus-visible{outline:3px solid #0c5a44;outline:3px solid var(--focus);outline-offset:2px;border-radius:.25rem}
-.cap-info p{margin:0 0 .5rem;margin:0 0 var(--e1);padding:1rem;padding:var(--e2);background:#f3f1ea;background:var(--papier);border:1px solid #c8c3b6;border:1px solid var(--regle);border-radius:.5rem;color:#4a4843;color:var(--encre-2)}
+.cap-boite{position:relative}
+.cap-badge{position:absolute;top:.5rem;right:.5rem;z-index:3;display:flex;align-items:center;gap:.375rem;font-size:.75rem;line-height:1;color:#4a4843;color:var(--encre-2)}
+.cap-q{display:inline-flex;align-items:center;justify-content:center;width:1.25rem;height:1.25rem;border:1.5px solid #67645d;border:1.5px solid var(--encre-3);border-radius:50%;background:#f3f1ea;background:var(--papier);font-size:.75rem;font-weight:700;color:#4a4843;color:var(--encre-2);cursor:help}
+.cap-q:hover,.cap-q:focus{border-color:#0c5a44;border-color:var(--accent);background:#0c5a44;background:var(--accent);color:#f3f1ea;color:var(--accent-texte)}
+.cap-q:focus{outline:3px solid #0c5a44;outline:3px solid var(--focus);outline-offset:2px}
+.cap-tip{position:absolute;right:0;bottom:calc(100% + .625rem);width:17rem;max-width:calc(100vw - 3.5rem);padding:.625rem .875rem;background:#16161a;background:var(--encre);color:#f3f1ea;color:var(--papier);border-radius:.5rem;font-size:.875rem;line-height:1.4;font-weight:400;visibility:hidden;opacity:0;transition:opacity .15s ease}
+.cap-q:hover + .cap-tip,.cap-q:focus + .cap-tip{visibility:visible;opacity:1}
 .auth-carte .actions{margin-top:.5rem;margin-top:var(--e1);gap:.5rem;gap:var(--e1)}
 .auth-carte .bouton{width:100%;min-height:3rem}
 .auth-carte .alerte{margin-bottom:1.5rem;margin-bottom:var(--e3);border-radius:0 .5rem .5rem 0}
@@ -325,11 +325,10 @@ cap-widget:hover{--cap-border-color:var(--encre)}
 <div class="champ"><label for="username"><span class="fr" lang="fr">Nom d'utilisateur</span><span class="en" lang="en">Username</span></label><input id="username" name="username" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" maxlength="32" aria-describedby="h-username"><small id="h-username" class="aide"><span class="fr" lang="fr">3 à 32 caractères : lettres, chiffres, . _ -</span><span class="en" lang="en">3 to 32 characters: letters, digits, . _ -</span></small></div>
 <div class="champ"><label for="password"><span class="fr" lang="fr">Mot de passe</span><span class="en" lang="en">Password</span></label><input id="password" name="password" type="password" autocomplete="new-password" autocapitalize="none" spellcheck="false" minlength="10" aria-describedby="h-password"><small id="h-password" class="aide"><span class="fr" lang="fr">10 caractères minimum</span><span class="en" lang="en">10 characters minimum</span></small></div>
 <div class="champ"><label for="password2"><span class="fr" lang="fr">Confirmer le mot de passe</span><span class="en" lang="en">Confirm password</span></label><input id="password2" name="password2" type="password" autocomplete="new-password" autocapitalize="none" spellcheck="false"></div>
+<div class="cap-boite">
 <cap-widget id="cap" data-cap-api-endpoint="https://check.scrawlee.com/5c7f97279d/"></cap-widget>
-<details class="cap-info">
-<summary><span class="cap-legende"><span class="fr" lang="fr">Vérification anti-robot · Cap (selfhost)</span><span class="en" lang="en">Anti-bot check · Cap (selfhost)</span></span><span class="cap-q" aria-hidden="true">?</span><span class="cache"><span class="fr" lang="fr">Plus d'informations</span><span class="en" lang="en">More information</span></span></summary>
-<p><span class="fr" lang="fr">Cap est hébergé par nos soins : la vérification se fait sur notre propre serveur, sans service de CAPTCHA tiers. Il ne dépose aucun cookie et ne sert pas à vous suivre, ni d'une visite à l'autre ni d'un site à l'autre. Il prouve que vous êtes humain par un petit calcul dans votre navigateur et quelques signaux de comportement (mouvements du pointeur, rythme de frappe, jamais ce que vous tapez).</span><span class="en" lang="en">Cap is hosted by us: the check runs on our own server, with no third-party CAPTCHA service. It sets no cookie and is not used to track you, neither between visits nor between sites. It proves you are human with a small calculation in your browser and a few behaviour signals (pointer movement, typing rhythm, never what you type).</span></p>
-</details>
+<div class="cap-badge"><span class="cap-selfhost">(selfhost)</span><span class="cap-q" tabindex="0" aria-describedby="cap-tip"><span aria-hidden="true">?</span><span class="cache"><span class="fr" lang="fr">À propos de Cap</span><span class="en" lang="en">About Cap</span></span></span><span id="cap-tip" class="cap-tip" role="tooltip"><span class="fr" lang="fr">Cap est hébergé par nos soins. Il ne dépose aucun cookie et ne sert pas à vous suivre : il vérifie seulement que vous êtes humain.</span><span class="en" lang="en">Cap is hosted by us. It sets no cookie and does not track you: it only checks that you are human.</span></span></div>
+</div>
 <div class="actions"><button class="bouton" type="submit"><span class="fr" lang="fr">Créer mon compte</span><span class="en" lang="en">Create my account</span></button></div>
 </form>
 <p class="auth-pied meta"><span class="fr" lang="fr">Déjà un compte ?</span><span class="en" lang="en">Already have an account?</span> <a href="/connexion"><span class="fr" lang="fr">Se connecter</span><span class="en" lang="en">Log in</span></a></p>

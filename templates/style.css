@@ -266,13 +266,13 @@ cap-widget:hover{--cap-border-color:var(--encre)}
 .aide{color:var(--encre-3);font-size:.875rem;line-height:1.4}
 .aide-texte{color:var(--encre-2)}
 .auth-carte cap-widget{max-width:none;margin-top:0}
-.cap-info{margin-top:calc(var(--e1) * -1);color:var(--encre-3);font-size:.875rem;line-height:1.4}
-.cap-info summary{display:flex;align-items:center;gap:.5rem;min-height:2.25rem;cursor:pointer;list-style:none}
-.cap-info summary::-webkit-details-marker{display:none}
-.cap-q{display:inline-flex;align-items:center;justify-content:center;width:1.25rem;height:1.25rem;border:1.5px solid var(--encre-3);border-radius:50%;font-size:.75rem;font-weight:700;color:var(--encre-2)}
-.cap-info summary:hover .cap-q,.cap-info[open] .cap-q{border-color:var(--accent);background:var(--accent);color:var(--accent-texte)}
-.cap-info summary:focus-visible{outline:3px solid var(--focus);outline-offset:2px;border-radius:.25rem}
-.cap-info p{margin:0 0 var(--e1);padding:var(--e2);background:var(--papier);border:1px solid var(--regle);border-radius:.5rem;color:var(--encre-2)}
+.cap-boite{position:relative}
+.cap-badge{position:absolute;top:.5rem;right:.5rem;z-index:3;display:flex;align-items:center;gap:.375rem;font-size:.75rem;line-height:1;color:var(--encre-2)}
+.cap-q{display:inline-flex;align-items:center;justify-content:center;width:1.25rem;height:1.25rem;border:1.5px solid var(--encre-3);border-radius:50%;background:var(--papier);font-size:.75rem;font-weight:700;color:var(--encre-2);cursor:help}
+.cap-q:hover,.cap-q:focus{border-color:var(--accent);background:var(--accent);color:var(--accent-texte)}
+.cap-q:focus{outline:3px solid var(--focus);outline-offset:2px}
+.cap-tip{position:absolute;right:0;bottom:calc(100% + .625rem);width:17rem;max-width:calc(100vw - 3.5rem);padding:.625rem .875rem;background:var(--encre);color:var(--papier);border-radius:.5rem;font-size:.875rem;line-height:1.4;font-weight:400;visibility:hidden;opacity:0;transition:opacity .15s ease}
+.cap-q:hover + .cap-tip,.cap-q:focus + .cap-tip{visibility:visible;opacity:1}
 .auth-carte .actions{margin-top:var(--e1);gap:var(--e1)}
 .auth-carte .bouton{width:100%;min-height:3rem}
 .auth-carte .alerte{margin-bottom:var(--e3);border-radius:0 .5rem .5rem 0}

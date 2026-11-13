@@ -1,3 +1,4 @@
+mod article;
 mod auth;
 mod captcha;
 mod config;

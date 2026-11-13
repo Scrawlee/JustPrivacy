@@ -21,6 +21,18 @@ articles (`/git/articles.git`). PostgreSQL tourne à côté, dans le même `dock
 - Un push sur `main` reconstruit le site automatiquement (état : `GET /api/site`). Si un article est invalide,
   la construction échoue et l'ancienne version reste en ligne.
 
+## Éditeur web (`/editeur`)
+
+Page réservée aux comptes connectés, qui lit et écrit dans le même dépôt git (`/api/articles`, `/api/proposals`) :
+
+- **Éditeur / administrateur** : « Publier » commit directement sur `main` (détection de conflit sur la version ouverte,
+  reconstruction du site, statut affiché). Peut aussi supprimer un article, consulter l'historique et recharger une ancienne
+  version, publier ou rejeter les propositions des autres comptes (auteur du commit = le proposant, validateur = l'éditeur).
+- **Compte simple** : « Proposer » commit sur `users/<nom>/<slug>` (30 propositions ouvertes au plus), à relire par un éditeur ;
+  c'est la même branche que celle qu'on obtient avec `git push origin HEAD:users/<nom>/<slug>`.
+- Les articles sont validés à l'enregistrement (en-tête, langues, `slug`, liens `https`/`mailto`/internes) : pas de HTML brut
+  (`<…>` refusé), et `build.py` échappe de toute façon le texte. Les écritures sont limitées à 120 par heure et par compte.
+
 ## Sauvegardes
 
 Volumes à sauvegarder : `db-data` (comptes) et `app-data` (dépôt git, `app.key` qui chiffre les secrets OTP

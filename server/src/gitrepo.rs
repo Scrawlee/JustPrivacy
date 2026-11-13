@@ -1,5 +1,6 @@
 //! Dépôt git des articles (bare, géré par libgit2) : lecture, historique, écriture, export.
-use git2::{ErrorCode, ObjectType, Oid, Repository, RepositoryInitOptions, Signature, Sort, Tree};
+use crate::article;
+use git2::{Commit, ErrorCode, ObjectType, Oid, Repository, RepositoryInitOptions, Signature, Sort, Tree};
 use serde::Serialize;
 use std::{fs, path::{Path, PathBuf}, sync::Mutex};
 
@@ -32,6 +33,33 @@ pub struct Revision {
     pub time: i64,
     pub message: String,
 }
+
+/// Article de la branche principale, avec les champs utiles à l'éditeur.
+#[derive(Serialize)]
+pub struct ArticleInfo {
+    pub slug: String,
+    pub version: String,
+    pub order: u32,
+    pub lang: String,
+    pub title_fr: String,
+    pub title_en: String,
+}
+
+/// Proposition : version d'un article poussée sur `users/<nom>/<slug>`, en attente de relecture.
+#[derive(Serialize)]
+pub struct Proposal {
+    pub user: String,
+    pub slug: String,
+    pub commit: String,
+    pub time: i64,
+    pub message: String,
+    pub title: String,
+    /// L'article n'existe pas encore sur la branche principale.
+    pub is_new: bool,
+}
+
+/// Nombre maximal de propositions ouvertes par compte.
+pub const MAX_PROPOSALS_PER_USER: usize = 30;
 
 pub struct GitStore {
     path: PathBuf,
@@ -109,18 +137,27 @@ impl GitStore {
         }
     }
 
-    /// Liste (slug, identifiant du blob) des articles de la branche principale.
-    pub fn list_articles(&self) -> GitResult<Vec<(String, String)>> {
+    /// Articles de la branche principale, triés par ordre puis par nom.
+    pub fn list_articles(&self) -> GitResult<Vec<ArticleInfo>> {
         let repo = self.repo()?;
         let Some(tree) = self.articles_tree(&repo, self.head_oid()?)? else { return Ok(vec![]) };
-        Ok(tree
-            .iter()
-            .filter(|e| e.kind() == Some(ObjectType::Blob))
-            .filter_map(|e| {
-                let name = e.name()?;
-                Some((name.strip_suffix(".md")?.to_string(), e.id().to_string()))
-            })
-            .collect())
+        let mut out = vec![];
+        for e in tree.iter().filter(|e| e.kind() == Some(ObjectType::Blob)) {
+            let Some(slug) = e.name().and_then(|n| n.strip_suffix(".md")) else { continue };
+            let blob = repo.find_blob(e.id())?;
+            let text = String::from_utf8_lossy(blob.content()).into_owned();
+            let meta = article::parse(&text).map(|(m, _)| m).unwrap_or_default();
+            out.push(ArticleInfo {
+                slug: slug.to_string(),
+                version: e.id().to_string(),
+                order: meta.get("order").and_then(|o| o.parse().ok()).unwrap_or(999),
+                lang: article::lang_of(&meta).to_string(),
+                title_fr: meta.get("title_fr").cloned().unwrap_or_default(),
+                title_en: meta.get("title_en").cloned().unwrap_or_default(),
+            });
+        }
+        out.sort_by(|a, b| a.order.cmp(&b.order).then_with(|| a.slug.cmp(&b.slug)));
+        Ok(out)
     }
 
     fn blob_at(&self, repo: &Repository, commit: Oid, slug: &str) -> GitResult<Option<Oid>> {
@@ -169,25 +206,175 @@ impl GitStore {
         Ok(out)
     }
 
-    /// Crée ou modifie un article. `base_blob` est la version que l'auteur a lue (None pour une création).
-    pub fn write_article(&self, slug: &str, content: &str, base_blob: Option<&str>, author: &str, message: &str) -> GitResult<String> {
+    /// Valide un article puis l'enregistre sous forme de blob.
+    fn checked_blob(&self, repo: &Repository, slug: &str, content: &str) -> GitResult<Oid> {
         if !valid_slug(slug) { return Err(GitError::Invalid("invalid_slug")); }
         if content.len() > MAX_ARTICLE_BYTES { return Err(GitError::Invalid("too_large")); }
-        if !content.starts_with("---") { return Err(GitError::Invalid("missing_front_matter")); }
+        article::validate(slug, content).map_err(GitError::Invalid)?;
+        Ok(repo.blob(content.as_bytes())?)
+    }
+
+    /// Crée un commit qui ajoute, modifie (`blob`) ou supprime (`None`) l'article, sur `refname`.
+    #[allow(clippy::too_many_arguments)]
+    fn commit_article(repo: &Repository, parent: &Commit, refname: &str, slug: &str, blob: Option<Oid>,
+                      author: &Signature, committer: &Signature, message: &str) -> GitResult<Oid> {
+        let path = [ARTICLES_DIR[0], ARTICLES_DIR[1], &format!("{slug}.md")];
+        let base = parent.tree()?;
+        let new_tree = match blob {
+            Some(b) => update_tree(repo, Some(&base), &path, b)?,
+            None => remove_from_tree(repo, &base, &path)?,
+        };
+        let tree = repo.find_tree(new_tree)?;
+        if tree.id() == parent.tree_id() { return Ok(parent.id()); }
+        Ok(repo.commit(Some(refname), author, committer, message, &tree, &[parent])?)
+    }
+
+    fn user_sig(user: &str) -> GitResult<Signature<'static>> {
+        Ok(Signature::now(user, &format!("{user}@users.noreply.justprivacy.invalid"))?)
+    }
+
+    fn clean_message(message: &str, default: String) -> String {
+        if message.trim().is_empty() { default } else { message.trim().chars().take(500).collect() }
+    }
+
+    /// Crée ou modifie un article sur la branche principale. `base_blob` est la version que l'auteur
+    /// a lue (None pour une création). Renvoie (commit, version du blob écrit).
+    pub fn write_article(&self, slug: &str, content: &str, base_blob: Option<&str>, author: &str, message: &str) -> GitResult<(String, String)> {
         let _guard = self.write_lock.lock().unwrap();
         let repo = self.repo()?;
+        let blob = self.checked_blob(&repo, slug, content)?;
         let head = repo.find_commit(self.head_oid()?)?;
         let current = self.blob_at(&repo, head.id(), slug)?.map(|o| o.to_string());
         if current.as_deref() != base_blob { return Err(GitError::Conflict); }
-        let blob = repo.blob(content.as_bytes())?;
-        let path = [ARTICLES_DIR[0], ARTICLES_DIR[1], &format!("{slug}.md")];
-        let new_tree = update_tree(&repo, Some(&head.tree()?), &path, blob)?;
-        let tree = repo.find_tree(new_tree)?;
-        if tree.id() == head.tree_id() { return Ok(head.id().to_string()); }
-        let sig = Signature::now(author, &format!("{author}@users.noreply.justprivacy.invalid"))?;
-        let message = if message.trim().is_empty() { format!("Modification de {slug}") } else { message.trim().chars().take(500).collect() };
-        let oid = repo.commit(Some(MAIN_REF), &sig, &sig, &message, &tree, &[&head])?;
+        let sig = Self::user_sig(author)?;
+        let msg = Self::clean_message(message, format!("Modification de {slug}"));
+        let oid = Self::commit_article(&repo, &head, MAIN_REF, slug, Some(blob), &sig, &sig, &msg)?;
+        if oid == head.id() { return Err(GitError::Invalid("no_changes")); }
+        Ok((oid.to_string(), blob.to_string()))
+    }
+
+    /// Supprime un article de la branche principale (`base_blob` : version que l'éditeur a vue).
+    pub fn delete_article(&self, slug: &str, base_blob: &str, author: &str) -> GitResult<String> {
+        if !valid_slug(slug) { return Err(GitError::NotFound); }
+        let _guard = self.write_lock.lock().unwrap();
+        let repo = self.repo()?;
+        let head = repo.find_commit(self.head_oid()?)?;
+        let current = self.blob_at(&repo, head.id(), slug)?.ok_or(GitError::NotFound)?;
+        if current.to_string() != base_blob { return Err(GitError::Conflict); }
+        let sig = Self::user_sig(author)?;
+        let oid = Self::commit_article(&repo, &head, MAIN_REF, slug, None, &sig, &sig, &format!("Suppression de {slug}"))?;
         Ok(oid.to_string())
+    }
+
+    // ------------------------------------------------------------------ propositions
+
+    pub fn proposal_ref(user: &str, slug: &str) -> GitResult<String> {
+        if !valid_slug(slug) { return Err(GitError::Invalid("invalid_slug")); }
+        let user_ok = !user.is_empty() && user.len() <= 32
+            && user.bytes().next().is_some_and(|b| b.is_ascii_lowercase() || b.is_ascii_digit())
+            && user.bytes().all(|b| b.is_ascii_lowercase() || b.is_ascii_digit() || matches!(b, b'.' | b'_' | b'-'));
+        let name = format!("refs/heads/users/{user}/{slug}");
+        if !user_ok || !git2::Reference::is_valid_name(&name) { return Err(GitError::NotFound); }
+        Ok(name)
+    }
+
+    /// Propositions en attente (celles d'un seul compte, ou de tous) : versions qui diffèrent de `main`.
+    pub fn list_proposals(&self, only_user: Option<&str>) -> GitResult<Vec<Proposal>> {
+        let repo = self.repo()?;
+        let main = self.head_oid()?;
+        let mut out = vec![];
+        for r in repo.references_glob("refs/heads/users/*/*")?.flatten() {
+            let Some(rest) = r.name().and_then(|n| n.strip_prefix("refs/heads/users/")) else { continue };
+            let Some((user, slug)) = rest.split_once('/') else { continue };
+            if only_user.is_some_and(|u| u != user) || Self::proposal_ref(user, slug).is_err() { continue; }
+            let Some(tip) = r.target() else { continue };
+            let Some(here) = self.blob_at(&repo, tip, slug)? else { continue };
+            let in_main = self.blob_at(&repo, main, slug)?;
+            if in_main == Some(here) { continue; }
+            let commit = repo.find_commit(tip)?;
+            let text = String::from_utf8_lossy(repo.find_blob(here)?.content()).into_owned();
+            let meta = article::parse(&text).map(|(m, _)| m).unwrap_or_default();
+            let title = meta.get("title_fr").or_else(|| meta.get("title_en")).cloned().unwrap_or_default();
+            out.push(Proposal {
+                user: user.to_string(),
+                slug: slug.to_string(),
+                commit: tip.to_string(),
+                time: commit.time().seconds(),
+                message: commit.message().unwrap_or("").lines().next().unwrap_or("").to_string(),
+                title,
+                is_new: in_main.is_none(),
+            });
+        }
+        out.sort_by_key(|p| std::cmp::Reverse(p.time));
+        Ok(out)
+    }
+
+    /// Contenu d'une proposition : (texte, version, version actuelle sur `main`).
+    pub fn read_proposal(&self, user: &str, slug: &str) -> GitResult<(String, String, Option<String>)> {
+        let name = Self::proposal_ref(user, slug)?;
+        let repo = self.repo()?;
+        let tip = repo.find_reference(&name).map_err(|_| GitError::NotFound)?.peel_to_commit()?;
+        let blob = self.blob_at(&repo, tip.id(), slug)?.ok_or(GitError::NotFound)?;
+        let content = String::from_utf8_lossy(repo.find_blob(blob)?.content()).into_owned();
+        let main = self.blob_at(&repo, self.head_oid()?, slug)?.map(|o| o.to_string());
+        Ok((content, blob.to_string(), main))
+    }
+
+    /// Enregistre une version sur la branche `users/<nom>/<slug>` (créée au besoin à partir de `main`).
+    pub fn write_proposal(&self, user: &str, slug: &str, content: &str, base_blob: Option<&str>, message: &str) -> GitResult<(String, String)> {
+        let name = Self::proposal_ref(user, slug)?;
+        let _guard = self.write_lock.lock().unwrap();
+        let repo = self.repo()?;
+        let blob = self.checked_blob(&repo, slug, content)?;
+        let existing = match repo.find_reference(&name) {
+            Ok(r) => Some(r.peel_to_commit()?),
+            Err(e) if e.code() == ErrorCode::NotFound => None,
+            Err(e) => return Err(e.into()),
+        };
+        let parent = match existing {
+            Some(c) => c,
+            None => {
+                if self.list_proposals(Some(user))?.len() >= MAX_PROPOSALS_PER_USER { return Err(GitError::Invalid("too_many_proposals")); }
+                repo.find_commit(self.head_oid()?)?
+            }
+        };
+        let current = self.blob_at(&repo, parent.id(), slug)?.map(|o| o.to_string());
+        if current.as_deref() != base_blob { return Err(GitError::Conflict); }
+        let sig = Self::user_sig(user)?;
+        let msg = Self::clean_message(message, format!("Proposition pour {slug}"));
+        let oid = Self::commit_article(&repo, &parent, &name, slug, Some(blob), &sig, &sig, &msg)?;
+        // Rien de nouveau : pas de branche vide, pas de commit.
+        if oid == parent.id() { return Err(GitError::Invalid("no_changes")); }
+        Ok((oid.to_string(), blob.to_string()))
+    }
+
+    /// Publie une proposition sur `main` (auteur : le proposant ; validateur : `editor`) puis supprime la branche.
+    pub fn publish_proposal(&self, user: &str, slug: &str, main_base: Option<&str>, editor: &str) -> GitResult<String> {
+        let name = Self::proposal_ref(user, slug)?;
+        let _guard = self.write_lock.lock().unwrap();
+        let repo = self.repo()?;
+        let tip = repo.find_reference(&name).map_err(|_| GitError::NotFound)?.peel_to_commit()?;
+        let blob = self.blob_at(&repo, tip.id(), slug)?.ok_or(GitError::NotFound)?;
+        let content = String::from_utf8_lossy(repo.find_blob(blob)?.content()).into_owned();
+        article::validate(slug, &content).map_err(GitError::Invalid)?;
+        let head = repo.find_commit(self.head_oid()?)?;
+        let current = self.blob_at(&repo, head.id(), slug)?.map(|o| o.to_string());
+        if current.as_deref() != main_base { return Err(GitError::Conflict); }
+        let author = Self::user_sig(user)?;
+        let committer = Self::user_sig(editor)?;
+        let first_line = tip.message().unwrap_or("").lines().next().unwrap_or("").trim().to_string();
+        let msg = Self::clean_message(&format!("{first_line} (proposition de {user}, publiée par {editor})"), format!("Publication de {slug}"));
+        let oid = Self::commit_article(&repo, &head, MAIN_REF, slug, Some(blob), &author, &committer, &msg)?;
+        repo.find_reference(&name)?.delete()?;
+        Ok(oid.to_string())
+    }
+
+    pub fn delete_proposal(&self, user: &str, slug: &str) -> GitResult<()> {
+        let name = Self::proposal_ref(user, slug)?;
+        let _guard = self.write_lock.lock().unwrap();
+        let repo = self.repo()?;
+        repo.find_reference(&name).map_err(|_| GitError::NotFound)?.delete()?;
+        Ok(())
     }
 
     /// Écrit les articles de la branche principale dans `dest` (pour la construction du site).
@@ -220,4 +407,107 @@ fn update_tree(repo: &Repository, base: Option<&Tree>, comps: &[&str], blob: Oid
         tb.insert(comps[0], id, 0o040000)?;
     }
     Ok(tb.write()?)
+}
+
+fn remove_from_tree(repo: &Repository, base: &Tree, comps: &[&str]) -> GitResult<Oid> {
+    let mut tb = repo.treebuilder(Some(base))?;
+    if comps.len() == 1 {
+        tb.remove(comps[0]).map_err(|_| GitError::NotFound)?;
+    } else {
+        let sub = base
+            .get_name(comps[0])
+            .and_then(|e| e.to_object(repo).ok())
+            .and_then(|o| o.into_tree().ok())
+            .ok_or(GitError::NotFound)?;
+        let id = remove_from_tree(repo, &sub, &comps[1..])?;
+        tb.insert(comps[0], id, 0o040000)?;
+    }
+    Ok(tb.write()?)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn art(slug: &str, title: &str) -> String {
+        format!("---\norder: 1\nslug: {slug}\nlang: fr\ntitle_fr: {title}\n---\n\nContenu.\n")
+    }
+
+    fn store() -> (GitStore, PathBuf) {
+        let dir = std::env::temp_dir().join(format!("jp-git-test-{}-{}", std::process::id(), rand_suffix()));
+        let seed = dir.join("seed");
+        fs::create_dir_all(&seed).unwrap();
+        fs::write(seed.join("demo.md"), art("demo", "Démo")).unwrap();
+        (GitStore::open_or_init(&dir, &seed).unwrap(), dir)
+    }
+
+    fn rand_suffix() -> u128 {
+        std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_nanos()
+    }
+
+    #[test]
+    fn lists_reads_writes_and_deletes() {
+        let (git, dir) = store();
+        let list = git.list_articles().unwrap();
+        assert_eq!(list.len(), 1);
+        assert_eq!((list[0].slug.as_str(), list[0].title_fr.as_str(), list[0].order), ("demo", "Démo", 1));
+        let (text, v1) = git.read_article("demo", None).unwrap();
+        assert!(text.contains("Contenu."));
+        // Écriture avec la bonne version de base, puis conflit avec l'ancienne.
+        let (_, v2) = git.write_article("demo", &art("demo", "Démo 2"), Some(&v1), "alice", "titre").unwrap();
+        assert_ne!(v1, v2);
+        assert!(matches!(git.write_article("demo", &art("demo", "Démo 3"), Some(&v1), "alice", ""), Err(GitError::Conflict)));
+        // Création : la base doit être absente.
+        git.write_article("neuf", &art("neuf", "Neuf"), None, "alice", "").unwrap();
+        assert!(matches!(git.write_article("neuf", &art("neuf", "Neuf 2"), None, "alice", ""), Err(GitError::Conflict)));
+        // Réécrire la même version ne crée rien.
+        let (_, vnow) = git.read_article("demo", None).unwrap();
+        let (same, _) = git.read_article("demo", None).unwrap();
+        assert!(matches!(git.write_article("demo", &same, Some(&vnow), "alice", ""), Err(GitError::Invalid("no_changes"))));
+        assert!(matches!(git.write_proposal("bob", "demo", &same, Some(&vnow), ""), Err(GitError::Invalid("no_changes"))));
+        assert!(git.list_proposals(Some("bob")).unwrap().is_empty());
+        // Un article invalide est refusé.
+        assert!(matches!(git.write_article("neuf", "n'importe quoi", Some("x"), "alice", ""), Err(GitError::Invalid(_))));
+        // Suppression.
+        let (_, vn) = git.read_article("neuf", None).unwrap();
+        assert!(matches!(git.delete_article("neuf", "mauvaise-version", "alice"), Err(GitError::Conflict)));
+        git.delete_article("neuf", &vn, "alice").unwrap();
+        assert!(matches!(git.read_article("neuf", None), Err(GitError::NotFound)));
+        assert_eq!(git.history("demo", 10).unwrap().len(), 2);
+        let _ = fs::remove_dir_all(dir);
+    }
+
+    #[test]
+    fn proposals_publish_and_cleanup() {
+        let (git, dir) = store();
+        let (_, main_v) = git.read_article("demo", None).unwrap();
+        // Première version d'une proposition : la base est la version de main.
+        let (c1, p1) = git.write_proposal("bob", "demo", &art("demo", "Proposé"), Some(&main_v), "ma proposition").unwrap();
+        assert!(!c1.is_empty());
+        // Mauvaise base → conflit ; bonne base (la version de la branche) → ok.
+        assert!(matches!(git.write_proposal("bob", "demo", &art("demo", "Proposé 2"), Some(&main_v), ""), Err(GitError::Conflict)));
+        let (_, p2) = git.write_proposal("bob", "demo", &art("demo", "Proposé 2"), Some(&p1), "").unwrap();
+        // Une nouvelle proposition (article inexistant) part de rien.
+        git.write_proposal("bob", "idee", &art("idee", "Idée"), None, "").unwrap();
+        let mine = git.list_proposals(Some("bob")).unwrap();
+        assert_eq!(mine.len(), 2);
+        assert!(mine.iter().any(|p| p.slug == "idee" && p.is_new));
+        assert!(git.list_proposals(Some("carole")).unwrap().is_empty());
+        let (text, version, in_main) = git.read_proposal("bob", "demo").unwrap();
+        assert!(text.contains("Proposé 2"));
+        assert_eq!((version.as_str(), in_main.as_deref()), (p2.as_str(), Some(main_v.as_str())));
+        // Publication : la base de main doit être celle qui a été relue.
+        assert!(matches!(git.publish_proposal("bob", "demo", Some("autre"), "ed"), Err(GitError::Conflict)));
+        git.publish_proposal("bob", "demo", Some(&main_v), "ed").unwrap();
+        let (published, _) = git.read_article("demo", None).unwrap();
+        assert!(published.contains("Proposé 2"));
+        assert_eq!(git.list_proposals(Some("bob")).unwrap().len(), 1, "la branche publiée disparaît");
+        assert_eq!(git.history("demo", 5).unwrap()[0].author, "bob");
+        // Suppression d'une proposition, et noms de branches dangereux.
+        git.delete_proposal("bob", "idee").unwrap();
+        assert!(matches!(git.delete_proposal("bob", "idee"), Err(GitError::NotFound)));
+        assert!(GitStore::proposal_ref("../x", "demo").is_err());
+        assert!(GitStore::proposal_ref("bob", "a/b").is_err());
+        let _ = fs::remove_dir_all(dir);
+    }
 }

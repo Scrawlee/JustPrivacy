@@ -15,6 +15,7 @@ fallback value injected at build time, for browsers without custom properties.
 
 import base64
 import glob
+import html
 import os
 import re
 import shutil
@@ -80,8 +81,26 @@ def slugify(text):
     return t.strip('-')
 
 
+def esc_attr(v):
+    """Échappe <, > et & ainsi que les guillemets doubles (valeurs utilisées dans des attributs) ; l'apostrophe reste telle quelle."""
+    return v.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;').replace('"', '&quot;')
+
+
+SAFE_URL = re.compile(r'^(https?://|mailto:|/|#)', re.IGNORECASE)
+
+
+def safe_href(url):
+    """Seuls http(s), mailto, les chemins du site et les ancres sont acceptés ; le reste devient « # »."""
+    url = url.strip()
+    if not SAFE_URL.match(url) or url.startswith('//'):
+        return '#'
+    return url.replace('"', '&quot;')
+
+
 def inline_md(text):
-    text = re.sub(r'\[([^\]]+)\]\(([^)]+)\)', r'<a href="\2">\1</a>', text)
+    # Le texte des articles n'est jamais du HTML : tout est échappé avant la mise en forme.
+    text = html.escape(text, quote=False)
+    text = re.sub(r'\[([^\]]+)\]\(([^)]+)\)', lambda m: '<a href="%s">%s</a>' % (safe_href(m.group(2)), m.group(1)), text)
     text = re.sub(r'\*\*([^*]+)\*\*', r'<strong>\1</strong>', text)
     text = re.sub(r'(?<!\*)\*([^*]+)\*(?!\*)', r'<em>\1</em>', text)
     return text
@@ -149,7 +168,7 @@ def extract_toc(md_text):
     headings = re.findall(r'^## (.+)$', md_text, re.MULTILINE)
     if not headings:
         return ''
-    return ''.join('<li><a href="#%s">%s</a></li>' % (slugify(h), h) for h in headings)
+    return ''.join('<li><a href="#%s">%s</a></li>' % (slugify(h), html.escape(h, quote=False)) for h in headings)
 
 
 # ---------------------------------------------------------------------------
@@ -165,6 +184,11 @@ def parse_article(path):
     else:
         meta = {}
         body = content
+
+    # Les champs texte sont insérés tels quels dans les pages : on les échappe ici.
+    for k in list(meta):
+        if k not in ('slug', 'order', 'lang', 'see_also'):
+            meta[k] = esc_attr(meta[k])
 
     lang = meta.get('lang', 'both')
     fr_md = ''
@@ -299,7 +323,7 @@ def validate():
             errors.append('Missing font: fonts/%s' % fname)
     for tname in ('style.css', 'reglages.js', 'home.html', 'articles.html',
                   'article.html', 'benchmark.html', 'about.html', 'legal.html', 'privacy.html',
-                  'connexion.html', 'inscription.html', 'compte.html', 'compte.js'):
+                  'connexion.html', 'inscription.html', 'compte.html', 'compte.js', 'editeur.html', 'editeur.js'):
         if not os.path.exists(os.path.join(TEMPLATES_DIR, tname)):
             errors.append('Missing template: templates/%s' % tname)
     if not os.path.isdir(CONTENT_DIR):
@@ -583,6 +607,7 @@ def build():
         else:
             a_vars['TITLE'] = '%s – JustPrivacy' % a.get('title_en', '')
             a_vars['META_DESCRIPTION'] = a.get('description_en', '')
+        a_vars['ARTICLE_EDIT'] = ('<span aria-hidden="true">·</span> <a href="/editeur#%s"><span class="fr" lang="fr">Modifier</span><span class="en" lang="en">Edit</span></a>' % a['slug'])
         a_vars['ARTICLE_LANG'] = ' lang="%s"' % lang if lang in ('fr', 'en') else ''
         a_vars['ARTICLE_TITLE'] = build_article_title(a)
         a_vars['ARTICLE_BODY'] = build_article_body(a, articles_map)
@@ -628,6 +653,14 @@ def build():
         v['JS_COMPTE'] = account_js
         v['NAV_COMPTE'] = nav
         write_file(os.path.join(DIST_DIR, url, 'index.html'), render_page(tpl, v))
+
+    # Éditeur d'articles (JavaScript requis, comme les pages de compte)
+    ev = dict(base_vars)
+    ev['TITLE'] = 'Éditeur d\'articles – Article editor – JustPrivacy'
+    ev['META_DESCRIPTION'] = 'Éditeur d\'articles JustPrivacy.'
+    ev['JS_EDITEUR'] = strip_js_comments(read_file(os.path.join(TEMPLATES_DIR, 'editeur.js')))
+    ev['NAV_COMPTE'] = ''
+    write_file(os.path.join(DIST_DIR, 'editeur', 'index.html'), render_page('editeur.html', ev))
 
     total = sum(1 for _, _, files in os.walk(DIST_DIR) for f in files if f.endswith('.html'))
     print('Build complete: %d pages in dist/' % total)

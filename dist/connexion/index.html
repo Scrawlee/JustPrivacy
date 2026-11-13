@@ -218,24 +218,55 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:
 .bouton.danger{color:#a4262c;border-color:#a4262c}
 @media (prefers-color-scheme:dark){.bouton.danger{color:#ff9a9a;border-color:#ff9a9a}}
 cap-widget{
-display:block;max-width:44rem;margin-top:.5rem;margin-top:var(--e1);
---cap-background:var(--papier-2);
+display:block;width:100%;max-width:22rem;margin-top:.5rem;margin-top:var(--e1);
+--cap-background:var(--papier);
 --cap-border-color:var(--encre-3);
---cap-border-radius:.5rem;
+--cap-border-radius:.625rem;
 --cap-widget-width:100%;
---cap-widget-height:2.75rem;
---cap-widget-padding:.875rem 1rem;
---cap-gap:1rem;
+--cap-widget-height:3rem;
+--cap-widget-padding:.5rem 1rem;
+--cap-gap:.875rem;
 --cap-color:var(--encre);
 --cap-checkbox-size:1.5rem;
---cap-checkbox-border:2px solid var(--encre);
---cap-checkbox-border-radius:.25rem;
+--cap-checkbox-border:2px solid var(--encre-2);
+--cap-checkbox-border-radius:.375rem;
 --cap-checkbox-background:var(--papier);
 --cap-checkbox-margin:2px;
 --cap-font:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
 --cap-spinner-color:var(--accent);
 --cap-spinner-background-color:var(--regle);
 --cap-spinner-thickness:4px}
+.page-auth{padding-top:2.5rem;padding-top:var(--e4);padding-bottom:6.5rem;padding-bottom:var(--e6)}
+.auth{max-width:64rem;margin:0 auto}
+.auth-intro{margin-bottom:2.5rem;margin-bottom:var(--e4)}
+.auth-titre{font-size:2rem;font-size:var(--moyen);font-weight:800;line-height:1.02;letter-spacing:-.04em}
+.auth-chapeau{margin-top:1rem;margin-top:var(--e2);color:#4a4843;color:var(--encre-2);font-size:1.25rem;line-height:1.45;max-width:26ch}
+.auth-note{margin-top:1.5rem;margin-top:var(--e3);padding:1rem 1.5rem;padding:var(--e2) var(--e3);background:#e9e6dd;background:var(--papier-2);border-left:4px solid #0c5a44;border-left:4px solid var(--accent);border-radius:0 .5rem .5rem 0;color:#4a4843;color:var(--encre-2);font-size:.975rem;line-height:1.55;max-width:34rem}
+.auth-carte{width:100%;max-width:29rem;padding:1.5rem;padding:var(--e3);background:#e9e6dd;background:var(--papier-2);border:1px solid #c8c3b6;border:1px solid var(--regle);border-radius:1rem}
+.auth-carte .formulaire{max-width:none;margin-top:0;gap:1.5rem;gap:var(--e3)}
+.auth-carte .formulaire h2{font-size:1.375rem;letter-spacing:-.02em}
+.auth-carte .champ{max-width:none;gap:.375rem}
+.auth-carte label{font-size:.95rem;font-weight:600}
+.auth-carte input{min-height:3rem;padding:.625rem 1rem;border-radius:.625rem;background:#f3f1ea;background:var(--papier)}
+.auth-carte input:hover{border-color:#4a4843;border-color:var(--encre-2)}
+.auth-carte input:focus{outline:3px solid #0c5a44;outline:3px solid var(--focus);outline-offset:1px}
+.aide{color:#67645d;color:var(--encre-3);font-size:.875rem;line-height:1.4}
+.aide-texte{color:#4a4843;color:var(--encre-2)}
+.auth-carte cap-widget{max-width:none;margin-top:0}
+.auth-carte .actions{margin-top:.5rem;margin-top:var(--e1);gap:.5rem;gap:var(--e1)}
+.auth-carte .bouton{width:100%;min-height:3rem}
+.auth-carte .alerte{margin-bottom:1.5rem;margin-bottom:var(--e3);border-radius:0 .5rem .5rem 0}
+.auth-carte #msg{border-left-color:#a4262c}
+@media (prefers-color-scheme:dark){.auth-carte #msg{border-left-color:#ff9a9a}}
+.auth-pied{margin-top:1.5rem;margin-top:var(--e3);padding-top:1.5rem;padding-top:var(--e3);border-top:1px solid #c8c3b6;border-top:1px solid var(--regle);text-align:center}
+@media (min-width:56rem){
+.auth{display:flex;align-items:flex-start;justify-content:space-between}
+.auth-intro{flex:1 1 0;min-width:0;margin-bottom:0;padding-right:4rem;padding-right:var(--e5);padding-top:1rem;padding-top:var(--e2)}
+.auth-carte{flex:0 0 29rem;padding:2.5rem;padding:var(--e4)}
+}
+@supports (width:clamp(1px,1vw,2px)){
+.auth-titre{font-size:clamp(2.5rem,1.4rem + 4.4vw,4.75rem)}
+}
 @media (min-width:48rem){.cadre{padding-left:3rem;padding-right:3rem}}
 @media (min-width:64rem){.cadre{padding-left:4rem;padding-right:4rem}}
 .theme>*+*,.entree>*+*{margin-top:.5rem}
@@ -268,10 +299,14 @@ display:block;max-width:44rem;margin-top:.5rem;margin-top:var(--e1);
 </fieldset>
 </header>
 <main id="contenu">
-<section class="page">
+<section class="page page-auth">
 <div class="cadre">
-<header><h1 class="moyen"><span class="fr" lang="fr">Connexion</span><span class="en" lang="en">Log in</span></h1></header>
-<div class="lecture corps">
+<div class="auth">
+<div class="auth-intro">
+<h1 class="auth-titre"><span class="fr" lang="fr">Connexion</span><span class="en" lang="en">Log in</span></h1>
+<p class="auth-chapeau"><span class="fr" lang="fr">Content de vous revoir. Retrouvez votre compte et vos accès git.</span><span class="en" lang="en">Welcome back. Sign in to reach your account and your git access.</span></p>
+</div>
+<div class="auth-carte">
 <div id="prerequis" class="alerte" role="alert">
 <p><strong><span class="fr" lang="fr">JavaScript est requis sur cette page.</span><span class="en" lang="en">JavaScript is required on this page.</span></strong></p>
 <p><span class="fr" lang="fr">Le reste du site fonctionne sans JavaScript, mais cette page en a besoin pour la vérification anti-robot (Cap) et la double authentification. Activez JavaScript temporairement pour cette page, ou mettez à jour votre navigateur si vous utilisez une version ancienne, puis rechargez-la.</span><span class="en" lang="en">The rest of the site works without JavaScript, but this page needs it for the anti-bot check (Cap) and two-factor authentication. Please enable JavaScript for this page only, or update your browser if it is an old version, then reload.</span></p>
@@ -279,15 +314,15 @@ display:block;max-width:44rem;margin-top:.5rem;margin-top:var(--e1);
 <div id="app" hidden>
 <p id="msg" class="alerte" role="alert" hidden></p>
 <form id="f-login" class="formulaire" novalidate>
-<div class="champ"><label for="username"><span class="fr" lang="fr">Nom d'utilisateur</span><span class="en" lang="en">Username</span></label><input id="username" name="username" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" ></div>
-<div class="champ"><label for="password"><span class="fr" lang="fr">Mot de passe</span><span class="en" lang="en">Password</span></label><input id="password" name="password" type="password" autocomplete="current-password" autocapitalize="none" spellcheck="false" ></div>
+<div class="champ"><label for="username"><span class="fr" lang="fr">Nom d'utilisateur</span><span class="en" lang="en">Username</span></label><input id="username" name="username" type="text" autocomplete="username" autocapitalize="none" spellcheck="false"></div>
+<div class="champ"><label for="password"><span class="fr" lang="fr">Mot de passe</span><span class="en" lang="en">Password</span></label><input id="password" name="password" type="password" autocomplete="current-password" autocapitalize="none" spellcheck="false"></div>
 <cap-widget id="cap" data-cap-api-endpoint="https://check.scrawlee.com/5c7f97279d/"></cap-widget>
 <div class="actions"><button class="bouton" type="submit"><span class="fr" lang="fr">Se connecter</span><span class="en" lang="en">Log in</span></button></div>
 </form>
 <form id="f-mfa" class="formulaire" novalidate hidden>
 <h2><span class="fr" lang="fr">Seconde étape</span><span class="en" lang="en">Second step</span></h2>
 <div id="mfa-totp">
-<p><span class="fr" lang="fr">Saisissez le code à 6 chiffres de votre application, ou l'un de vos codes de secours.</span><span class="en" lang="en">Enter the 6-digit code from your app, or one of your recovery codes.</span></p>
+<p class="aide-texte"><span class="fr" lang="fr">Saisissez le code à 6 chiffres de votre application, ou l'un de vos codes de secours.</span><span class="en" lang="en">Enter the 6-digit code from your app, or one of your recovery codes.</span></p>
 <div class="champ"><label for="code"><span class="fr" lang="fr">Code OTP ou code de secours</span><span class="en" lang="en">OTP or recovery code</span></label><input id="code" name="code" type="text" autocomplete="one-time-code" autocapitalize="none" spellcheck="false" inputmode="text"></div>
 <div class="actions"><button class="bouton" type="submit"><span class="fr" lang="fr">Valider</span><span class="en" lang="en">Confirm</span></button></div>
 </div>
@@ -295,7 +330,8 @@ display:block;max-width:44rem;margin-top:.5rem;margin-top:var(--e1);
 <button class="bouton secondaire" type="button" id="b-passkey"><span class="fr" lang="fr">Utiliser une passkey</span><span class="en" lang="en">Use a passkey</span></button>
 </div>
 </form>
-<p class="meta"><span class="fr" lang="fr">Pas encore de compte ?</span><span class="en" lang="en">No account yet?</span> <a href="/inscription"><span class="fr" lang="fr">Créer un compte</span><span class="en" lang="en">Create an account</span></a></p>
+<p class="auth-pied meta"><span class="fr" lang="fr">Pas encore de compte ?</span><span class="en" lang="en">No account yet?</span> <a href="/inscription"><span class="fr" lang="fr">Créer un compte</span><span class="en" lang="en">Create an account</span></a></p>
+</div>
 </div>
 </div>
 </div>

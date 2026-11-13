@@ -224,25 +224,59 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:
 @media (prefers-color-scheme:dark){.bouton.danger{color:#ff9a9a;border-color:#ff9a9a}}
 
 /* ---- Widget Cap (CAPTCHA) : aux couleurs du site, thème clair/sombre inclus ---- */
+/* Largeur naturelle du widget (jamais étiré sur toute la page) ; dans la carte de connexion il suit la largeur des champs. */
 cap-widget{
-  display:block;max-width:44rem;margin-top:var(--e1);
-  --cap-background:var(--papier-2);
+  display:block;width:100%;max-width:22rem;margin-top:var(--e1);
+  --cap-background:var(--papier);
   --cap-border-color:var(--encre-3);
-  --cap-border-radius:.5rem;
+  --cap-border-radius:.625rem;
   --cap-widget-width:100%;
-  --cap-widget-height:2.75rem;
-  --cap-widget-padding:.875rem 1rem;
-  --cap-gap:1rem;
+  --cap-widget-height:3rem;
+  --cap-widget-padding:.5rem 1rem;
+  --cap-gap:.875rem;
   --cap-color:var(--encre);
   --cap-checkbox-size:1.5rem;
-  --cap-checkbox-border:2px solid var(--encre);
-  --cap-checkbox-border-radius:.25rem;
+  --cap-checkbox-border:2px solid var(--encre-2);
+  --cap-checkbox-border-radius:.375rem;
   --cap-checkbox-background:var(--papier);
   --cap-checkbox-margin:2px;
   --cap-font:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
   --cap-spinner-color:var(--accent);
   --cap-spinner-background-color:var(--regle);
   --cap-spinner-thickness:4px;
+}
+
+/* ---- Pages de connexion et d'inscription ---- */
+.page-auth{padding-top:var(--e4);padding-bottom:var(--e6)}
+.auth{max-width:64rem;margin:0 auto}
+.auth-intro{margin-bottom:var(--e4)}
+.auth-titre{font-size:var(--moyen);font-weight:800;line-height:1.02;letter-spacing:-.04em}
+.auth-chapeau{margin-top:var(--e2);color:var(--encre-2);font-size:1.25rem;line-height:1.45;max-width:26ch}
+.auth-note{margin-top:var(--e3);padding:var(--e2) var(--e3);background:var(--papier-2);border-left:4px solid var(--accent);border-radius:0 .5rem .5rem 0;color:var(--encre-2);font-size:.975rem;line-height:1.55;max-width:34rem}
+.auth-carte{width:100%;max-width:29rem;padding:var(--e3);background:var(--papier-2);border:1px solid var(--regle);border-radius:1rem}
+.auth-carte .formulaire{max-width:none;margin-top:0;gap:var(--e3)}
+.auth-carte .formulaire h2{font-size:1.375rem;letter-spacing:-.02em}
+.auth-carte .champ{max-width:none;gap:.375rem}
+.auth-carte label{font-size:.95rem;font-weight:600}
+.auth-carte input{min-height:3rem;padding:.625rem 1rem;border-radius:.625rem;background:var(--papier)}
+.auth-carte input:hover{border-color:var(--encre-2)}
+.auth-carte input:focus{outline:3px solid var(--focus);outline-offset:1px}
+.aide{color:var(--encre-3);font-size:.875rem;line-height:1.4}
+.aide-texte{color:var(--encre-2)}
+.auth-carte cap-widget{max-width:none;margin-top:0}
+.auth-carte .actions{margin-top:var(--e1);gap:var(--e1)}
+.auth-carte .bouton{width:100%;min-height:3rem}
+.auth-carte .alerte{margin-bottom:var(--e3);border-radius:0 .5rem .5rem 0}
+.auth-carte #msg{border-left-color:#a4262c}
+@media (prefers-color-scheme:dark){.auth-carte #msg{border-left-color:#ff9a9a}}
+.auth-pied{margin-top:var(--e3);padding-top:var(--e3);border-top:1px solid var(--regle);text-align:center}
+@media (min-width:56rem){
+  .auth{display:flex;align-items:flex-start;justify-content:space-between}
+  .auth-intro{flex:1 1 0;min-width:0;margin-bottom:0;padding-right:var(--e5);padding-top:var(--e2)}
+  .auth-carte{flex:0 0 29rem;padding:var(--e4)}
+}
+@supports (width:clamp(1px,1vw,2px)){
+  .auth-titre{font-size:clamp(2.5rem,1.4rem + 4.4vw,4.75rem)}
 }
 
 /* ---- Compatibilité anciens navigateurs ---- */

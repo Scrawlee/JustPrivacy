@@ -328,7 +328,7 @@
     });
     $('m-slug').readOnly = c.kind !== 'new';
     applyLang();
-    $('ed-texte').value = c.bodies[S.tab] || '';
+    $('ed-texte').value = c.bodies[S.tab] || ''; grow();
     renderPreview();
   }
   function readForm() {
@@ -431,10 +431,11 @@
     S.tab = (S.cur.meta.lang === 'en') ? 'en' : 'fr';
     fillForm();
     S.dirty = false;
-    setInfos(S.cur.kind === 'new' || w.innerWidth >= 1280);
+    setInfos(S.cur.kind === 'new');
     setNav(false);
     renderState();
     renderLists();
+    grow();
     try { w.history.replaceState(null, '', S.cur.kind === 'new' ? '#' : '#' + S.cur.slug); } catch (e) {}
     if (w.innerWidth < 1024 && $('ed-zone').scrollIntoView) { $('ed-zone').scrollIntoView(); }
   }
@@ -604,11 +605,6 @@
     }
   }
 
-  function fitHeight() {
-    var g = $('ed-grille'), top = g.getBoundingClientRect().top + (w.pageYOffset || 0);
-    g.style.setProperty('--ed-haut', Math.round(top) + 'px');
-  }
-
   // ---- Historique ----------------------------------------------------------------------------------------
   function when(t) {
     var dt = new Date(t * 1000);
@@ -716,8 +712,15 @@
   }
 
   // ---- Barre d'outils Markdown --------------------------------------------------------------------------------
+  // The text area grows with its content: the page scrolls, not the field.
+  function grow() {
+    var t = $('ed-texte');
+    t.style.height = 'auto';
+    if (t.scrollHeight) { t.style.height = t.scrollHeight + 2 + 'px'; }
+  }
   function onText() {
     if (!S.cur) { return; }
+    grow();
     S.cur.bodies[S.tab] = $('ed-texte').value;
     setDirty(true);
     renderPreview();
@@ -768,13 +771,14 @@
     var el = e.target, k = el && el.getAttribute && el.getAttribute('data-k');
     if (!k) { return; }
     S.cur.meta[k] = el.value;
-    if (k === 'lang') { applyLang(); $('ed-texte').value = S.cur.bodies[S.tab] || ''; }
+    if (k === 'lang') { applyLang(); $('ed-texte').value = S.cur.bodies[S.tab] || ''; grow(); }
     renderPreview();
     setDirty(true);
   });
   $('ed-recherche').placeholder = T('Rechercher…', 'Search…');
   on($('ed-recherche'), 'input', renderLists);
   on($('b-infos'), 'click', function () { setInfos($('ed-corps').getAttribute('data-infos') !== 'ouvert'); });
+  on(w, 'resize', grow);
   on($('b-nav'), 'click', toggleNav);
   on($('b-nav-vide'), 'click', toggleNav);
   on($('b-more'), 'click', function (e) {
@@ -799,7 +803,7 @@
     on(b, 'click', function () {
       S.tab = b.getAttribute('data-tab');
       each($('ed-langues').querySelectorAll('[data-tab]'), function (o) { o.setAttribute('aria-selected', o === b ? 'true' : 'false'); });
-      $('ed-texte').value = S.cur.bodies[S.tab] || '';
+      $('ed-texte').value = S.cur.bodies[S.tab] || ''; grow();
       renderPreview();
       renderState();
     });
@@ -807,7 +811,7 @@
   each($('ed-vues').querySelectorAll('[data-vue]'), function (b) {
     on(b, 'click', function () {
       var v = b.getAttribute('data-vue');
-      $('ed-ecran').setAttribute('data-vue', v);
+      $('ed-ecran').setAttribute('data-vue', v); grow();
       each($('ed-vues').querySelectorAll('[data-vue]'), function (o) { o.setAttribute('aria-pressed', o === b ? 'true' : 'false'); });
     });
   });
@@ -836,11 +840,7 @@
       return;
     }
     S.me = me;
-    $('ed-nom').textContent = me.display_name || me.username;
-    $('ed-avatar').textContent = (me.display_name || me.username).charAt(0);
-    $('ed-role').textContent = isEditor() ? T('éditeur · publie directement', 'editor · publishes directly') : T('compte simple · propose des modifications', 'regular account · suggests changes');
     $('ed-grille').hidden = false; $('ed-grille').removeAttribute('hidden');
-    fitHeight(); on(w, 'resize', fitHeight);
     if (w.innerWidth < 1024) { setNav(true); }
     loadLists(function (okLists) {
       if (!okLists) { return; }

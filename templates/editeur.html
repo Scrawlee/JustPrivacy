@@ -36,18 +36,16 @@
 
   <section class="page page-editeur">
     <div class="cadre">
-      <h1 class="cache"><span class="fr" lang="fr">Éditeur d'articles</span><span class="en" lang="en">Article editor</span></h1>
+      <header><h1 class="moyen"><span class="fr" lang="fr">Éditeur d'articles</span><span class="en" lang="en">Article editor</span></h1></header>
       <div id="prerequis" class="alerte" role="alert">
   <p><strong><span class="fr" lang="fr">JavaScript est requis sur cette page.</span><span class="en" lang="en">JavaScript is required on this page.</span></strong></p>
   <p><span class="fr" lang="fr">Le reste du site fonctionne sans JavaScript, mais cette page en a besoin pour l'éditeur d'articles. Activez JavaScript temporairement pour cette page, ou mettez à jour votre navigateur si vous utilisez une version ancienne, puis rechargez-la.</span><span class="en" lang="en">The rest of the site works without JavaScript, but this page needs it for the article editor. Please enable JavaScript for this page only, or update your browser if it is an old version, then reload.</span></p>
 </div>
-    </div>
-    <div id="app" hidden>
-        <div class="cadre"><div id="ed-garde" class="alerte" hidden><p><span class="fr" lang="fr">Connectez-vous pour écrire ou proposer un article.</span><span class="en" lang="en">Log in to write or suggest an article.</span> <a href="/connexion"><span class="fr" lang="fr">Se connecter</span><span class="en" lang="en">Log in</span></a></p></div></div>
+      <div id="app" hidden>
+        <div id="ed-garde" class="alerte" hidden><p><span class="fr" lang="fr">Connectez-vous pour écrire ou proposer un article.</span><span class="en" lang="en">Log in to write or suggest an article.</span> <a href="/connexion"><span class="fr" lang="fr">Se connecter</span><span class="en" lang="en">Log in</span></a></p></div>
         <div class="ed-app" id="ed-grille" data-nav="ferme" data-cote="ouvert" hidden>
 
           <aside class="ed-nav" id="ed-nav" aria-label="Articles">
-            <div class="ed-profil"><span class="ed-avatar" id="ed-avatar" aria-hidden="true"></span><div class="ed-profil-texte"><strong id="ed-nom"></strong><span class="ed-role" id="ed-role"></span></div></div>
             <div class="ed-nav-tete">
               <label class="ed-recherche"><span class="cache"><span class="fr" lang="fr">Rechercher un article</span><span class="en" lang="en">Search articles</span></span><svg class="ed-svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></svg><input id="ed-recherche" type="search" placeholder="Rechercher…" autocomplete="off" spellcheck="false"></label>
               <button class="ed-icone" type="button" id="b-nouveau" aria-label="Nouvel article · New article" title="Nouvel article · New article"><svg class="ed-svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 5H8a4 4 0 0 0-4 4v7a4 4 0 0 0 4 4h7a4 4 0 0 0 4-4v-4"/><path d="M18.5 3.5a1.8 1.8 0 0 1 2.5 2.5L12 15l-3.5 1 1-3.5z"/></svg></button>
@@ -153,6 +151,7 @@
           <div class="ed-feuille-actions"><button class="ed-btn" type="button" id="b-feuille-non"></button><button class="ed-btn primaire" type="button" id="b-feuille-oui"></button></div>
         </div>
       </div>
+    </div>
   </section>
 
 </main>

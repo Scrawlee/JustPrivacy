@@ -33,98 +33,128 @@
 
 <main id="contenu">
 
-  <section class="page">
+  <section class="page page-compte">
     <div class="cadre">
       <header><h1 class="moyen"><span class="fr" lang="fr">Mon compte</span><span class="en" lang="en">My account</span></h1></header>
-      <div class="lecture corps">
-        <div id="prerequis" class="alerte" role="alert">
+      <div id="prerequis" class="alerte" role="alert">
   <p><strong><span class="fr" lang="fr">JavaScript est requis sur cette page.</span><span class="en" lang="en">JavaScript is required on this page.</span></strong></p>
   <p><span class="fr" lang="fr">Le reste du site fonctionne sans JavaScript, mais cette page en a besoin pour la vérification anti-robot (Cap) et la double authentification. Activez JavaScript temporairement pour cette page, ou mettez à jour votre navigateur si vous utilisez une version ancienne, puis rechargez-la.</span><span class="en" lang="en">The rest of the site works without JavaScript, but this page needs it for the anti-bot check (Cap) and two-factor authentication. Please enable JavaScript for this page only, or update your browser if it is an old version, then reload.</span></p>
 </div>
-        <div id="app" hidden>
-          <p id="msg" class="alerte" role="alert" hidden></p>
-          <p id="ok" class="alerte ok" role="status" hidden></p>
-          <p><span class="fr" lang="fr">Connecté en tant que</span><span class="en" lang="en">Logged in as</span> <strong id="who"></strong> <span class="meta" id="role"></span></p>
-          <div class="actions"><a class="bouton" href="/editeur"><span class="fr" lang="fr">Éditeur d'articles</span><span class="en" lang="en">Article editor</span></a><button class="bouton secondaire" type="button" id="b-logout"><span class="fr" lang="fr">Se déconnecter</span><span class="en" lang="en">Log out</span></button></div>
+      <div id="app" hidden>
+        <div class="cpt">
+          <nav class="cpt-nav" aria-label="Sections">
+            <ul>
+              <li><a href="#s-username"><span class="fr" lang="fr">Profil</span><span class="en" lang="en">Profile</span></a></li>
+              <li><a href="#s-password"><span class="fr" lang="fr">Mot de passe</span><span class="en" lang="en">Password</span></a></li>
+              <li><a href="#s-totp"><span class="fr" lang="fr">Double authentification</span><span class="en" lang="en">Two-factor</span></a></li>
+              <li><a href="#s-sessions"><span class="fr" lang="fr">Appareils</span><span class="en" lang="en">Devices</span></a></li>
+              <li><a href="#s-tokens"><span class="fr" lang="fr">Avancé</span><span class="en" lang="en">Advanced</span></a></li>
+              <li><a href="#s-delete"><span class="fr" lang="fr">Supprimer le compte</span><span class="en" lang="en">Delete account</span></a></li>
+            </ul>
+          </nav>
 
-          <section class="carte" id="s-reauth"><h2><span class="fr" lang="fr">Confirmation</span><span class="en" lang="en">Confirmation</span></h2>
-            <p><span class="fr" lang="fr">Les actions sensibles ci-dessous demandent votre mot de passe actuel.</span><span class="en" lang="en">The sensitive actions below ask for your current password.</span></p>
-            <div class="champ"><label for="reauth"><span class="fr" lang="fr">Mot de passe actuel</span><span class="en" lang="en">Current password</span></label><input id="reauth" type="password" autocomplete="current-password"></div>
-          </section>
+          <div class="cpt-contenu">
+            <p id="msg" class="alerte" role="alert" hidden></p>
+            <p id="ok" class="alerte ok" role="status" hidden></p>
 
-          <section class="carte" id="s-username"><h2><span class="fr" lang="fr">Nom d'utilisateur</span><span class="en" lang="en">Username</span></h2>
-            <form id="f-username" class="formulaire" novalidate>
-              <div class="champ"><label for="newname"><span class="fr" lang="fr">Nom d'utilisateur</span><span class="en" lang="en">Username</span></label><input id="newname" name="newname" type="text" autocomplete="off" autocapitalize="none" spellcheck="false" maxlength="32"></div>
-              <p class="meta" id="name-hint"></p>
-              <div class="actions"><button class="bouton" type="submit"><span class="fr" lang="fr">Enregistrer</span><span class="en" lang="en">Save</span></button></div>
-            </form>
-          </section>
-
-          <section class="carte" id="s-password"><h2><span class="fr" lang="fr">Mot de passe</span><span class="en" lang="en">Password</span></h2>
-            <form id="f-password" class="formulaire" novalidate>
-              <div class="champ"><label for="newpw"><span class="fr" lang="fr">Nouveau mot de passe (10 caractères minimum)</span><span class="en" lang="en">New password (10 characters minimum)</span></label><input id="newpw" name="newpw" type="password" autocomplete="new-password" autocapitalize="none" spellcheck="false" ></div>
-              <div class="champ"><label for="newpw2"><span class="fr" lang="fr">Confirmer le nouveau mot de passe</span><span class="en" lang="en">Confirm new password</span></label><input id="newpw2" name="newpw2" type="password" autocomplete="new-password" autocapitalize="none" spellcheck="false" ></div>
-              <div class="actions"><button class="bouton" type="submit"><span class="fr" lang="fr">Changer le mot de passe</span><span class="en" lang="en">Change password</span></button></div>
-            </form>
-          </section>
-
-          <section class="carte" id="s-totp"><h2><span class="fr" lang="fr">Application d'authentification (code OTP)</span><span class="en" lang="en">Authenticator app (OTP code)</span></h2>
-            <p id="totp-state"></p>
-            <div class="actions" id="totp-actions"><button class="bouton secondaire" type="button" id="b-totp-setup"><span class="fr" lang="fr">Activer</span><span class="en" lang="en">Enable</span></button><button class="bouton secondaire" type="button" id="b-totp-disable"><span class="fr" lang="fr">Désactiver</span><span class="en" lang="en">Disable</span></button></div>
-            <div id="totp-setup" hidden>
-              <p><span class="fr" lang="fr">Scannez ce QR code avec votre application (FreeOTP, Aegis, Ente Auth…), ou saisissez la clé à la main, puis entrez le code affiché.</span><span class="en" lang="en">Scan this QR code with your app (FreeOTP, Aegis, Ente Auth…), or type the key by hand, then enter the displayed code.</span></p>
-              <div id="qr" class="qr"></div>
-              <p><code id="totp-secret"></code></p>
-              <form id="f-totp" class="formulaire" novalidate>
-                <div class="champ"><label for="totp-code"><span class="fr" lang="fr">Code à 6 chiffres</span><span class="en" lang="en">6-digit code</span></label><input id="totp-code" name="totp-code" type="text" autocomplete="one-time-code" autocapitalize="none" spellcheck="false" inputmode="numeric" maxlength="7"></div>
-                <div class="actions"><button class="bouton" type="submit"><span class="fr" lang="fr">Confirmer</span><span class="en" lang="en">Confirm</span></button></div>
-              </form>
+            <div class="cpt-profil">
+              <span class="cpt-avatar" id="avatar" aria-hidden="true"></span>
+              <div class="cpt-profil-texte"><strong class="cpt-nom" id="who"></strong><span class="meta" id="role"></span></div>
+              <div class="cpt-profil-actions"><a class="bouton" href="/editeur"><span class="fr" lang="fr">Éditeur d'articles</span><span class="en" lang="en">Article editor</span></a><button class="bouton secondaire" type="button" id="b-logout"><span class="fr" lang="fr">Se déconnecter</span><span class="en" lang="en">Log out</span></button></div>
             </div>
-          </section>
 
-          <section class="carte" id="s-passkeys"><h2><span class="fr" lang="fr">Passkeys</span><span class="en" lang="en">Passkeys</span></h2>
-            <p id="pk-unsupported" class="meta" hidden><span class="fr" lang="fr">Ce navigateur ne gère pas les passkeys.</span><span class="en" lang="en">This browser does not support passkeys.</span></p>
-            <ul id="pk-list" class="lignes"></ul>
-            <form id="f-passkey" class="formulaire" novalidate>
-              <div class="champ"><label for="pk-name"><span class="fr" lang="fr">Nom de la passkey (ex. : téléphone)</span><span class="en" lang="en">Passkey name (e.g. phone)</span></label><input id="pk-name" name="pk-name" type="text" autocomplete="off" autocapitalize="none" spellcheck="false" maxlength="64"></div>
-              <div class="actions"><button class="bouton" type="submit"><span class="fr" lang="fr">Ajouter une passkey</span><span class="en" lang="en">Add a passkey</span></button></div>
+            <section class="cpt-groupe cpt-confirmation" id="s-reauth">
+              <div class="cpt-lignes">
+                <div class="cpt-ligne"><label for="reauth"><span class="fr" lang="fr">Mot de passe actuel</span><span class="en" lang="en">Current password</span></label><input id="reauth" name="reauth" placeholder="••••••••••" type="password" autocomplete="current-password"></div>
+              </div>
+              <p class="cpt-aide"><span class="fr" lang="fr">Les modifications ci-dessous demandent votre mot de passe actuel.</span><span class="en" lang="en">The changes below ask for your current password.</span></p>
+            </section>
+
+            <form class="cpt-groupe" id="f-username" novalidate><h2 id="s-username"><span class="fr" lang="fr">Profil</span><span class="en" lang="en">Profile</span></h2>
+              <div class="cpt-lignes">
+                <div class="cpt-ligne"><label for="newname"><span class="fr" lang="fr">Nom d'utilisateur</span><span class="en" lang="en">Username</span></label><input id="newname" name="newname" type="text" autocomplete="off" autocapitalize="none" spellcheck="false" maxlength="32"></div>
+              </div>
+              <p class="cpt-aide" id="name-hint"></p>
+              <div class="cpt-actions"><button class="bouton" type="submit"><span class="fr" lang="fr">Enregistrer</span><span class="en" lang="en">Save</span></button></div>
             </form>
-          </section>
 
-          <section class="carte" id="s-recovery"><h2><span class="fr" lang="fr">Codes de secours</span><span class="en" lang="en">Recovery codes</span></h2>
-            <p id="rec-state"></p>
-            <div id="codes" class="modele" hidden>
-              <p><strong><span class="fr" lang="fr">Notez ces codes maintenant : ils ne seront plus affichés. Chacun ne sert qu'une fois.</span><span class="en" lang="en">Save these codes now: they will not be shown again. Each works only once.</span></strong></p>
-              <ul id="codes-list" class="codes"></ul>
-            </div>
-            <div class="actions" id="rec-actions"><button class="bouton secondaire" type="button" id="b-recovery"><span class="fr" lang="fr">Générer de nouveaux codes</span><span class="en" lang="en">Generate new codes</span></button></div>
-          </section>
-
-          <section class="carte" id="s-tokens"><h2><span class="fr" lang="fr">Accès git (articles)</span><span class="en" lang="en">Git access (articles)</span></h2>
-            <p><span class="fr" lang="fr">Les articles sont versionnés dans un dépôt git. Le clone est public ; pour pousser des modifications, créez un jeton et utilisez-le comme mot de passe avec votre nom d'utilisateur.</span><span class="en" lang="en">Articles are versioned in a git repository. Cloning is public; to push changes, create a token and use it as the password with your username.</span></p>
-            <p><code id="git-url"></code></p>
-            <p class="meta" id="git-rights"></p>
-            <ul id="tk-list" class="lignes"></ul>
-            <div id="tk-new" class="modele" hidden>
-              <p><strong><span class="fr" lang="fr">Copiez ce jeton maintenant : il ne sera plus affiché.</span><span class="en" lang="en">Copy this token now: it will not be shown again.</span></strong></p>
-              <p><code id="tk-value"></code></p>
-            </div>
-            <form id="f-token" class="formulaire" novalidate>
-              <div class="champ"><label for="tk-name"><span class="fr" lang="fr">Nom du jeton (ex. : ordinateur)</span><span class="en" lang="en">Token name (e.g. laptop)</span></label><input id="tk-name" name="tk-name" type="text" autocomplete="off" autocapitalize="none" spellcheck="false" maxlength="64"></div>
-              <div class="champ"><label for="tk-days"><span class="fr" lang="fr">Durée de validité (jours)</span><span class="en" lang="en">Validity (days)</span></label><select id="tk-days"><option value="30">30</option><option value="90" selected>90</option><option value="365">365</option></select></div>
-              <div class="actions"><button class="bouton" type="submit"><span class="fr" lang="fr">Créer un jeton</span><span class="en" lang="en">Create a token</span></button></div>
+            <form class="cpt-groupe" id="f-password" novalidate><h2 id="s-password"><span class="fr" lang="fr">Mot de passe</span><span class="en" lang="en">Password</span></h2>
+              <div class="cpt-lignes">
+                <div class="cpt-ligne"><label for="newpw"><span class="fr" lang="fr">Nouveau mot de passe</span><span class="en" lang="en">New password</span></label><input id="newpw" name="newpw" placeholder="••••••••••" type="password" autocomplete="new-password" autocapitalize="none" spellcheck="false"></div>
+                <div class="cpt-ligne"><label for="newpw2"><span class="fr" lang="fr">Confirmation</span><span class="en" lang="en">Confirm</span></label><input id="newpw2" name="newpw2" placeholder="••••••••••" type="password" autocomplete="new-password" autocapitalize="none" spellcheck="false"></div>
+              </div>
+              <p class="cpt-aide"><span class="fr" lang="fr">10 caractères minimum. Vos autres appareils seront déconnectés.</span><span class="en" lang="en">10 characters minimum. Your other devices will be logged out.</span></p>
+              <div class="cpt-actions"><button class="bouton" type="submit"><span class="fr" lang="fr">Changer le mot de passe</span><span class="en" lang="en">Change password</span></button></div>
             </form>
-          </section>
 
-          <section class="carte" id="s-sessions"><h2><span class="fr" lang="fr">Sessions</span><span class="en" lang="en">Sessions</span></h2>
-            <p id="sess-state"></p>
-            <div class="actions"><button class="bouton secondaire" type="button" id="b-revoke"><span class="fr" lang="fr">Déconnecter mes autres appareils</span><span class="en" lang="en">Log out my other devices</span></button></div>
-          </section>
+            <section class="cpt-groupe" id="s-totp"><h2><span class="fr" lang="fr">Double authentification</span><span class="en" lang="en">Two-factor authentication</span></h2>
+              <div class="cpt-lignes">
+                <div class="cpt-ligne"><span class="cpt-titre"><span class="fr" lang="fr">Application d'authentification</span><span class="en" lang="en">Authenticator app</span><span class="cpt-sous" id="totp-state"></span></span><div class="cpt-boutons" id="totp-actions"><button class="bouton secondaire" type="button" id="b-totp-setup"><span class="fr" lang="fr">Activer</span><span class="en" lang="en">Enable</span></button><button class="bouton secondaire" type="button" id="b-totp-disable"><span class="fr" lang="fr">Désactiver</span><span class="en" lang="en">Disable</span></button></div></div>
+                <div class="cpt-bloc" id="totp-setup" hidden>
+                  <p><span class="fr" lang="fr">Scannez ce QR code avec votre application (FreeOTP, Aegis, Ente Auth…), ou saisissez la clé à la main, puis entrez le code affiché.</span><span class="en" lang="en">Scan this QR code with your app (FreeOTP, Aegis, Ente Auth…), or type the key by hand, then enter the displayed code.</span></p>
+                  <div id="qr" class="qr"></div>
+                  <p><code id="totp-secret"></code></p>
+                  <form id="f-totp" class="cpt-inline" novalidate>
+                    <label class="cache" for="totp-code"><span class="fr" lang="fr">Code à 6 chiffres</span><span class="en" lang="en">6-digit code</span></label>
+                    <input id="totp-code" name="totp-code" type="text" autocomplete="one-time-code" autocapitalize="none" spellcheck="false" inputmode="numeric" maxlength="7" placeholder="123 456">
+                    <button class="bouton" type="submit"><span class="fr" lang="fr">Confirmer</span><span class="en" lang="en">Confirm</span></button>
+                  </form>
+                </div>
+              </div>
 
-          <section class="carte" id="s-delete"><h2><span class="fr" lang="fr">Supprimer le compte</span><span class="en" lang="en">Delete account</span></h2>
-            <p><span class="fr" lang="fr">Supprime définitivement votre compte, vos passkeys, jetons et sessions. Irréversible.</span><span class="en" lang="en">Permanently deletes your account, passkeys, tokens and sessions. This cannot be undone.</span></p>
-            <div class="actions"><button class="bouton secondaire danger" type="button" id="b-delete"><span class="fr" lang="fr">Supprimer mon compte</span><span class="en" lang="en">Delete my account</span></button></div>
-          </section>
+              <h3 class="cpt-sous-titre" id="s-passkeys">Passkeys</h3>
+              <p id="pk-unsupported" class="cpt-aide" hidden><span class="fr" lang="fr">Ce navigateur ne gère pas les passkeys.</span><span class="en" lang="en">This browser does not support passkeys.</span></p>
+              <div class="cpt-lignes">
+                <ul id="pk-list" class="cpt-liste"></ul>
+                <form id="f-passkey" class="cpt-ligne cpt-ajout" novalidate>
+                  <label class="cache" for="pk-name"><span class="fr" lang="fr">Nom de la passkey</span><span class="en" lang="en">Passkey name</span></label>
+                  <input id="pk-name" name="pk-name" type="text" autocomplete="off" autocapitalize="none" spellcheck="false" maxlength="64" placeholder="Nom (ex. : téléphone) · Name (e.g. phone)">
+                  <button class="bouton secondaire" type="submit"><span class="fr" lang="fr">Ajouter</span><span class="en" lang="en">Add</span></button>
+                </form>
+              </div>
+
+              <h3 class="cpt-sous-titre" id="s-recovery"><span class="fr" lang="fr">Codes de secours</span><span class="en" lang="en">Recovery codes</span></h3>
+              <div class="cpt-lignes">
+                <div class="cpt-ligne"><span class="cpt-titre"><span id="rec-state"></span></span><div class="cpt-boutons" id="rec-actions"><button class="bouton secondaire" type="button" id="b-recovery"><span class="fr" lang="fr">Générer de nouveaux codes</span><span class="en" lang="en">Generate new codes</span></button></div></div>
+                <div id="codes" class="cpt-bloc cpt-attention" hidden>
+                  <p><strong><span class="fr" lang="fr">Notez ces codes maintenant : ils ne seront plus affichés. Chacun ne sert qu'une fois.</span><span class="en" lang="en">Save these codes now: they will not be shown again. Each works only once.</span></strong></p>
+                  <ul id="codes-list" class="codes"></ul>
+                </div>
+              </div>
+            </section>
+
+            <section class="cpt-groupe" id="s-sessions"><h2><span class="fr" lang="fr">Appareils</span><span class="en" lang="en">Devices</span></h2>
+              <div class="cpt-lignes">
+                <div class="cpt-ligne"><span class="cpt-titre"><span id="sess-state"></span></span><div class="cpt-boutons"><button class="bouton secondaire" type="button" id="b-revoke"><span class="fr" lang="fr">Déconnecter mes autres appareils</span><span class="en" lang="en">Log out my other devices</span></button></div></div>
+              </div>
+            </section>
+
+            <details class="cpt-groupe cpt-avance" id="s-tokens"><summary><h2><span class="fr" lang="fr">Avancé</span><span class="en" lang="en">Advanced</span></h2></summary>
+              <p class="cpt-aide"><span class="fr" lang="fr">Pour les utilisateurs avancés : les articles peuvent être clonés et modifiés avec git. Le clone est public ; pour envoyer des modifications, créez un jeton et utilisez-le comme mot de passe avec votre nom d'utilisateur.</span><span class="en" lang="en">For advanced users: articles can be cloned and edited with git. Cloning is public; to send changes, create a token and use it as the password with your username.</span></p>
+              <div class="cpt-lignes">
+                <div class="cpt-ligne"><code id="git-url"></code></div>
+                <ul id="tk-list" class="cpt-liste"></ul>
+                <div id="tk-new" class="cpt-bloc cpt-attention" hidden>
+                  <p><strong><span class="fr" lang="fr">Copiez ce jeton maintenant : il ne sera plus affiché.</span><span class="en" lang="en">Copy this token now: it will not be shown again.</span></strong></p>
+                  <p><code id="tk-value"></code></p>
+                </div>
+                <form id="f-token" class="cpt-ligne cpt-ajout" novalidate>
+                  <label class="cache" for="tk-name"><span class="fr" lang="fr">Nom du jeton</span><span class="en" lang="en">Token name</span></label>
+                  <input id="tk-name" name="tk-name" type="text" autocomplete="off" autocapitalize="none" spellcheck="false" maxlength="64" placeholder="Nom (ex. : ordinateur) · Name (e.g. laptop)">
+                  <label class="cache" for="tk-days"><span class="fr" lang="fr">Durée de validité (jours)</span><span class="en" lang="en">Validity (days)</span></label>
+                  <select id="tk-days"><option value="30">30</option><option value="90" selected>90</option><option value="365">365</option></select>
+                  <button class="bouton secondaire" type="submit"><span class="fr" lang="fr">Créer un jeton</span><span class="en" lang="en">Create a token</span></button>
+                </form>
+              </div>
+              <p class="cpt-aide" id="git-rights"></p>
+            </details>
+
+            <section class="cpt-groupe" id="s-delete"><h2><span class="fr" lang="fr">Supprimer le compte</span><span class="en" lang="en">Delete account</span></h2>
+              <div class="cpt-lignes">
+                <div class="cpt-ligne"><span class="cpt-titre"><span class="fr" lang="fr">Supprime définitivement votre compte, vos passkeys, jetons et sessions. Irréversible.</span><span class="en" lang="en">Permanently deletes your account, passkeys, tokens and sessions. This cannot be undone.</span></span><div class="cpt-boutons"><button class="bouton secondaire danger" type="button" id="b-delete"><span class="fr" lang="fr">Supprimer mon compte</span><span class="en" lang="en">Delete my account</span></button></div></div>
+              </div>
+            </section>
+          </div>
         </div>
       </div>
     </div>

@@ -289,11 +289,12 @@
 
   function render() {
     $('who').textContent = me.display_name || me.username;
+    $('avatar').textContent = (me.display_name || me.username).charAt(0);
     if (document.activeElement !== $('newname')) { $('newname').value = me.display_name || me.username; }
     $('name-hint').textContent = me.username_changeable_at
       ? T('Vous pourrez changer de nom d\'utilisateur à partir du ', 'You can change your username again from ') + date(me.username_changeable_at) + T('. Changer seulement les majuscules reste possible à tout moment.', '. Changing only the capitals is always possible.')
       : T('Le nom peut être changé une fois tous les 30 jours. Changer seulement les majuscules est libre et ne compte pas.', 'The username can be changed once every 30 days. Changing only the capitals is free and does not count.');
-    $('role').textContent = '(' + ({ user: T('compte', 'member'), editor: T('éditeur', 'editor'), admin: 'admin' }[me.role] || me.role) + ')';
+    $('role').textContent = ({ user: T('Compte', 'Member'), editor: T('Éditeur', 'Editor'), admin: 'Admin' }[me.role] || me.role);
     $('totp-state').textContent = me.totp_enabled ? T('Activé.', 'Enabled.') : T('Désactivé.', 'Disabled.');
     $('b-totp-setup').hidden = me.totp_enabled;
     $('b-totp-disable').hidden = !me.totp_enabled;
@@ -322,8 +323,8 @@
 
     $('git-url').textContent = 'git clone ' + me.git_url;
     $('git-rights').textContent = (me.role === 'user')
-      ? T('Votre compte peut pousser vers la branche users/' + me.username + '/… (propositions). La branche main est réservée aux éditeurs.', 'Your account can push to the branch users/' + me.username + '/… (proposals). The main branch is reserved for editors.')
-      : T('Votre compte peut pousser vers toutes les branches (main en avance rapide uniquement).', 'Your account can push to any branch (fast-forward only on main).');
+      ? T('Avec un compte simple, les modifications envoyées sont enregistrées comme propositions, relues par un éditeur.', 'With a regular account, changes you send are saved as suggestions, reviewed by an editor.')
+      : T('Les modifications envoyées sont publiées directement (sans réécriture de l\'historique).', 'Changes you send are published directly (history is never rewritten).');
     var tl = $('tk-list'); clear(tl);
     for (var j = 0; j < me.tokens.length; j++) {
       (function (t) {

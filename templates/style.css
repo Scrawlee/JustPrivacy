@@ -239,21 +239,21 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:
 
 /* ---- Pages de connexion et d'inscription ---- */
 .page-auth{padding-top:var(--e4);padding-bottom:var(--e6)}
-.auth{max-width:64rem;margin:0 auto}
-.auth-intro{margin-bottom:var(--e4)}
+.auth{max-width:29rem;margin:0 auto}
+.auth-intro{margin-bottom:var(--e3);text-align:center}
 .auth-titre{font-size:var(--moyen);font-weight:800;line-height:1.02;letter-spacing:-.04em}
 /* Avertissement : couleurs de mise en garde propres, thèmes clair et sombre. */
 :root{--avert-fond:#fcf0d4;--avert-bord:#d9a73a;--avert-encre:#5c3b00;--avert-icone:#9a6200}
 @media (prefers-color-scheme:dark){:root{--avert-fond:#33290f;--avert-bord:#b88a2a;--avert-encre:#f3dca6;--avert-icone:#f0b848}}
 :root:has(#t-sombre:checked){--avert-fond:#33290f;--avert-bord:#b88a2a;--avert-encre:#f3dca6;--avert-icone:#f0b848}
 :root:has(#t-clair:checked){--avert-fond:#fcf0d4;--avert-bord:#d9a73a;--avert-encre:#5c3b00;--avert-icone:#9a6200}
-.auth-note{display:flex;align-items:flex-start;gap:var(--e2);margin-top:var(--e4);max-width:28rem;padding:var(--e2) var(--e3);background:var(--avert-fond);border:1.5px solid var(--avert-bord);border-radius:.75rem}
+.auth-note{display:flex;align-items:flex-start;gap:var(--e2);margin-top:var(--e3);text-align:left;padding:var(--e2) var(--e3);background:var(--avert-fond);border:1.5px solid var(--avert-bord);border-radius:.75rem}
 .auth-note-icone{flex:0 0 auto;display:inline-flex;margin-top:.125rem;color:var(--avert-icone)}
 .auth-note-icone svg{width:1.5rem;height:1.5rem;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .auth-note-texte{min-width:0}
 .auth-note-texte p{margin:0;color:var(--avert-encre);font-size:.975rem;line-height:1.55}
 .auth-note-texte .auth-note-titre{margin-bottom:.125rem;font-size:1.0625rem;font-weight:700}
-.auth-carte{width:100%;max-width:29rem;padding:var(--e3);background:var(--papier-2);border:1px solid var(--regle);border-radius:1rem}
+.auth-carte{width:100%;padding:var(--e4) var(--e3);background:var(--papier-2);border:1px solid var(--regle);border-radius:1rem}
 .auth-carte .formulaire{max-width:none;margin-top:0;gap:var(--e3)}
 .auth-carte .formulaire h2{font-size:1.375rem;letter-spacing:-.02em}
 .auth-carte .champ{max-width:none;gap:.375rem}
@@ -316,13 +316,8 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:
 .auth-carte #msg{border-left-color:#a4262c}
 @media (prefers-color-scheme:dark){.auth-carte #msg{border-left-color:#ff9a9a}}
 .auth-pied{margin-top:var(--e3);padding-top:var(--e3);border-top:1px solid var(--regle);text-align:center}
-@media (min-width:56rem){
-  .auth{display:flex;align-items:flex-start;justify-content:space-between}
-  .auth-intro{flex:1 1 0;min-width:0;margin-bottom:0;padding-right:var(--e5);padding-top:var(--e2)}
-  .auth-carte{flex:0 0 29rem;padding:var(--e4)}
-}
 @supports (width:clamp(1px,1vw,2px)){
-  .auth-titre{font-size:clamp(2.5rem,1.4rem + 4.4vw,4.75rem)}
+  .auth-titre{font-size:clamp(2.25rem,1.6rem + 2.6vw,3.5rem)}
 }
 
 /* ---- Compatibilité anciens navigateurs ---- */

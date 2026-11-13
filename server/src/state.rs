@@ -1,4 +1,4 @@
-use crate::{config::Config, crypto::Sealer, gitrepo::GitStore, ratelimit::RateLimiter, site::Site};
+use crate::{config::Config, crypto::Sealer, gitrepo::GitStore, pages::PageCache, ratelimit::RateLimiter};
 use sqlx::PgPool;
 use std::{collections::HashMap, sync::{Arc, Mutex}, time::{Duration, Instant}};
 use tokio::sync::Semaphore;
@@ -22,7 +22,7 @@ pub struct AppState {
     pub dummy_hash: String,
     pub ceremonies: Mutex<HashMap<String, (Ceremony, Instant)>>,
     pub git: Arc<GitStore>,
-    pub site: Arc<Site>,
+    pub pages: Arc<PageCache>,
 }
 
 impl AppState {

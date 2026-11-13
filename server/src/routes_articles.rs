@@ -90,7 +90,7 @@ async fn write(State(st): State<Shared>, user: AuthUser, Path(slug): Path<String
     let git = st.git.clone();
     let author = user.username.clone();
     let (commit, version) = blocking(move || git.write_article(&slug, &b.content, b.base.as_deref(), &author, &b.message)).await?;
-    st.site.trigger();
+    refresh(&st).await;
     Ok(Json(json!({ "commit": commit, "version": version })))
 }
 
@@ -105,7 +105,7 @@ async fn remove(State(st): State<Shared>, user: AuthUser, Path(slug): Path<Strin
     let git = st.git.clone();
     let author = user.username.clone();
     let commit = blocking(move || git.delete_article(&slug, &q.base, &author)).await?;
-    st.site.trigger();
+    refresh(&st).await;
     Ok(Json(json!({ "commit": commit })))
 }
 
@@ -146,7 +146,7 @@ async fn publish(State(st): State<Shared>, user: AuthUser, Path((owner, slug)): 
     let git = st.git.clone();
     let editor = user.username.clone();
     let commit = blocking(move || git.publish_proposal(&owner, &slug, b.main_base.as_deref(), &editor)).await?;
-    st.site.trigger();
+    refresh(&st).await;
     Ok(Json(json!({ "commit": commit })))
 }
 
@@ -158,6 +158,12 @@ async fn withdraw(State(st): State<Shared>, user: AuthUser, Path((owner, slug)):
     Ok(Json(json!({ "ok": true })))
 }
 
+/// Les pages sont rendues à la demande : on purge ici celles dont un article vient de changer.
+async fn refresh(st: &Shared) {
+    let (pages, git) = (st.pages.clone(), st.git.clone());
+    let _ = tokio::task::spawn_blocking(move || pages.sync(&git)).await;
+}
+
 async fn site_status(State(st): State<Shared>) -> Json<Value> {
-    Json(serde_json::to_value(st.site.status.lock().unwrap().clone()).unwrap_or_default())
+    Json(json!({ "ok": true, "commit": st.pages.head(), "pages": st.pages.stats() }))
 }

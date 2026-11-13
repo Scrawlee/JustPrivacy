@@ -25,7 +25,6 @@ url = "2"
 reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
 git2 = { version = "0.20", default-features = false }
 flate2 = "1"
-mime_guess = "2"
 thiserror = "2"
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }

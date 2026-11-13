@@ -263,7 +263,10 @@ async fn receive_pack(State(st): State<Shared>, headers: HeaderMap, peer: Connec
     let res = tokio::task::spawn_blocking(move || serve_push(&git, &pusher, &body)).await;
     match res {
         Ok(Ok((out, main_changed))) => {
-            if main_changed { st.site.trigger(); }
+            if main_changed {
+                let (pages, git) = (st.pages.clone(), st.git.clone());
+                tokio::task::spawn_blocking(move || { let _ = pages.sync(&git); });
+            }
             git_response("application/x-git-receive-pack-result", out)
         }
         Ok(Err(GitError::Invalid(m))) => plain(StatusCode::BAD_REQUEST, m),

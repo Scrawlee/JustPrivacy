@@ -206,6 +206,35 @@ impl GitStore {
         Ok(out)
     }
 
+    /// Identifiants de blob des articles à un commit donné (slug → blob), sans lire les contenus.
+    pub fn article_blobs(&self, commit: Oid) -> GitResult<std::collections::BTreeMap<String, String>> {
+        let repo = self.repo()?;
+        let mut out = std::collections::BTreeMap::new();
+        if let Some(tree) = self.articles_tree(&repo, commit)? {
+            for e in tree.iter().filter(|e| e.kind() == Some(ObjectType::Blob)) {
+                if let Some(slug) = e.name().and_then(|n| n.strip_suffix(".md")) {
+                    out.insert(slug.to_string(), e.id().to_string());
+                }
+            }
+        }
+        Ok(out)
+    }
+
+    /// Contenu de tous les articles de la branche principale : (commit, [(slug, texte)]), par ordre alphabétique.
+    pub fn load_articles(&self) -> GitResult<(Oid, Vec<(String, String)>)> {
+        let repo = self.repo()?;
+        let head = self.head_oid()?;
+        let mut out = vec![];
+        if let Some(tree) = self.articles_tree(&repo, head)? {
+            for e in tree.iter().filter(|e| e.kind() == Some(ObjectType::Blob)) {
+                let Some(slug) = e.name().and_then(|n| n.strip_suffix(".md")) else { continue };
+                if !valid_slug(slug) { continue; }
+                out.push((slug.to_string(), String::from_utf8_lossy(repo.find_blob(e.id())?.content()).into_owned()));
+            }
+        }
+        Ok((head, out))
+    }
+
     /// Valide un article puis l'enregistre sous forme de blob.
     fn checked_blob(&self, repo: &Repository, slug: &str, content: &str) -> GitResult<Oid> {
         if !valid_slug(slug) { return Err(GitError::Invalid("invalid_slug")); }
@@ -376,22 +405,6 @@ impl GitStore {
         repo.find_reference(&name).map_err(|_| GitError::NotFound)?.delete()?;
         Ok(())
     }
-
-    /// Écrit les articles de la branche principale dans `dest` (pour la construction du site).
-    pub fn export_articles(&self, dest: &Path) -> GitResult<Oid> {
-        let repo = self.repo()?;
-        let head = self.head_oid()?;
-        fs::create_dir_all(dest)?;
-        if let Some(tree) = self.articles_tree(&repo, head)? {
-            for e in tree.iter().filter(|e| e.kind() == Some(ObjectType::Blob)) {
-                let Some(name) = e.name() else { continue };
-                if name.ends_with(".md") && !name.contains('/') && name != ".md" {
-                    fs::write(dest.join(name), repo.find_blob(e.id())?.content())?;
-                }
-            }
-        }
-        Ok(head)
-    }
 }
 
 fn update_tree(repo: &Repository, base: Option<&Tree>, comps: &[&str], blob: Oid) -> GitResult<Oid> {
@@ -441,8 +454,11 @@ mod tests {
         (GitStore::open_or_init(&dir, &seed).unwrap(), dir)
     }
 
+    /// Unique même quand plusieurs tests démarrent dans la même microseconde.
     fn rand_suffix() -> u128 {
-        std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_nanos()
+        static N: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
+        let t = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_nanos();
+        t * 1000 + u128::from(N.fetch_add(1, std::sync::atomic::Ordering::Relaxed) % 1000)
     }
 
     #[test]

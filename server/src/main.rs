@@ -11,12 +11,13 @@ mod ratelimit;
 mod routes_account;
 mod routes_articles;
 mod routes_auth;
-mod site;
+mod pages;
+mod render;
 mod state;
 
 use axum::{
-    extract::{ConnectInfo, State},
-    http::{header, HeaderName, HeaderValue, StatusCode, Uri},
+    extract::State,
+    http::{header, HeaderMap, HeaderName, HeaderValue, StatusCode, Uri},
     middleware,
     response::{IntoResponse, Response},
     routing::get,
@@ -25,7 +26,7 @@ use axum::{
 use config::Config;
 use sqlx::postgres::PgPoolOptions;
 use state::AppState;
-use std::{collections::HashMap, net::SocketAddr, path::PathBuf, sync::{Arc, Mutex}, time::Duration};
+use std::{collections::HashMap, net::SocketAddr, sync::{Arc, Mutex}, time::Duration};
 use tower_http::{compression::CompressionLayer, set_header::SetResponseHeaderLayer};
 use webauthn_rs::WebauthnBuilder;
 
@@ -89,8 +90,9 @@ async fn run() -> Result<(), String> {
     let git = Arc::new(
         gitrepo::GitStore::open_or_init(&cfg.data_dir, &cfg.site_src.join("content").join("articles")).map_err(|e| format!("git : {e:?}"))?,
     );
-    let (site, rx) = site::Site::new();
-    tokio::spawn(site::worker(site.clone(), rx, git.clone(), cfg.clone()));
+    let pages = pages::PageCache::new();
+    // Premier état de `main` : les pages sont ensuite rendues à la demande.
+    { let (p, g) = (pages.clone(), git.clone()); let _ = tokio::task::spawn_blocking(move || p.sync(&g)).await; }
 
     let st = Arc::new(AppState {
         db,
@@ -102,7 +104,7 @@ async fn run() -> Result<(), String> {
         dummy_hash: auth::new_hasher_hash("mot de passe factice"),
         ceremonies: Mutex::new(HashMap::new()),
         git,
-        site,
+        pages,
         cfg: cfg.clone(),
     });
 
@@ -117,7 +119,7 @@ async fn run() -> Result<(), String> {
         .nest("/api", api)
         .merge(githttp::router())
         .route("/healthz", get(|| async { "ok" }))
-        .fallback(get(static_files).layer(CompressionLayer::new()))
+        .fallback(get(site_page).layer(CompressionLayer::new()))
         .layer(SetResponseHeaderLayer::if_not_present(header::X_CONTENT_TYPE_OPTIONS, HeaderValue::from_static("nosniff")))
         .layer(SetResponseHeaderLayer::if_not_present(header::X_FRAME_OPTIONS, HeaderValue::from_static("DENY")))
         .layer(SetResponseHeaderLayer::if_not_present(header::REFERRER_POLICY, HeaderValue::from_static("same-origin")))
@@ -135,38 +137,38 @@ async fn run() -> Result<(), String> {
         .map_err(|e| e.to_string())
 }
 
-/// Sert le site construit : `/x` → `x`, `x/index.html` ou `x.html` ; 404.html sinon.
-async fn static_files(State(st): State<Arc<AppState>>, _peer: ConnectInfo<SocketAddr>, uri: Uri) -> Response {
-    let root = site::current_dir(&st.cfg);
-    let path = uri.path().trim_matches('/');
-    let safe = !path.contains('%') && !path.contains('\\') && !path.contains('\0')
-        && path.split('/').all(|s| s != ".." && s != ".");
-    if safe {
-        let base: PathBuf = root.join(path);
-        let candidates = [base.clone(), base.join("index.html"), PathBuf::from(format!("{}.html", base.display()))];
-        for c in candidates {
-            if c.is_file() && c.starts_with(&root) {
-                if let Ok(bytes) = tokio::fs::read(&c).await {
-                    return file_response(&c, bytes, StatusCode::OK);
-                }
-            }
-        }
-    }
-    let nf = root.join("404.html");
-    match tokio::fs::read(&nf).await {
-        Ok(bytes) => file_response(&nf, bytes, StatusCode::NOT_FOUND),
-        Err(_) => (StatusCode::NOT_FOUND, "Page introuvable").into_response(),
-    }
+/// Chemin demandé → chemin de page normalisé (sans barre finale) ; `None` : chemin refusé.
+fn page_path(raw: &str) -> Option<String> {
+    let unsafe_chars = raw.contains('%') || raw.contains('\\') || raw.contains('\0');
+    if unsafe_chars || raw.split('/').any(|s| s == ".." || s == ".") { return None; }
+    let p = raw.trim_end_matches('/');
+    Some(match p { "" | "/index.html" => "/".to_string(), other => other.to_string() })
 }
 
-fn file_response(path: &std::path::Path, bytes: Vec<u8>, status: StatusCode) -> Response {
-    let mime = mime_guess::from_path(path).first_or_octet_stream();
-    let mut r = (status, bytes).into_response();
+fn not_found() -> Response {
+    (StatusCode::NOT_FOUND, "Page introuvable").into_response()
+}
+
+/// Sert les pages du site : rendues depuis git à la première demande, puis gardées en mémoire (voir `pages.rs`).
+async fn site_page(State(st): State<Arc<AppState>>, headers: HeaderMap, uri: Uri) -> Response {
+    let Some(path) = page_path(uri.path()) else { return not_found() };
+    let (pages, git) = (st.pages.clone(), st.git.clone());
+    let page = match tokio::task::spawn_blocking(move || pages.get(&git, &path)).await {
+        Ok(Ok(Some(p))) => p,
+        Ok(Ok(None)) => return not_found(),
+        Ok(Err(e)) => { tracing::error!("rendu de page : {e:?}"); return (StatusCode::INTERNAL_SERVER_ERROR, "Erreur interne").into_response(); }
+        Err(e) => { tracing::error!("rendu de page : {e}"); return (StatusCode::INTERNAL_SERVER_ERROR, "Erreur interne").into_response(); }
+    };
+    let unchanged = headers
+        .get(header::IF_NONE_MATCH)
+        .and_then(|v| v.to_str().ok())
+        .is_some_and(|v| v.split(',').map(str::trim).any(|t| t == page.etag || t.strip_prefix("W/") == Some(page.etag.as_str())));
+    let mut r = if unchanged { StatusCode::NOT_MODIFIED.into_response() } else { (StatusCode::OK, page.body.clone()).into_response() };
     let h = r.headers_mut();
-    h.insert(header::CONTENT_TYPE, HeaderValue::from_str(&format!("{mime}; charset=utf-8")).unwrap_or(HeaderValue::from_static("text/html; charset=utf-8")));
+    if !unchanged { h.insert(header::CONTENT_TYPE, HeaderValue::from_static("text/html; charset=utf-8")); }
+    if let Ok(etag) = HeaderValue::from_str(&page.etag) { h.insert(header::ETAG, etag); }
+    // Toujours revalider (ETag) : le serveur purge précisément ses pages quand un article change.
     h.insert(header::CACHE_CONTROL, HeaderValue::from_static("public, max-age=0, must-revalidate"));
-    if mime.essence_str() == "text/html" {
-        h.insert(header::CONTENT_SECURITY_POLICY, HeaderValue::from_static(CSP));
-    }
+    h.insert(header::CONTENT_SECURITY_POLICY, HeaderValue::from_static(CSP));
     r
 }

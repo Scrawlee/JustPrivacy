@@ -51,18 +51,33 @@
   };
   function errText(code) { var e = ERR[code] || ERR.internal; return T(e[0], e[1]); }
 
-  var msgBox = $('msg'), okBox = $('ok');
-  function fail(code) {
-    okBox.hidden = true;
-    msgBox.textContent = errText(code);
-    msgBox.hidden = false; msgBox.removeAttribute('hidden');
+  // ---- Notifications (en bas à droite) ----------------------------------------
+  var SVG_OK = '<svg class="ed-svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+  var SVG_ERR = '<svg class="ed-svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5M12 16.5h.01"/></svg>';
+  function toast(text, kind, link) {
+    var box = $('ed-toasts');
+    while (box.children.length >= 4) { box.removeChild(box.firstChild); }
+    var t = d.createElement('div');
+    t.className = 'ed-toast' + (kind === 'erreur' ? ' erreur' : '');
+    t.innerHTML = kind === 'erreur' ? SVG_ERR : SVG_OK;
+    var span = d.createElement('span'); span.className = 'ed-toast-texte'; span.textContent = text;
+    if (link) {
+      span.appendChild(d.createTextNode(' '));
+      var a = d.createElement('a'); a.href = link.href; a.target = '_blank'; a.rel = 'noopener'; a.textContent = link.label;
+      span.appendChild(a);
+    }
+    t.appendChild(span);
+    var x = d.createElement('button'); x.type = 'button'; x.textContent = '×'; x.setAttribute('aria-label', T('Fermer', 'Close'));
+    function close() { if (t.parentNode) { t.parentNode.removeChild(t); } }
+    on(x, 'click', close);
+    t.appendChild(x);
+    box.appendChild(t);
+    w.setTimeout(close, kind === 'erreur' ? 9000 : 5000);
   }
-  function failText(text) { okBox.hidden = true; msgBox.textContent = text; msgBox.hidden = false; msgBox.removeAttribute('hidden'); }
-  function ok(text) {
-    msgBox.hidden = true;
-    okBox.textContent = text; okBox.hidden = false; okBox.removeAttribute('hidden');
-  }
-  function clearMsg() { msgBox.hidden = true; okBox.hidden = true; $('ed-conflit').hidden = true; }
+  function fail(code) { toast(errText(code), 'erreur'); }
+  function failText(text) { toast(text, 'erreur'); }
+  function ok(text, link) { toast(text, 'ok', link); }
+  function clearMsg() { $('ed-conflit').hidden = true; }
 
   // ---- API ---------------------------------------------------------------------
   function api(method, url, body, cb) {
@@ -223,27 +238,36 @@
     li.appendChild(b);
     return li;
   }
+  function matches(q, text) { return !q || text.toLowerCase().indexOf(q) >= 0; }
   function renderLists() {
-    var ul = $('l-articles'), i;
+    var ul = $('l-articles'), pl = $('l-props'), i;
+    var q = ($('ed-recherche').value || '').toLowerCase().replace(/^\s+|\s+$/g, '');
     ul.innerHTML = '';
-    var mine = {};
+    pl.innerHTML = '';
+    var mine = {}, shownA = 0, shownP = 0;
     for (i = 0; i < S.props.length; i++) { if (S.me && S.props[i].user === S.me.username) { mine[S.props[i].slug] = true; } }
     for (i = 0; i < S.articles.length; i++) {
       (function (a) {
+        if (!matches(q, a.slug + ' ' + (a.title_fr || '') + ' ' + (a.title_en || ''))) { return; }
         var active = S.cur && S.cur.kind === 'main' && S.cur.slug === a.slug;
-        ul.appendChild(itemButton(titleOf(a), a.slug, mine[a.slug] ? T('proposition', 'suggestion') : '', active, function () { openArticle(a.slug); }));
+        var sub = a.slug + ' · ' + (a.lang === 'both' ? 'FR / EN' : String(a.lang).toUpperCase());
+        ul.appendChild(itemButton(titleOf(a), sub, mine[a.slug] ? T('proposition', 'suggestion') : '', active, function () { openArticle(a.slug); }));
+        shownA++;
       })(S.articles[i]);
     }
-    var pl = $('l-props');
-    pl.innerHTML = '';
-    $('t-props').hidden = !S.props.length;
     for (i = 0; i < S.props.length; i++) {
       (function (p) {
+        if (!matches(q, p.slug + ' ' + (p.title || '') + ' ' + p.user)) { return; }
         var active = S.cur && S.cur.kind === 'proposal' && S.cur.slug === p.slug && S.cur.owner === p.user;
         var sub = (isEditor() ? p.user + ' · ' : '') + p.slug;
         pl.appendChild(itemButton(p.title || p.slug, sub, p.is_new ? T('nouveau', 'new') : '', active, function () { openProposal(p.user, p.slug); }));
+        shownP++;
       })(S.props[i]);
     }
+    $('t-props').hidden = !shownP;
+    $('n-articles').textContent = String(shownA);
+    $('n-props').textContent = String(shownP);
+    $('ed-aucun').hidden = !(q && !shownA && !shownP);
     var dl = $('dl-articles');
     dl.innerHTML = '';
     for (i = 0; i < S.articles.length; i++) { var o = d.createElement('option'); o.value = S.articles[i].slug; dl.appendChild(o); }
@@ -260,22 +284,12 @@
     });
   }
 
-  // ---- Statut du site ----------------------------------------------------------------
+  // ---- Version publiée (commit courant de main) ---------------------------------------
   function showSite(st) {
     var el = $('ed-site');
-    if (!st) { el.textContent = ''; return; }
-    if (st.ok) { el.textContent = T('Site à jour', 'Site up to date') + (st.commit ? ' (' + st.commit.slice(0, 7) + ')' : ''); }
-    else { el.textContent = T('La dernière construction du site a échoué : l\'ancienne version reste en ligne. ', 'The last site build failed: the previous version stays online. ') + (st.error || ''); }
+    el.textContent = st && st.commit ? T('Version publiée : ', 'Published version: ') + st.commit.slice(0, 7) : '';
   }
-  function pollSite(commit, tries) {
-    if (S.siteTimer) { w.clearTimeout(S.siteTimer); S.siteTimer = null; }
-    api('GET', '/api/site', null, function (err, st) {
-      if (err) { return; }
-      showSite(st);
-      var done = !commit || st.commit === commit || (!st.ok && st.error);
-      if (!done && tries > 0) { S.siteTimer = w.setTimeout(function () { pollSite(commit, tries - 1); }, 2000); }
-    });
-  }
+  function refreshSite() { api('GET', '/api/site', null, function (err, st) { if (!err) { showSite(st); } }); }
 
   // ---- Formulaire ---------------------------------------------------------------------
   function fields() { return $('f-meta').querySelectorAll('[data-k]'); }
@@ -318,6 +332,10 @@
     box.appendChild(holder);
   }
 
+  function shownTitle() {
+    var m = S.cur.meta;
+    return (S.tab === 'en' ? (m.title_en || m.title_fr) : (m.title_fr || m.title_en)) || (S.cur.kind === 'new' ? T('Nouvel article', 'New article') : S.cur.slug);
+  }
   function renderState() {
     var c = S.cur;
     if (!c) { return; }
@@ -333,8 +351,13 @@
       txt = mine ? T('Votre proposition (branche users/', 'Your suggestion (branch users/') + c.owner + '/' + c.slug + T('), en attente de relecture.', '), awaiting review.')
         : T('Proposition de ', 'Suggestion by ') + c.owner + T(' (lecture seule : publiez-la ou modifiez-la avant).', ' (read-only: publish it or edit it first).');
     }
-    el.textContent = txt + (S.dirty ? ' ' + T('● Modifications non enregistrées', '● Unsaved changes') : '');
-    el.className = 'ed-etat' + (S.dirty ? ' modifie' : '');
+    el.textContent = txt + (S.dirty ? ' ' + T('Modifications non enregistrées.', 'Unsaved changes.') : '');
+    $('ed-nom-article').textContent = shownTitle();
+    $('ed-slug-article').textContent = c.kind === 'new' ? '' : c.slug;
+    $('ed-nom-article').parentNode.setAttribute('data-dirty', S.dirty ? 'oui' : 'non');
+    var chip = $('ed-puce');
+    chip.setAttribute('data-k', c.kind);
+    chip.textContent = c.kind === 'new' ? T('Nouveau', 'New') : (c.kind === 'main' ? T('Publié', 'Published') : T('Proposition', 'Suggestion'));
     var save = $('b-save');
     var canSave = c.kind === 'new' || c.kind === 'main' || (c.kind === 'proposal' && mine);
     save.hidden = !canSave;
@@ -343,14 +366,31 @@
     $('b-publish').hidden = !(c.kind === 'proposal' && editor);
     $('b-editmain').hidden = !(c.kind === 'proposal' && editor && !mine);
     $('b-history').hidden = c.kind !== 'main';
-    var del = $('b-delete');
-    if (c.kind === 'main' && editor) { del.hidden = false; del.textContent = T('Supprimer l\'article', 'Delete article'); }
-    else if (c.kind === 'proposal') { del.hidden = false; del.textContent = mine ? T('Retirer ma proposition', 'Withdraw my suggestion') : T('Rejeter la proposition', 'Reject suggestion'); }
-    else { del.hidden = true; }
+    var del = $('b-delete'), label;
+    if (c.kind === 'main' && editor) { label = T('Supprimer l\'article', 'Delete article'); }
+    else if (c.kind === 'proposal') { label = mine ? T('Retirer ma proposition', 'Withdraw my suggestion') : T('Rejeter la proposition', 'Reject suggestion'); }
+    del.hidden = !label;
+    if (label) { del.setAttribute('aria-label', label); del.title = label; }
     var ro = c.kind === 'proposal' && !mine;
     $('ed-texte').readOnly = ro;
     each(fields(), function (f) { if (f.id !== 'm-slug') { f.disabled = ro; } });
     $('ed-msg').disabled = ro;
+    updateCount();
+  }
+
+  function updateCount() {
+    var v = $('ed-texte').value, words = (v.match(/\S+/g) || []).length;
+    $('ed-compteur').textContent = words + T(' mots · ', ' words · ') + v.length + T(' caractères', ' characters');
+  }
+
+  function setInfos(open) {
+    $('ed-corps').setAttribute('data-infos', open ? 'ouvert' : 'ferme');
+    $('b-infos').setAttribute('aria-pressed', open ? 'true' : 'false');
+  }
+  function setNav(open) {
+    if (w.innerWidth >= 1024) { return; }
+    $('ed-grille').setAttribute('data-nav', open ? 'ouvert' : 'ferme');
+    $('b-nav').setAttribute('aria-expanded', open ? 'true' : 'false');
   }
 
   function show() {
@@ -362,7 +402,8 @@
     S.tab = (S.cur.meta.lang === 'en') ? 'en' : 'fr';
     fillForm();
     S.dirty = false;
-    $('d-meta').open = S.cur.kind === 'new';
+    setInfos(S.cur.kind === 'new' || w.innerWidth >= 1280);
+    setNav(false);
     renderState();
     renderLists();
     try { w.history.replaceState(null, '', S.cur.kind === 'new' ? '#' : '#' + S.cur.slug); } catch (e) {}
@@ -449,7 +490,7 @@
       $('m-slug').readOnly = true;
       renderState();
       if (asProposal) { ok(T('Proposition enregistrée. Un éditeur la relira avant publication.', 'Suggestion saved. An editor will review it before publication.')); }
-      else { ok(T('Publié sur main (commit ', 'Published on main (commit ') + data.commit.slice(0, 7) + T('). Le site se reconstruit…', '). The site is rebuilding…')); pollSite(data.commit, 15); }
+      else { ok(T('Publié sur main (commit ', 'Published on main (commit ') + data.commit.slice(0, 7) + T('). La page est déjà à jour.', '). The page is already up to date.'), { href: '/articles/' + slug, label: T('Voir la page', 'View page') }); refreshSite(); }
       loadLists();
       try { w.history.replaceState(null, '', '#' + slug); } catch (e) {}
     });
@@ -491,8 +532,8 @@
         else { fail(err.code); }
         return;
       }
-      ok(T('Proposition publiée sur main (commit ', 'Suggestion published on main (commit ') + data.commit.slice(0, 7) + T('). Le site se reconstruit…', '). The site is rebuilding…'));
-      pollSite(data.commit, 15);
+      ok(T('Proposition publiée sur main (commit ', 'Suggestion published on main (commit ') + data.commit.slice(0, 7) + T('). La page est déjà à jour.', '). The page is already up to date.'), { href: '/articles/' + c.slug, label: T('Voir la page', 'View page') });
+      refreshSite();
       var slug = c.slug;
       S.cur = null; $('ed-zone').hidden = true; $('ed-vide').hidden = false;
       loadLists();
@@ -529,7 +570,7 @@
         if (err) { if (err.code === 'edit_conflict') { $('ed-conflit').hidden = false; } else { fail(err.code); } return; }
         S.dirty = false; S.cur = null; $('ed-zone').hidden = true; $('ed-vide').hidden = false;
         ok(T('Article supprimé (commit ', 'Article deleted (commit ') + data.commit.slice(0, 7) + ').');
-        pollSite(data.commit, 15);
+        refreshSite();
         loadLists();
       });
     }
@@ -582,6 +623,7 @@
     S.cur.bodies[S.tab] = $('ed-texte').value;
     setDirty(true);
     renderPreview();
+    updateCount();
   }
   function wrap(before, after, placeholder) {
     var t = $('ed-texte'), s = t.selectionStart, e = t.selectionEnd, v = t.value;
@@ -632,12 +674,17 @@
     renderPreview();
     setDirty(true);
   });
+  $('ed-recherche').placeholder = T('Rechercher…', 'Search…');
+  on($('ed-recherche'), 'input', renderLists);
+  on($('b-infos'), 'click', function () { setInfos($('ed-corps').getAttribute('data-infos') !== 'ouvert'); });
+  on($('b-nav'), 'click', function () { setNav($('ed-grille').getAttribute('data-nav') !== 'ouvert'); });
   each($('ed-langues').querySelectorAll('[data-tab]'), function (b) {
     on(b, 'click', function () {
       S.tab = b.getAttribute('data-tab');
       each($('ed-langues').querySelectorAll('[data-tab]'), function (o) { o.setAttribute('aria-selected', o === b ? 'true' : 'false'); });
       $('ed-texte').value = S.cur.bodies[S.tab] || '';
       renderPreview();
+      renderState();
     });
   });
   each($('ed-vues').querySelectorAll('[data-vue]'), function (b) {
@@ -671,14 +718,17 @@
       return;
     }
     S.me = me;
-    $('ed-qui').textContent = T('Connecté en tant que ', 'Logged in as ') + me.username + ' · ' + (isEditor() ? T('éditeur', 'editor') : T('compte simple (vos modifications sont des propositions)', 'regular account (your changes are suggestions)'));
+    $('ed-nom').textContent = me.username;
+    $('ed-avatar').textContent = me.username.charAt(0);
+    $('ed-role').textContent = isEditor() ? T('éditeur · publie sur main', 'editor · publishes on main') : T('compte simple · propose des modifications', 'regular account · suggests changes');
     $('ed-grille').hidden = false; $('ed-grille').removeAttribute('hidden');
+    if (w.innerWidth < 1024) { setNav(true); }
     loadLists(function (okLists) {
       if (!okLists) { return; }
       var h = (w.location.hash || '').replace(/^#/, '');
       if (h === 'nouveau' || h === 'new') { newArticle(); }
       else if (h) { openArticle(h); }
     });
-    api('GET', '/api/site', null, function (e2, st) { if (!e2) { showSite(st); } });
+    refreshSite();
   });
 })();

@@ -11,9 +11,8 @@ pub struct Config {
     pub cap_siteverify_url: String,
     pub cap_secret: Option<String>,
     pub cap_disabled: bool,
-    /// Dossier contenant build.py, templates/, fonts/ et content/.
+    /// Dossier contenant `content/articles` (articles du premier import).
     pub site_src: PathBuf,
-    pub python: String,
     pub trust_proxy_hops: usize,
     pub app_secret: Option<String>,
 }
@@ -44,7 +43,6 @@ impl Config {
             cap_secret,
             cap_disabled,
             site_src: PathBuf::from(var("SITE_SRC").unwrap_or_else(|| "..".into())),
-            python: var("PYTHON").unwrap_or_else(|| "python3".into()),
             trust_proxy_hops: var("TRUST_PROXY_HOPS").and_then(|v| v.parse().ok()).unwrap_or(1),
             app_secret: var("APP_SECRET"),
         })

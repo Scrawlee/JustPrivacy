@@ -218,8 +218,28 @@
     e.returnValue = '';
     return '';
   });
+  // Feuille de confirmation (comme une alerte système) : titre court, une phrase, Annuler / action.
+  function askConfirm(o, yes) {
+    var veil = $('ed-voile'), ok = $('b-feuille-oui'), no = $('b-feuille-non');
+    $('ed-feuille-titre').textContent = o.title;
+    $('ed-feuille-texte').textContent = o.text || '';
+    $('ed-feuille-texte').hidden = !o.text;
+    ok.textContent = o.ok; no.textContent = T('Annuler', 'Cancel');
+    ok.className = 'ed-btn' + (o.destructive ? ' danger' : ' primaire');
+    veil.hidden = false;
+    no.focus();
+    function done(go) {
+      veil.hidden = true;
+      ok.onclick = null; no.onclick = null; veil.onkeydown = null;
+      if (go) { yes(); }
+    }
+    ok.onclick = function () { done(true); };
+    no.onclick = function () { done(false); };
+    veil.onkeydown = function (e) { if (e.key === 'Escape') { done(false); } };
+  }
   function confirmDiscard(next) {
-    if (!S.dirty || w.confirm(T('Vous avez des modifications non enregistrées. Les abandonner ?', 'You have unsaved changes. Discard them?'))) { S.dirty = false; next(); }
+    if (!S.dirty) { next(); return; }
+    askConfirm({ title: T('Abandonner les modifications ?', 'Discard changes?'), text: T('Elles ne sont pas enregistrées.', 'They have not been saved.'), ok: T('Abandonner', 'Discard'), destructive: true }, function () { S.dirty = false; next(); });
   }
 
   // ---- Listes ----------------------------------------------------------------------
@@ -230,7 +250,7 @@
   function itemButton(label, sub, badge, active, onclick) {
     var li = d.createElement('li'), b = d.createElement('button');
     b.type = 'button';
-    b.className = 'ed-item' + (active ? ' actif' : '');
+    b.className = 'ed-item' + (active ? ' actif' : '') + (badge ? ' avec-badge' : '');
     var t = d.createElement('span'); t.className = 'ed-item-titre'; t.textContent = label; b.appendChild(t);
     var s = d.createElement('span'); s.className = 'ed-item-sous'; s.textContent = sub; b.appendChild(s);
     if (badge) { var g = d.createElement('span'); g.className = 'ed-badge'; g.textContent = badge; b.appendChild(g); }
@@ -339,25 +359,24 @@
   function renderState() {
     var c = S.cur;
     if (!c) { return; }
-    var el = $('ed-etat'), editor = isEditor(), txt;
+    var editor = isEditor(), txt;
     var mine = S.me && c.owner === S.me.username;
     if (c.kind === 'new') {
-      txt = editor ? T('Nouvel article : sera publié sur main.', 'New article: will be published on main.')
-        : T('Nouvel article : sera enregistré comme proposition, un éditeur le relira.', 'New article: saved as a suggestion, an editor will review it.');
+      txt = editor ? T('Sera publié sur main.', 'Will be published on main.') : T('Sera enregistré comme proposition, un éditeur le relira.', 'Saved as a suggestion, an editor will review it.');
     } else if (c.kind === 'main') {
-      txt = editor ? T('Article publié (branche main). Vos enregistrements sont publiés immédiatement.', 'Published article (main branch). Your saves are published immediately.')
-        : T('Article publié. Vos modifications seront enregistrées comme proposition à relire.', 'Published article. Your changes will be saved as a suggestion for review.');
+      txt = editor ? T('Publié sur main immédiatement.', 'Published on main immediately.') : T('Enregistré comme proposition à relire.', 'Saved as a suggestion for review.');
     } else {
-      txt = mine ? T('Votre proposition (branche users/', 'Your suggestion (branch users/') + c.owner + '/' + c.slug + T('), en attente de relecture.', '), awaiting review.')
-        : T('Proposition de ', 'Suggestion by ') + c.owner + T(' (lecture seule : publiez-la ou modifiez-la avant).', ' (read-only: publish it or edit it first).');
+      txt = mine ? T('Votre proposition (users/', 'Your suggestion (users/') + c.owner + '/' + c.slug + T('), en attente de relecture.', '), awaiting review.')
+        : T('Lecture seule : publiez cette proposition ou modifiez-la avant.', 'Read-only: publish this suggestion or edit it first.');
     }
-    el.textContent = txt + (S.dirty ? ' ' + T('Modifications non enregistrées.', 'Unsaved changes.') : '');
+    $('b-save').title = txt + ' (Ctrl+S)';
     $('ed-nom-article').textContent = shownTitle();
     $('ed-slug-article').textContent = c.kind === 'new' ? '' : c.slug;
+    $('ed-modifie').textContent = S.dirty ? T('· Modifié', '· Edited') : '';
     $('ed-nom-article').parentNode.setAttribute('data-dirty', S.dirty ? 'oui' : 'non');
     var chip = $('ed-puce');
     chip.setAttribute('data-k', c.kind);
-    chip.textContent = c.kind === 'new' ? T('Nouveau', 'New') : (c.kind === 'main' ? T('Publié', 'Published') : T('Proposition', 'Suggestion'));
+    chip.textContent = c.kind === 'new' ? T('Nouveau', 'New') : (c.kind === 'main' ? T('Publié', 'Published') : (mine ? T('Proposition', 'Suggestion') : T('Proposition de ', 'Suggestion by ') + c.owner));
     var save = $('b-save');
     var canSave = c.kind === 'new' || c.kind === 'main' || (c.kind === 'proposal' && mine);
     save.hidden = !canSave;
@@ -369,8 +388,10 @@
     var del = $('b-delete'), label;
     if (c.kind === 'main' && editor) { label = T('Supprimer l\'article', 'Delete article'); }
     else if (c.kind === 'proposal') { label = mine ? T('Retirer ma proposition', 'Withdraw my suggestion') : T('Rejeter la proposition', 'Reject suggestion'); }
-    del.hidden = !label;
-    if (label) { del.setAttribute('aria-label', label); del.title = label; }
+    $('b-more').hidden = !label;
+    $('ed-menu').hidden = true;
+    $('b-more').setAttribute('aria-expanded', 'false');
+    if (label) { $('b-delete-texte').textContent = label; }
     var ro = c.kind === 'proposal' && !mine;
     $('ed-texte').readOnly = ro;
     each(fields(), function (f) { if (f.id !== 'm-slug') { f.disabled = ro; } });
@@ -391,6 +412,18 @@
     if (w.innerWidth >= 1024) { return; }
     $('ed-grille').setAttribute('data-nav', open ? 'ouvert' : 'ferme');
     $('b-nav').setAttribute('aria-expanded', open ? 'true' : 'false');
+  }
+  function toggleNav() {
+    var g = $('ed-grille');
+    if (w.innerWidth >= 1024) { g.setAttribute('data-cote', g.getAttribute('data-cote') === 'cache' ? 'ouvert' : 'cache'); }
+    else { setNav(g.getAttribute('data-nav') !== 'ouvert'); }
+  }
+  /* Referme le document ouvert et revient à la liste. */
+  function closeDoc() {
+    S.dirty = false; S.cur = null;
+    $('ed-zone').hidden = true; $('ed-vide').hidden = false;
+    setNav(true);
+    try { w.history.replaceState(null, '', '#'); } catch (e) {}
   }
 
   function show() {
@@ -534,11 +567,8 @@
       }
       ok(T('Proposition publiée sur main (commit ', 'Suggestion published on main (commit ') + data.commit.slice(0, 7) + T('). La page est déjà à jour.', '). The page is already up to date.'), { href: '/articles/' + c.slug, label: T('Voir la page', 'View page') });
       refreshSite();
-      var slug = c.slug;
-      S.cur = null; $('ed-zone').hidden = true; $('ed-vide').hidden = false;
+      closeDoc();
       loadLists();
-      try { w.history.replaceState(null, '', '#'); } catch (e) {}
-      slug = null;
     });
   }
   function editBeforePublish() {
@@ -557,21 +587,23 @@
     var c = S.cur;
     if (!c) { return; }
     if (c.kind === 'proposal') {
-      if (!w.confirm(T('Retirer cette proposition ? Elle sera supprimée.', 'Remove this suggestion? It will be deleted.'))) { return; }
-      api('DELETE', '/api/proposals/' + encodeURIComponent(c.owner) + '/' + encodeURIComponent(c.slug), null, function (err) {
-        if (err) { fail(err.code); return; }
-        S.dirty = false; S.cur = null; $('ed-zone').hidden = true; $('ed-vide').hidden = false;
-        ok(T('Proposition supprimée.', 'Suggestion deleted.'));
-        loadLists();
+      askConfirm({ title: T('Retirer cette proposition ?', 'Remove this suggestion?'), text: T('Elle sera supprimée.', 'It will be deleted.'), ok: T('Retirer', 'Remove'), destructive: true }, function () {
+        api('DELETE', '/api/proposals/' + encodeURIComponent(c.owner) + '/' + encodeURIComponent(c.slug), null, function (err) {
+          if (err) { fail(err.code); return; }
+          closeDoc();
+          ok(T('Proposition supprimée.', 'Suggestion deleted.'));
+          loadLists();
+        });
       });
     } else if (c.kind === 'main') {
-      if (!w.confirm(T('Supprimer définitivement cet article du site ? L\'historique git le conserve.', 'Delete this article from the site? The git history keeps it.'))) { return; }
-      api('DELETE', '/api/articles/' + encodeURIComponent(c.slug) + '?base=' + encodeURIComponent(c.version), null, function (err, data) {
-        if (err) { if (err.code === 'edit_conflict') { $('ed-conflit').hidden = false; } else { fail(err.code); } return; }
-        S.dirty = false; S.cur = null; $('ed-zone').hidden = true; $('ed-vide').hidden = false;
-        ok(T('Article supprimé (commit ', 'Article deleted (commit ') + data.commit.slice(0, 7) + ').');
-        refreshSite();
-        loadLists();
+      askConfirm({ title: T('Supprimer cet article ?', 'Delete this article?'), text: T('Il disparaît du site ; l\'historique git le conserve.', 'It leaves the site; the git history keeps it.'), ok: T('Supprimer', 'Delete'), destructive: true }, function () {
+        api('DELETE', '/api/articles/' + encodeURIComponent(c.slug) + '?base=' + encodeURIComponent(c.version), null, function (err, data) {
+          if (err) { if (err.code === 'edit_conflict') { $('ed-conflit').hidden = false; } else { fail(err.code); } return; }
+          closeDoc();
+          ok(T('Article supprimé (commit ', 'Article deleted (commit ') + data.commit.slice(0, 7) + ').');
+          refreshSite();
+          loadLists();
+        });
       });
     }
   }
@@ -594,7 +626,7 @@
           var li = d.createElement('li');
           var info = d.createElement('span');
           info.textContent = when(r.time) + ' · ' + r.author + ' · ' + (r.message || '') + ' · ' + r.commit.slice(0, 7);
-          var b = d.createElement('button'); b.type = 'button'; b.className = 'bouton secondaire petit';
+          var b = d.createElement('button'); b.type = 'button'; b.className = 'ed-btn';
           b.textContent = T('Charger cette version', 'Load this version');
           on(b, 'click', function () { loadRevision(r.commit); });
           li.appendChild(info); li.appendChild(b); ul.appendChild(li);
@@ -677,7 +709,26 @@
   $('ed-recherche').placeholder = T('Rechercher…', 'Search…');
   on($('ed-recherche'), 'input', renderLists);
   on($('b-infos'), 'click', function () { setInfos($('ed-corps').getAttribute('data-infos') !== 'ouvert'); });
-  on($('b-nav'), 'click', function () { setNav($('ed-grille').getAttribute('data-nav') !== 'ouvert'); });
+  on($('b-nav'), 'click', toggleNav);
+  on($('b-nav-vide'), 'click', toggleNav);
+  on($('b-more'), 'click', function (e) {
+    e.stopPropagation();
+    var m = $('ed-menu'), open = m.hidden;
+    m.hidden = !open;
+    $('b-more').setAttribute('aria-expanded', open ? 'true' : 'false');
+    if (open) { $('b-delete').focus(); }
+  });
+  d.addEventListener('click', function (e) {
+    var m = $('ed-menu');
+    if (!m.hidden && !m.contains(e.target)) { m.hidden = true; $('b-more').setAttribute('aria-expanded', 'false'); }
+  }, false);
+  on($('ed-menu'), 'click', function () { $('ed-menu').hidden = true; $('b-more').setAttribute('aria-expanded', 'false'); });
+  on($('b-aide'), 'click', function () {
+    var box = $('ed-aide'), open = box.hidden;
+    box.hidden = !open;
+    $('b-aide').setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+  $('ed-msg').placeholder = T('Message de version (facultatif)', 'Version message (optional)');
   each($('ed-langues').querySelectorAll('[data-tab]'), function (b) {
     on(b, 'click', function () {
       S.tab = b.getAttribute('data-tab');
@@ -703,6 +754,7 @@
     else if (k === 'k') { e.preventDefault(); tool('link'); }
   });
   d.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') { $('ed-menu').hidden = true; $('b-more').setAttribute('aria-expanded', 'false'); }
     if ((e.ctrlKey || e.metaKey) && (e.key || '').toLowerCase() === 's' && S.cur && !$('b-save').hidden) { e.preventDefault(); save(); }
   }, false);
   w.addEventListener('hashchange', function () {

@@ -36,93 +36,101 @@
 
   <section class="page page-editeur">
     <div class="cadre cadre-large">
-      <header class="ed-titre">
-        <h1 class="moyen"><span class="fr" lang="fr">Éditeur d'articles</span><span class="en" lang="en">Article editor</span></h1>
-      </header>
+      <h1 class="cache"><span class="fr" lang="fr">Éditeur d'articles</span><span class="en" lang="en">Article editor</span></h1>
       <div id="prerequis" class="alerte" role="alert">
   <p><strong><span class="fr" lang="fr">JavaScript est requis sur cette page.</span><span class="en" lang="en">JavaScript is required on this page.</span></strong></p>
   <p><span class="fr" lang="fr">Le reste du site fonctionne sans JavaScript, mais cette page en a besoin pour l'éditeur d'articles. Activez JavaScript temporairement pour cette page, ou mettez à jour votre navigateur si vous utilisez une version ancienne, puis rechargez-la.</span><span class="en" lang="en">The rest of the site works without JavaScript, but this page needs it for the article editor. Please enable JavaScript for this page only, or update your browser if it is an old version, then reload.</span></p>
 </div>
       <div id="app" hidden>
         <div id="ed-garde" class="alerte" hidden><p><span class="fr" lang="fr">Connectez-vous pour écrire ou proposer un article.</span><span class="en" lang="en">Log in to write or suggest an article.</span> <a href="/connexion"><span class="fr" lang="fr">Se connecter</span><span class="en" lang="en">Log in</span></a></p></div>
-        <div class="ed-app" id="ed-grille" data-nav="ferme" hidden>
+        <div class="ed-app" id="ed-grille" data-nav="ferme" data-cote="ouvert" hidden>
+
           <aside class="ed-nav" id="ed-nav" aria-label="Articles">
-            <div class="ed-nav-haut">
-              <div class="ed-profil"><span class="ed-avatar" id="ed-avatar" aria-hidden="true"></span><div class="ed-profil-texte"><strong id="ed-nom"></strong><span class="ed-role" id="ed-role"></span></div></div>
-              <button class="bouton plein" type="button" id="b-nouveau"><svg class="ed-svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 5v14M5 12h14"/></svg> <span><span class="fr" lang="fr">Nouvel article</span><span class="en" lang="en">New article</span></span></button>
-              <label class="ed-recherche"><span class="cache"><span class="fr" lang="fr">Rechercher un article</span><span class="en" lang="en">Search articles</span></span><svg class="ed-svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input id="ed-recherche" type="search" placeholder="Rechercher…" autocomplete="off" spellcheck="false"></label>
+            <div class="ed-profil"><span class="ed-avatar" id="ed-avatar" aria-hidden="true"></span><div class="ed-profil-texte"><strong id="ed-nom"></strong><span class="ed-role" id="ed-role"></span></div></div>
+            <div class="ed-nav-tete">
+              <label class="ed-recherche"><span class="cache"><span class="fr" lang="fr">Rechercher un article</span><span class="en" lang="en">Search articles</span></span><svg class="ed-svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></svg><input id="ed-recherche" type="search" placeholder="Rechercher…" autocomplete="off" spellcheck="false"></label>
+              <button class="ed-icone" type="button" id="b-nouveau" aria-label="Nouvel article · New article" title="Nouvel article · New article"><svg class="ed-svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 5H8a4 4 0 0 0-4 4v7a4 4 0 0 0 4 4h7a4 4 0 0 0 4-4v-4"/><path d="M18.5 3.5a1.8 1.8 0 0 1 2.5 2.5L12 15l-3.5 1 1-3.5z"/></svg></button>
             </div>
             <div class="ed-nav-liste">
               <h2 class="ed-nav-titre">Articles <span class="ed-nombre" id="n-articles"></span></h2>
               <ul class="ed-items" id="l-articles"></ul>
               <h2 class="ed-nav-titre" id="t-props" hidden><span class="fr" lang="fr">Propositions</span><span class="en" lang="en">Suggestions</span> <span class="ed-nombre" id="n-props"></span></h2>
               <ul class="ed-items" id="l-props"></ul>
-              <p class="ed-aucun" id="ed-aucun" hidden><span class="fr" lang="fr">Aucun article ne correspond.</span><span class="en" lang="en">No matching article.</span></p>
+              <p class="ed-aucun" id="ed-aucun" hidden><span class="fr" lang="fr">Aucun résultat</span><span class="en" lang="en">No results</span></p>
             </div>
             <p class="ed-nav-pied" id="ed-site"></p>
             <datalist id="dl-articles"></datalist>
           </aside>
+
           <div class="ed-espace">
             <div class="ed-vide" id="ed-vide">
-              <span class="ed-vide-icone"><svg class="ed-svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5"/></svg></span>
-              <h2><span class="fr" lang="fr">Aucun article ouvert</span><span class="en" lang="en">No article open</span></h2>
-              <p><span class="fr" lang="fr">Choisissez un article dans la liste, ou créez-en un nouveau. Vos modifications sont enregistrées dans le dépôt git du site.</span><span class="en" lang="en">Pick an article from the list, or create a new one. Your changes are saved in the site's git repository.</span></p>
-              <p class="ed-vide-git"><svg class="ed-svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="6" cy="6" r="2"/><circle cx="6" cy="18" r="2"/><circle cx="18" cy="9" r="2"/><path d="M6 8v8M18 11c0 4-6 3-12 5"/></svg> <span class="fr" lang="fr">Les mêmes articles se clonent avec git : <code>git clone …/git/articles.git</code></span><span class="en" lang="en">The same articles can be cloned with git: <code>git clone …/git/articles.git</code></span></p>
+              <div class="ed-barre ed-barre-vide"><button class="ed-icone ed-bouton-nav" type="button" id="b-nav-vide" aria-label="Articles"><svg class="ed-svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M9 5v14"/></svg></button></div>
+              <div class="ed-vide-centre">
+                <span class="ed-vide-icone"><svg class="ed-svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5"/></svg></span>
+                <h2><span class="fr" lang="fr">Aucun article ouvert</span><span class="en" lang="en">No article open</span></h2>
+                <p><span class="fr" lang="fr">Choisissez un article dans la liste, ou créez-en un. Vos modifications sont enregistrées dans le dépôt git du site.</span><span class="en" lang="en">Pick an article from the list, or create one. Your changes are saved in the site's git repository.</span></p>
+                <p class="ed-vide-git"><svg class="ed-svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="6" cy="6" r="2"/><circle cx="6" cy="18" r="2"/><circle cx="18" cy="9" r="2"/><path d="M6 8v8M18 11c0 4-6 3-12 5"/></svg> <span><span class="fr" lang="fr">Les mêmes articles se clonent avec git : <code>git clone …/git/articles.git</code></span><span class="en" lang="en">The same articles can be cloned with git: <code>git clone …/git/articles.git</code></span></span></p>
+              </div>
             </div>
-            <div id="ed-zone" hidden>
+
+            <div class="ed-fenetre" id="ed-zone" hidden>
               <div class="ed-barre">
-                <button class="ed-icone ed-bouton-nav" type="button" id="b-nav" aria-label="Articles" aria-expanded="false"><svg class="ed-svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
-                <div class="ed-identite"><span class="ed-nom-article" id="ed-nom-article"></span><span class="ed-slug" id="ed-slug-article"></span><span class="ed-puce" id="ed-puce"></span></div>
+                <button class="ed-icone ed-bouton-nav" type="button" id="b-nav" aria-label="Articles" aria-expanded="false" title="Articles"><svg class="ed-svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M9 5v14"/></svg></button>
+                <div class="ed-identite" data-dirty="non">
+                  <span class="ed-nom-article" id="ed-nom-article"></span>
+                  <span class="ed-sous-titre"><span class="ed-puce" id="ed-puce"></span><span class="ed-slug" id="ed-slug-article"></span><span class="ed-modifie" id="ed-modifie"></span></span>
+                </div>
+                <div class="ed-seg" id="ed-langues" role="tablist" aria-label="Langue du texte · Text language">
+                  <button type="button" role="tab" class="ed-onglet" data-tab="fr" aria-selected="true">Français</button>
+                  <button type="button" role="tab" class="ed-onglet" data-tab="en" aria-selected="false">English</button>
+                </div>
                 <div class="ed-actions">
-                  <button class="ed-icone" type="button" id="b-history" aria-label="Historique · History" title="Historique · History" hidden><svg class="ed-svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></button>
-                  <button class="ed-icone" type="button" id="b-infos" aria-label="Propriétés · Properties" title="Propriétés · Properties" aria-pressed="false"><svg class="ed-svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg></button>
-                  <button class="ed-icone danger" type="button" id="b-delete" aria-label="Supprimer · Delete" title="Supprimer · Delete" hidden><svg class="ed-svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/></svg></button>
-                  <button class="bouton secondaire" type="button" id="b-editmain" hidden><span class="fr" lang="fr">Modifier avant de publier</span><span class="en" lang="en">Edit before publishing</span></button>
-                  <button class="bouton secondaire" type="button" id="b-publish" hidden><span class="fr" lang="fr">Publier cette proposition</span><span class="en" lang="en">Publish this suggestion</span></button>
-                  <button class="bouton" type="button" id="b-save" title="Ctrl+S"></button>
+                  <button class="ed-icone" type="button" id="b-history" aria-label="Historique · History" title="Historique · History" hidden><svg class="ed-svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 12a8 8 0 1 0 2.5-5.8L4 8.5"/><path d="M4 4v4.5h4.5M12 8v4.5l3 1.5"/></svg></button>
+                  <button class="ed-icone" type="button" id="b-infos" aria-label="Propriétés · Properties" title="Propriétés · Properties" aria-pressed="false"><svg class="ed-svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M15 5v14"/></svg></button>
+                  <div class="ed-menu-zone">
+                    <button class="ed-icone" type="button" id="b-more" aria-label="Plus · More" title="Plus · More" aria-haspopup="menu" aria-expanded="false" hidden><svg class="ed-svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="6" cy="12" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="18" cy="12" r="1.2"/></svg></button>
+                    <ul class="ed-menu" id="ed-menu" role="menu" hidden>
+                      <li role="none"><button type="button" role="menuitem" id="b-delete" class="danger"><svg class="ed-svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/></svg><span id="b-delete-texte"></span></button></li>
+                    </ul>
+                  </div>
+                  <button class="ed-btn" type="button" id="b-editmain" hidden><span class="fr" lang="fr">Modifier avant de publier</span><span class="en" lang="en">Edit before publishing</span></button>
+                  <button class="ed-btn" type="button" id="b-publish" hidden><span class="fr" lang="fr">Publier la proposition</span><span class="en" lang="en">Publish suggestion</span></button>
+                  <button class="ed-btn primaire" type="button" id="b-save" title="Ctrl+S"></button>
                 </div>
               </div>
-              <p class="ed-etat" id="ed-etat" role="status"></p>
-              <div id="ed-conflit" class="alerte" role="alert" hidden>
-                <p><strong><span class="fr" lang="fr">L'article a changé depuis que vous l'avez ouvert.</span><span class="en" lang="en">The article changed since you opened it.</span></strong></p>
-                <div class="actions"><button class="bouton secondaire" type="button" id="b-reload"><span class="fr" lang="fr">Recharger la dernière version (vos modifications seront perdues)</span><span class="en" lang="en">Reload the latest version (your changes will be lost)</span></button><button class="bouton secondaire danger" type="button" id="b-overwrite"><span class="fr" lang="fr">Écraser avec ma version</span><span class="en" lang="en">Overwrite with my version</span></button></div>
+
+              <div id="ed-conflit" class="ed-bandeau" role="alert" hidden>
+                <div><strong><span class="fr" lang="fr">L'article a changé depuis que vous l'avez ouvert.</span><span class="en" lang="en">The article changed since you opened it.</span></strong></div>
+                <div class="ed-bandeau-actions"><button class="ed-btn" type="button" id="b-reload"><span class="fr" lang="fr">Recharger la dernière version</span><span class="en" lang="en">Reload latest version</span></button><button class="ed-btn danger" type="button" id="b-overwrite"><span class="fr" lang="fr">Écraser avec ma version</span><span class="en" lang="en">Overwrite with mine</span></button></div>
               </div>
+
               <div class="ed-corps" id="ed-corps" data-infos="ferme">
                 <div class="ed-colonne">
-                  <div class="ed-controles">
-                    <div class="ed-seg" id="ed-langues" role="tablist" aria-label="Langue du texte · Text language">
-                      <button type="button" role="tab" class="ed-onglet" data-tab="fr" aria-selected="true">Français</button>
-                      <button type="button" role="tab" class="ed-onglet" data-tab="en" aria-selected="false">English</button>
-                    </div>
-                    <div class="ed-seg ed-vues" id="ed-vues">
-                      <button type="button" class="ed-vue" data-vue="ecrire" aria-pressed="true"><span class="fr" lang="fr">Écrire</span><span class="en" lang="en">Write</span></button>
-                      <button type="button" class="ed-vue" data-vue="apercu" aria-pressed="false"><span class="fr" lang="fr">Aperçu</span><span class="en" lang="en">Preview</span></button>
-                    </div>
-                  </div>
+                  <div class="ed-vues-ligne"><div class="ed-seg" id="ed-vues">
+                    <button type="button" class="ed-vue" data-vue="ecrire" aria-pressed="true"><span class="fr" lang="fr">Écrire</span><span class="en" lang="en">Write</span></button>
+                    <button type="button" class="ed-vue" data-vue="apercu" aria-pressed="false"><span class="fr" lang="fr">Aperçu</span><span class="en" lang="en">Preview</span></button>
+                  </div></div>
                   <div class="ed-ecran" id="ed-ecran" data-vue="ecrire">
-                    <div class="ed-ecriture">
-                      <div class="ed-outils" role="toolbar" aria-label="Mise en forme · Formatting"><button type="button" class="ed-outil" data-act="h2" aria-label="Titre de section · Section heading" title="Titre de section · Section heading"><svg class="ed-svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 4v16M18 4v16M6 12h12"/></svg></button><button type="button" class="ed-outil" data-act="bold" aria-label="Gras · Bold (Ctrl+B)" title="Gras · Bold (Ctrl+B)"><svg class="ed-svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M7 5h6a3.5 3.5 0 0 1 0 7H7zM7 12h7a3.5 3.5 0 0 1 0 7H7z"/></svg></button><button type="button" class="ed-outil" data-act="italic" aria-label="Italique · Italic (Ctrl+I)" title="Italique · Italic (Ctrl+I)"><svg class="ed-svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M14 5h-4M14 19h-4M15 5l-6 14"/></svg></button><span class="ed-sep" aria-hidden="true"></span><button type="button" class="ed-outil" data-act="link" aria-label="Lien · Link (Ctrl+K)" title="Lien · Link (Ctrl+K)"><svg class="ed-svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg></button><button type="button" class="ed-outil" data-act="list" aria-label="Liste · List" title="Liste · List"><svg class="ed-svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1"/><circle cx="4.5" cy="12" r="1"/><circle cx="4.5" cy="18" r="1"/></svg></button><button type="button" class="ed-outil" data-act="quote" aria-label="Citation · Quote" title="Citation · Quote"><svg class="ed-svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M7 7h4v5a4 4 0 0 1-4 4M15 7h4v5a4 4 0 0 1-4 4"/></svg></button></div>
-                      <textarea id="ed-texte" spellcheck="true" aria-label="Texte de l'article · Article text"></textarea>
-                      <div class="ed-sous-texte">
-                        <span id="ed-compteur"></span>
-                        <details class="ed-aide"><summary><span class="fr" lang="fr">Aide à la mise en forme</span><span class="en" lang="en">Formatting help</span></summary>
-                          <ul>
-                            <li><code>## </code><span class="fr" lang="fr">titre de section</span><span class="en" lang="en">section heading</span></li>
-                            <li><code>**<span class="fr" lang="fr">gras</span><span class="en" lang="en">bold</span>**</code> · <code>*<span class="fr" lang="fr">italique</span><span class="en" lang="en">italic</span>*</code></li>
-                            <li><code>[<span class="fr" lang="fr">texte du lien</span><span class="en" lang="en">link text</span>](https://…)</code> · <code>[…](/articles/acces)</code></li>
-                            <li><code>- </code><span class="fr" lang="fr">liste à puces</span><span class="en" lang="en">bulleted list</span> · <code>&gt; </code><span class="fr" lang="fr">citation</span><span class="en" lang="en">quote</span></li>
-                            <li><span class="fr" lang="fr">Le HTML n'est pas accepté ; seuls les liens https, mailto, internes (<code>/…</code>) et les ancres (<code>#…</code>) sont autorisés.</span><span class="en" lang="en">HTML is not accepted; only https, mailto, internal (<code>/…</code>) and anchor (<code>#…</code>) links are allowed.</span></li>
-                          </ul>
-                        </details>
+                    <section class="ed-ecriture" aria-label="Écriture · Writing">
+                      <div class="ed-outils" role="toolbar" aria-label="Mise en forme · Formatting"><button type="button" class="ed-outil" data-act="h2" aria-label="Titre · Heading" title="Titre · Heading"><svg class="ed-svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 4v16M18 4v16M6 12h12"/></svg></button><button type="button" class="ed-outil" data-act="bold" aria-label="Gras · Bold (Ctrl+B)" title="Gras · Bold (Ctrl+B)"><svg class="ed-svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M7 5h6a3.5 3.5 0 0 1 0 7H7zM7 12h7a3.5 3.5 0 0 1 0 7H7z"/></svg></button><button type="button" class="ed-outil" data-act="italic" aria-label="Italique · Italic (Ctrl+I)" title="Italique · Italic (Ctrl+I)"><svg class="ed-svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M14 5h-4M14 19h-4M15 5l-6 14"/></svg></button><span class="ed-sep" aria-hidden="true"></span><button type="button" class="ed-outil" data-act="link" aria-label="Lien · Link (Ctrl+K)" title="Lien · Link (Ctrl+K)"><svg class="ed-svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg></button><button type="button" class="ed-outil" data-act="list" aria-label="Liste · List" title="Liste · List"><svg class="ed-svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1"/><circle cx="4.5" cy="12" r="1"/><circle cx="4.5" cy="18" r="1"/></svg></button><button type="button" class="ed-outil" data-act="quote" aria-label="Citation · Quote" title="Citation · Quote"><svg class="ed-svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M7 7h4v5a4 4 0 0 1-4 4M15 7h4v5a4 4 0 0 1-4 4"/></svg></button><span class="ed-aide-zone"><button class="ed-outil ed-aide-bouton" type="button" id="b-aide" aria-label="Aide · Help" title="Aide · Help" aria-expanded="false">?</button></span></div>
+                      <div class="ed-aide" id="ed-aide" hidden>
+                        <ul>
+                          <li><code>## </code><span class="fr" lang="fr">titre de section</span><span class="en" lang="en">section heading</span></li>
+                          <li><code>**<span class="fr" lang="fr">gras</span><span class="en" lang="en">bold</span>**</code> · <code>*<span class="fr" lang="fr">italique</span><span class="en" lang="en">italic</span>*</code></li>
+                          <li><code>[<span class="fr" lang="fr">texte du lien</span><span class="en" lang="en">link text</span>](https://…)</code> · <code>[…](/articles/acces)</code></li>
+                          <li><code>- </code><span class="fr" lang="fr">liste à puces</span><span class="en" lang="en">bulleted list</span> · <code>&gt; </code><span class="fr" lang="fr">citation</span><span class="en" lang="en">quote</span></li>
+                          <li><span class="fr" lang="fr">Le HTML n'est pas accepté ; seuls les liens https, mailto, internes (<code>/…</code>) et les ancres (<code>#…</code>) sont autorisés.</span><span class="en" lang="en">HTML is not accepted; only https, mailto, internal (<code>/…</code>) and anchor (<code>#…</code>) links are allowed.</span></li>
+                        </ul>
                       </div>
-                    </div>
-                    <div class="ed-apercu-cadre">
-                      <p class="ed-apercu-titre-barre"><span class="fr" lang="fr">Aperçu</span><span class="en" lang="en">Preview</span></p>
-                      <div class="ed-apercu corps" id="ed-apercu" aria-label="Aperçu · Preview"></div>
-                    </div>
-                  </div>
-                  <div class="ed-pied">
-                    <div class="champ"><label for="ed-msg"><span class="fr" lang="fr">Message de version (facultatif)</span><span class="en" lang="en">Version message (optional)</span></label><input id="ed-msg" type="text" maxlength="200" autocomplete="off"></div>
+                      <textarea id="ed-texte" spellcheck="true" aria-label="Texte de l'article · Article text"></textarea>
+                      <div class="ed-pied">
+                        <label class="ed-message"><span class="cache"><span class="fr" lang="fr">Message de version (facultatif)</span><span class="en" lang="en">Version message (optional)</span></span><input id="ed-msg" type="text" maxlength="200" autocomplete="off" placeholder="Message de version (facultatif)"></label>
+                        <span id="ed-compteur"></span>
+                      </div>
+                    </section>
+                    <section class="ed-apercu-cadre" aria-label="Aperçu · Preview">
+                      <div class="ed-apercu corps" id="ed-apercu"></div>
+                    </section>
                   </div>
                   <details class="ed-histo-bloc" id="d-histo" hidden>
                     <summary><span class="fr" lang="fr">Historique</span><span class="en" lang="en">History</span></summary>
@@ -130,8 +138,7 @@
                   </details>
                 </div>
                 <aside class="ed-infos" id="ed-infos" aria-label="Propriétés · Properties">
-                  <h2 class="ed-infos-titre"><span class="fr" lang="fr">Propriétés</span><span class="en" lang="en">Properties</span></h2>
-                  <form id="f-meta" class="ed-meta" novalidate onsubmit="return false"><fieldset class="ed-groupe"><legend><span class="fr" lang="fr">Identité</span><span class="en" lang="en">Identity</span></legend><div class="champ"><label for="m-slug"><span class="fr" lang="fr">Identifiant (URL)</span><span class="en" lang="en">Identifier (URL)</span></label><input id="m-slug" data-k="slug" type="text" maxlength="600" autocomplete="off" spellcheck="false" pattern="[a-z0-9][a-z0-9-]*"></div><div class="ed-deux"><div class="champ"><label for="m-order"><span class="fr" lang="fr">Ordre</span><span class="en" lang="en">Order</span></label><input id="m-order" data-k="order" type="number" maxlength="600" autocomplete="off" spellcheck="false"></div><div class="champ"><label for="m-lang"><span class="fr" lang="fr">Langues</span><span class="en" lang="en">Languages</span></label><select id="m-lang" data-k="lang"><option value="both">FR + EN</option><option value="fr">Français</option><option value="en">English</option></select></div></div></fieldset><fieldset class="ed-groupe" data-l="fr"><legend><span class="fr" lang="fr">Français</span><span class="en" lang="en">French</span></legend><div class="champ"><label for="m-title_fr"><span class="fr" lang="fr">Titre</span><span class="en" lang="en">Title</span></label><input id="m-title_fr" data-k="title_fr" type="text" maxlength="600" autocomplete="off" spellcheck="false"></div><div class="champ"><label for="m-category_fr"><span class="fr" lang="fr">Catégorie</span><span class="en" lang="en">Category</span></label><input id="m-category_fr" data-k="category_fr" type="text" maxlength="600" autocomplete="off" spellcheck="false"></div><div class="champ"><label for="m-chapeau_fr"><span class="fr" lang="fr">Chapeau</span><span class="en" lang="en">Lead</span></label><textarea id="m-chapeau_fr" data-k="chapeau_fr" rows="3" maxlength="600"></textarea></div><div class="champ"><label for="m-description_fr"><span class="fr" lang="fr">Description (référencement)</span><span class="en" lang="en">Description (search engines)</span></label><textarea id="m-description_fr" data-k="description_fr" rows="3" maxlength="600"></textarea></div></fieldset><fieldset class="ed-groupe" data-l="en"><legend><span class="fr" lang="fr">English</span><span class="en" lang="en">English</span></legend><div class="champ"><label for="m-title_en"><span class="fr" lang="fr">Titre</span><span class="en" lang="en">Title</span></label><input id="m-title_en" data-k="title_en" type="text" maxlength="600" autocomplete="off" spellcheck="false"></div><div class="champ"><label for="m-category_en"><span class="fr" lang="fr">Catégorie</span><span class="en" lang="en">Category</span></label><input id="m-category_en" data-k="category_en" type="text" maxlength="600" autocomplete="off" spellcheck="false"></div><div class="champ"><label for="m-chapeau_en"><span class="fr" lang="fr">Chapeau</span><span class="en" lang="en">Lead</span></label><textarea id="m-chapeau_en" data-k="chapeau_en" rows="3" maxlength="600"></textarea></div><div class="champ"><label for="m-description_en"><span class="fr" lang="fr">Description (référencement)</span><span class="en" lang="en">Description (search engines)</span></label><textarea id="m-description_en" data-k="description_en" rows="3" maxlength="600"></textarea></div></fieldset><fieldset class="ed-groupe"><legend><span class="fr" lang="fr">Liens</span><span class="en" lang="en">Links</span></legend><div class="champ"><label for="m-see_also"><span class="fr" lang="fr">Voir aussi (identifiants séparés par des virgules)</span><span class="en" lang="en">See also (identifiers separated by commas)</span></label><input id="m-see_also" data-k="see_also" type="text" maxlength="600" autocomplete="off" spellcheck="false" list="dl-articles"></div></fieldset></form>
+                  <form id="f-meta" class="ed-meta" novalidate onsubmit="return false"><section class="ed-groupe"><h3><span class="fr" lang="fr">Identité</span><span class="en" lang="en">Identity</span></h3><div class="ed-lignes"><div class="ed-ligne"><label for="m-slug"><span class="fr" lang="fr">Adresse</span><span class="en" lang="en">Address</span></label><input id="m-slug" data-k="slug" type="text" maxlength="600" autocomplete="off" spellcheck="false" pattern="[a-z0-9][a-z0-9-]*"></div><div class="ed-ligne"><label for="m-order"><span class="fr" lang="fr">Ordre</span><span class="en" lang="en">Order</span></label><input id="m-order" data-k="order" type="number" maxlength="600" autocomplete="off" spellcheck="false"></div><div class="ed-ligne"><label for="m-lang"><span class="fr" lang="fr">Langues</span><span class="en" lang="en">Languages</span></label><select id="m-lang" data-k="lang"><option value="both">FR + EN</option><option value="fr">Français</option><option value="en">English</option></select></div></div></section><section class="ed-groupe" data-l="fr"><h3><span class="fr" lang="fr">Français</span><span class="en" lang="en">French</span></h3><div class="ed-lignes"><div class="ed-ligne"><label for="m-title_fr"><span class="fr" lang="fr">Titre</span><span class="en" lang="en">Title</span></label><input id="m-title_fr" data-k="title_fr" type="text" maxlength="600" autocomplete="off" spellcheck="false"></div><div class="ed-ligne"><label for="m-category_fr"><span class="fr" lang="fr">Catégorie</span><span class="en" lang="en">Category</span></label><input id="m-category_fr" data-k="category_fr" type="text" maxlength="600" autocomplete="off" spellcheck="false"></div><div class="ed-ligne ed-ligne-bloc"><label for="m-chapeau_fr"><span class="fr" lang="fr">Chapeau</span><span class="en" lang="en">Lead</span></label><textarea id="m-chapeau_fr" data-k="chapeau_fr" rows="3" maxlength="600"></textarea></div><div class="ed-ligne ed-ligne-bloc"><label for="m-description_fr"><span class="fr" lang="fr">Description</span><span class="en" lang="en">Description</span></label><textarea id="m-description_fr" data-k="description_fr" rows="3" maxlength="600"></textarea></div></div></section><section class="ed-groupe" data-l="en"><h3><span class="fr" lang="fr">English</span><span class="en" lang="en">English</span></h3><div class="ed-lignes"><div class="ed-ligne"><label for="m-title_en"><span class="fr" lang="fr">Titre</span><span class="en" lang="en">Title</span></label><input id="m-title_en" data-k="title_en" type="text" maxlength="600" autocomplete="off" spellcheck="false"></div><div class="ed-ligne"><label for="m-category_en"><span class="fr" lang="fr">Catégorie</span><span class="en" lang="en">Category</span></label><input id="m-category_en" data-k="category_en" type="text" maxlength="600" autocomplete="off" spellcheck="false"></div><div class="ed-ligne ed-ligne-bloc"><label for="m-chapeau_en"><span class="fr" lang="fr">Chapeau</span><span class="en" lang="en">Lead</span></label><textarea id="m-chapeau_en" data-k="chapeau_en" rows="3" maxlength="600"></textarea></div><div class="ed-ligne ed-ligne-bloc"><label for="m-description_en"><span class="fr" lang="fr">Description</span><span class="en" lang="en">Description</span></label><textarea id="m-description_en" data-k="description_en" rows="3" maxlength="600"></textarea></div></div></section><section class="ed-groupe"><h3><span class="fr" lang="fr">Voir aussi</span><span class="en" lang="en">See also</span></h3><div class="ed-lignes"><div class="ed-ligne"><label for="m-see_also"><span class="fr" lang="fr">Articles liés</span><span class="en" lang="en">Related articles</span></label><input id="m-see_also" data-k="see_also" type="text" maxlength="600" autocomplete="off" spellcheck="false" list="dl-articles" placeholder="slug-1, slug-2"></div></div></section></form>
                 </aside>
               </div>
             </div>
@@ -139,6 +146,13 @@
         </div>
       </div>
       <div class="ed-toasts" id="ed-toasts" role="region" aria-live="polite" aria-label="Notifications"></div>
+      <div class="ed-voile" id="ed-voile" hidden>
+        <div class="ed-feuille" role="alertdialog" aria-modal="true" aria-labelledby="ed-feuille-titre" aria-describedby="ed-feuille-texte">
+          <h2 id="ed-feuille-titre"></h2>
+          <p id="ed-feuille-texte"></p>
+          <div class="ed-feuille-actions"><button class="ed-btn" type="button" id="b-feuille-non"></button><button class="ed-btn primaire" type="button" id="b-feuille-oui"></button></div>
+        </div>
+      </div>
     </div>
   </section>
 

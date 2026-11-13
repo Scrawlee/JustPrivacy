@@ -112,29 +112,33 @@
     catch (e) { ev = d.createEvent('CustomEvent'); ev.initCustomEvent(type, false, false, detail); }
     capEl.dispatchEvent(ev);
   }
-  function capShow(state, pct) {
+  var CAP_CIRC = 56.55; // 2 * pi * 9 : longueur de l'anneau de progression
+  function capRing(p) {
+    var ring = capEl.querySelector('.cap-anneau');
+    if (ring) { ring.style.strokeDashoffset = String(CAP_CIRC * (1 - p)); }
+  }
+  function capShow(state) {
     capEl.setAttribute('data-state', state);
-    var btn = capEl.querySelector('.cap-bouton');
-    btn.setAttribute('aria-checked', state === 'done' ? 'true' : 'false');
-    var f = capEl.querySelector('.cap-etat .fr'), e = capEl.querySelector('.cap-etat .en');
-    var p = (state === 'work' && pct > 0) ? pct : 0;
-    f.textContent = CAPT[state][0] + (p ? ' ' + p + '\u00a0%' : '');
-    e.textContent = CAPT[state][1] + (p ? ' ' + p + '%' : '');
+    capEl.querySelector('.cap-bouton').setAttribute('aria-checked', state === 'done' ? 'true' : 'false');
+    capEl.querySelector('.cap-etat .fr').textContent = CAPT[state][0];
+    capEl.querySelector('.cap-etat .en').textContent = CAPT[state][1];
+    // Anneau : vide au repos, rempli quand c'est fini ou en échec, suit la progression pendant le calcul.
+    capRing(state === 'work' ? 0.12 : (state === 'idle' ? 0 : 1));
   }
   function capSolve() {
     if (capBusy || capEl.getAttribute('data-state') === 'done') { return; }
-    capBusy = true; capToken = ''; capShow('work', 0);
+    capBusy = true; capToken = ''; capShow('work');
     try {
       if (!capObj) {
         capObj = new w.Cap({ apiEndpoint: capEl.getAttribute('data-endpoint') });
         capObj.addEventListener('progress', function (ev) {
-          var n = Math.round((ev && ev.detail && ev.detail.progress) || 0);
-          if (capBusy) { capShow('work', n); }
+          var n = (ev && ev.detail && ev.detail.progress) || 0;
+          if (capBusy) { capRing(Math.max(0.12, Math.min(1, n / 100))); }
         });
       }
       capObj.solve().then(function (r) {
         capBusy = false;
-        if (r && r.token) { capShow('done'); capEvent('solve', { token: r.token }); }
+        if (r && r.token) { capRing(1); capShow('done'); capEvent('solve', { token: r.token }); }
         else { capShow('idle'); }
       }, function () {
         capBusy = false; capShow('fail'); capEvent('error', {});

@@ -254,8 +254,9 @@ cap-widget:hover{--cap-border-color:var(--encre)}
 .aide{color:#67645d;color:var(--encre-3);font-size:.875rem;line-height:1.4}
 .aide-texte{color:#4a4843;color:var(--encre-2)}
 .auth-carte cap-widget{max-width:none;margin-top:0}
-.cap-boite{position:relative}
-.cap-badge{position:absolute;top:.5rem;right:.5rem;z-index:3;display:flex;align-items:center;gap:.375rem;font-size:.75rem;line-height:1;color:#4a4843;color:var(--encre-2)}
+.cap-boite{display:flex;align-items:flex-end;gap:.625rem}
+.cap-boite cap-widget{flex:1 1 auto;width:auto;min-width:0}
+.cap-badge{position:relative;flex:0 0 auto;display:flex;align-items:center;gap:.375rem;margin-bottom:.8rem;font-size:.75rem;line-height:1;color:#4a4843;color:var(--encre-2)}
 .cap-q{display:inline-flex;align-items:center;justify-content:center;width:1.25rem;height:1.25rem;border:1.5px solid #67645d;border:1.5px solid var(--encre-3);border-radius:50%;background:#f3f1ea;background:var(--papier);font-size:.75rem;font-weight:700;color:#4a4843;color:var(--encre-2);cursor:help}
 .cap-q:hover,.cap-q:focus{border-color:#0c5a44;border-color:var(--accent);background:#0c5a44;background:var(--accent);color:#f3f1ea;color:var(--accent-texte)}
 .cap-q:focus{outline:3px solid #0c5a44;outline:3px solid var(--focus);outline-offset:2px}

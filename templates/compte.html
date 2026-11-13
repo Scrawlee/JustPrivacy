@@ -63,28 +63,28 @@
               <div class="cpt-profil-actions"><a class="bouton" href="/editeur"><span class="fr" lang="fr">Éditeur d'articles</span><span class="en" lang="en">Article editor</span></a><button class="bouton secondaire" type="button" id="b-logout"><span class="fr" lang="fr">Se déconnecter</span><span class="en" lang="en">Log out</span></button></div>
             </div>
 
-            <section class="cpt-groupe cpt-confirmation" id="s-reauth">
-              <div class="cpt-lignes">
-                <div class="cpt-ligne"><label for="reauth"><span class="fr" lang="fr">Mot de passe actuel</span><span class="en" lang="en">Current password</span></label><input id="reauth" name="reauth" placeholder="••••••••••" type="password" autocomplete="current-password"></div>
-              </div>
-              <p class="cpt-aide"><span class="fr" lang="fr">Les modifications ci-dessous demandent votre mot de passe actuel.</span><span class="en" lang="en">The changes below ask for your current password.</span></p>
-            </section>
+            <div class="cpt-conseil" id="cpt-conseil" role="note" hidden>
+              <span class="cpt-conseil-icone" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3l9 16H3z"/><path d="M12 10v4M12 17.5v.01"/></svg></span>
+              <div class="cpt-conseil-texte"><strong id="conseil-titre"></strong><p id="conseil-texte"></p></div>
+              <a class="bouton" href="#s-totp" id="conseil-lien"></a>
+            </div>
 
             <form class="cpt-groupe" id="f-username" novalidate><h2 id="s-username"><span class="fr" lang="fr">Profil</span><span class="en" lang="en">Profile</span></h2>
               <div class="cpt-lignes">
                 <div class="cpt-ligne"><label for="newname"><span class="fr" lang="fr">Nom d'utilisateur</span><span class="en" lang="en">Username</span></label><input id="newname" name="newname" type="text" autocomplete="off" autocapitalize="none" spellcheck="false" maxlength="32"></div>
               </div>
               <p class="cpt-aide" id="name-hint"></p>
-              <div class="cpt-actions"><button class="bouton" type="submit"><span class="fr" lang="fr">Enregistrer</span><span class="en" lang="en">Save</span></button></div>
+              <div class="cpt-actions"><button class="bouton" type="submit" id="b-name-save" disabled><span class="fr" lang="fr">Enregistrer</span><span class="en" lang="en">Save</span></button></div>
             </form>
 
             <form class="cpt-groupe" id="f-password" novalidate><h2 id="s-password"><span class="fr" lang="fr">Mot de passe</span><span class="en" lang="en">Password</span></h2>
+              <input class="cache" type="text" name="username" id="pw-user2" autocomplete="username" value="" readonly tabindex="-1" aria-hidden="true">
               <div class="cpt-lignes">
-                <div class="cpt-ligne"><label for="newpw"><span class="fr" lang="fr">Nouveau mot de passe</span><span class="en" lang="en">New password</span></label><input id="newpw" name="newpw" placeholder="••••••••••" type="password" autocomplete="new-password" autocapitalize="none" spellcheck="false"></div>
-                <div class="cpt-ligne"><label for="newpw2"><span class="fr" lang="fr">Confirmation</span><span class="en" lang="en">Confirm</span></label><input id="newpw2" name="newpw2" placeholder="••••••••••" type="password" autocomplete="new-password" autocapitalize="none" spellcheck="false"></div>
+                <div class="cpt-ligne"><label for="newpw"><span class="fr" lang="fr">Nouveau mot de passe</span><span class="en" lang="en">New password</span></label><input id="newpw" name="newpw" type="password" autocomplete="new-password" autocapitalize="none" spellcheck="false"></div>
+                <div class="cpt-ligne"><label for="newpw2"><span class="fr" lang="fr">Confirmation</span><span class="en" lang="en">Confirm</span></label><input id="newpw2" name="newpw2" type="password" autocomplete="new-password" autocapitalize="none" spellcheck="false"></div>
               </div>
-              <p class="cpt-aide"><span class="fr" lang="fr">10 caractères minimum. Vos autres appareils seront déconnectés.</span><span class="en" lang="en">10 characters minimum. Your other devices will be logged out.</span></p>
-              <div class="cpt-actions"><button class="bouton" type="submit"><span class="fr" lang="fr">Changer le mot de passe</span><span class="en" lang="en">Change password</span></button></div>
+              <p class="cpt-aide" id="pw-hint" aria-live="polite"></p>
+              <div class="cpt-actions"><button class="bouton" type="submit" id="b-pw-save" disabled><span class="fr" lang="fr">Changer le mot de passe</span><span class="en" lang="en">Change password</span></button></div>
             </form>
 
             <section class="cpt-groupe" id="s-totp"><h2><span class="fr" lang="fr">Double authentification</span><span class="en" lang="en">Two-factor authentication</span></h2>
@@ -108,7 +108,7 @@
                 <ul id="pk-list" class="cpt-liste"></ul>
                 <form id="f-passkey" class="cpt-ligne cpt-ajout" novalidate>
                   <label class="cache" for="pk-name"><span class="fr" lang="fr">Nom de la passkey</span><span class="en" lang="en">Passkey name</span></label>
-                  <input id="pk-name" name="pk-name" type="text" autocomplete="off" autocapitalize="none" spellcheck="false" maxlength="64" placeholder="Nom (ex. : téléphone) · Name (e.g. phone)">
+                  <input id="pk-name" name="pk-name" type="text" autocomplete="off" autocapitalize="none" spellcheck="false" maxlength="64">
                   <button class="bouton secondaire" type="submit"><span class="fr" lang="fr">Ajouter</span><span class="en" lang="en">Add</span></button>
                 </form>
               </div>
@@ -119,6 +119,7 @@
                 <div id="codes" class="cpt-bloc cpt-attention" hidden>
                   <p><strong><span class="fr" lang="fr">Notez ces codes maintenant : ils ne seront plus affichés. Chacun ne sert qu'une fois.</span><span class="en" lang="en">Save these codes now: they will not be shown again. Each works only once.</span></strong></p>
                   <ul id="codes-list" class="codes"></ul>
+                  <p><button class="bouton secondaire" type="button" id="b-copy-codes"></button></p>
                 </div>
               </div>
             </section>
@@ -137,10 +138,11 @@
                 <div id="tk-new" class="cpt-bloc cpt-attention" hidden>
                   <p><strong><span class="fr" lang="fr">Copiez ce jeton maintenant : il ne sera plus affiché.</span><span class="en" lang="en">Copy this token now: it will not be shown again.</span></strong></p>
                   <p><code id="tk-value"></code></p>
+                  <p><button class="bouton secondaire" type="button" id="b-copy-token"></button></p>
                 </div>
                 <form id="f-token" class="cpt-ligne cpt-ajout" novalidate>
                   <label class="cache" for="tk-name"><span class="fr" lang="fr">Nom du jeton</span><span class="en" lang="en">Token name</span></label>
-                  <input id="tk-name" name="tk-name" type="text" autocomplete="off" autocapitalize="none" spellcheck="false" maxlength="64" placeholder="Nom (ex. : ordinateur) · Name (e.g. laptop)">
+                  <input id="tk-name" name="tk-name" type="text" autocomplete="off" autocapitalize="none" spellcheck="false" maxlength="64">
                   <label class="cache" for="tk-days"><span class="fr" lang="fr">Durée de validité (jours)</span><span class="en" lang="en">Validity (days)</span></label>
                   <select id="tk-days"><option value="30">30</option><option value="90" selected>90</option><option value="365">365</option></select>
                   <button class="bouton secondaire" type="submit"><span class="fr" lang="fr">Créer un jeton</span><span class="en" lang="en">Create a token</span></button>
@@ -155,6 +157,17 @@
               </div>
             </section>
           </div>
+        </div>
+
+        <div class="cpt-voile" id="pw-voile" hidden>
+          <form class="cpt-feuille" id="f-reauth" role="dialog" aria-modal="true" aria-labelledby="pw-titre" novalidate>
+            <h2 id="pw-titre"></h2>
+            <p id="pw-texte"></p>
+            <input class="cache" type="text" name="username" id="pw-user" autocomplete="username" value="" readonly tabindex="-1" aria-hidden="true">
+            <div class="cpt-lignes"><div class="cpt-ligne"><label for="pw-champ" id="pw-label"></label><input id="pw-champ" name="password" type="password" autocomplete="current-password" autocapitalize="none" spellcheck="false"></div></div>
+            <p class="cpt-erreur" id="pw-erreur" role="alert" hidden></p>
+            <div class="cpt-feuille-actions"><button class="bouton secondaire" type="button" id="pw-non"></button><button class="bouton" type="submit" id="pw-oui"></button></div>
+          </form>
         </div>
       </div>
     </div>

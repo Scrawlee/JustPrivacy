@@ -772,7 +772,6 @@
     renderPreview();
     setDirty(true);
   });
-  $('ed-recherche').placeholder = T('Rechercher…', 'Search…');
   on($('ed-recherche'), 'input', renderLists);
   on($('b-infos'), 'click', function () { setInfos($('ed-corps').getAttribute('data-infos') !== 'ouvert'); });
   on($('b-nav'), 'click', toggleNav);
@@ -794,7 +793,30 @@
     box.hidden = !open;
     $('b-aide').setAttribute('aria-expanded', open ? 'true' : 'false');
   });
-  $('ed-msg').placeholder = T('Note de modification (facultatif)', 'Change note (optional)');
+  // Bilingual tooltips ("Titre · Heading") and placeholders follow the page language.
+  function pick(v) {
+    var i = v.indexOf(' · ');
+    if (i < 0) { return v; }
+    var a = v.slice(0, i), b = v.slice(i + 3), m = /\s\([^)]*\)$/.exec(b);
+    if (m && !/\([^)]*\)$/.test(a)) { a += m[0]; }
+    return fr() ? a : b;
+  }
+  var biEls = [];
+  each(d.querySelectorAll('[title],[aria-label]'), function (e) {
+    var t = e.getAttribute('title'), a = e.getAttribute('aria-label');
+    if ((t && t.indexOf(' · ') > -1) || (a && a.indexOf(' · ') > -1)) { biEls.push({ e: e, t: t, a: a }); }
+  });
+  function localize() {
+    each(biEls, function (o) {
+      if (o.t && o.t.indexOf(' · ') > -1) { o.e.setAttribute('title', pick(o.t)); }
+      if (o.a && o.a.indexOf(' · ') > -1) { o.e.setAttribute('aria-label', pick(o.a)); }
+    });
+    $('ed-recherche').placeholder = T('Rechercher…', 'Search…');
+    $('ed-msg').placeholder = T('Note de modification (facultatif)', 'Change note (optional)');
+  }
+  localize();
+  on($('l-fr'), 'change', localize);
+  on($('l-en'), 'change', localize);
   each($('ed-langues').querySelectorAll('[data-tab]'), function (b) {
     on(b, 'click', function () {
       S.tab = b.getAttribute('data-tab');

@@ -330,7 +330,9 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:
 .cpt-nav a{display:inline-flex;align-items:center;min-height:2.5rem;padding:0 .875rem;border-radius:999px;color:var(--encre-2);text-decoration:none}
 .cpt-nav a:hover{background:var(--papier-2);color:var(--encre)}
 .cpt-contenu{min-width:0;max-width:46rem}
-.cpt-contenu>.alerte{position:-webkit-sticky;position:sticky;top:var(--e2);z-index:6;margin:0 0 var(--e3);border:1.5px solid var(--accent);border-left-width:1.5px;border-radius:.75rem;box-shadow:0 6px 24px rgba(0,0,0,.14)}
+.cpt-contenu>.alerte{position:fixed;left:50%;bottom:1.25rem;z-index:60;width:min(30rem,calc(100vw - 2rem));margin:0;border:1.5px solid var(--accent);border-left-width:1.5px;border-radius:.75rem;box-shadow:0 10px 30px rgba(0,0,0,.25);cursor:pointer;-webkit-transform:translateX(-50%);transform:translateX(-50%);-webkit-animation:cpt-entree .22s ease;animation:cpt-entree .22s ease}
+@-webkit-keyframes cpt-entree{from{opacity:0;-webkit-transform:translate(-50%,.5rem)}to{opacity:1;-webkit-transform:translateX(-50%)}}
+@keyframes cpt-entree{from{opacity:0;transform:translate(-50%,.5rem)}to{opacity:1;transform:translateX(-50%)}}
 .cpt-contenu>#msg{background:var(--avert-fond);border-color:var(--avert-bord);color:var(--avert-encre)}
 .cpt-profil{display:flex;flex-wrap:wrap;align-items:center;gap:var(--e2) var(--e3)}
 .cpt-avatar{display:inline-flex;flex:0 0 auto;align-items:center;justify-content:center;width:4.5rem;height:4.5rem;border-radius:50%;background:var(--accent);color:var(--accent-texte);font-size:2rem;font-weight:800;text-transform:uppercase}
@@ -394,7 +396,9 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:
 .cpt-nav a{display:inline-flex;align-items:center;min-height:2.5rem;padding:0 .875rem;border-radius:999px;color:var(--encre-2);text-decoration:none}
 .cpt-nav a:hover{background:var(--papier-2);color:var(--encre)}
 .cpt-contenu{min-width:0;max-width:46rem}
-.cpt-contenu>.alerte{position:-webkit-sticky;position:sticky;top:var(--e2);z-index:6;margin:0 0 var(--e3);border:1.5px solid var(--accent);border-left-width:1.5px;border-radius:.75rem;box-shadow:0 6px 24px rgba(0,0,0,.14)}
+.cpt-contenu>.alerte{position:fixed;left:50%;bottom:1.25rem;z-index:60;width:min(30rem,calc(100vw - 2rem));margin:0;border:1.5px solid var(--accent);border-left-width:1.5px;border-radius:.75rem;box-shadow:0 10px 30px rgba(0,0,0,.25);cursor:pointer;-webkit-transform:translateX(-50%);transform:translateX(-50%);-webkit-animation:cpt-entree .22s ease;animation:cpt-entree .22s ease}
+@-webkit-keyframes cpt-entree{from{opacity:0;-webkit-transform:translate(-50%,.5rem)}to{opacity:1;-webkit-transform:translateX(-50%)}}
+@keyframes cpt-entree{from{opacity:0;transform:translate(-50%,.5rem)}to{opacity:1;transform:translateX(-50%)}}
 .cpt-contenu>#msg{background:var(--avert-fond);border-color:var(--avert-bord);color:var(--avert-encre)}
 .cpt-profil{display:flex;flex-wrap:wrap;align-items:center;gap:var(--e2) var(--e3)}
 .cpt-avatar{display:inline-flex;flex:0 0 auto;align-items:center;justify-content:center;width:4.5rem;height:4.5rem;border-radius:50%;background:var(--accent);color:var(--accent-texte);font-size:2rem;font-weight:800;text-transform:uppercase}
@@ -448,6 +452,40 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:
   .cpt-ligne input{text-align:left}
 }
 
+
+/* account page: nudge, confirmation sheet, small controls */
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+.cpt-groupe{scroll-margin-top:var(--e3)}
+.cpt-nav a[aria-current="true"]{background:var(--papier-2);color:var(--encre);font-weight:700}
+.cpt-conseil{display:flex;flex-wrap:wrap;align-items:center;gap:var(--e2);margin-top:var(--e3);padding:var(--e2);background:var(--avert-fond);border:1.5px solid var(--avert-bord);border-radius:1rem;color:var(--avert-encre)}
+.cpt-conseil-icone{flex:0 0 auto;display:inline-flex;color:var(--avert-icone)}
+.cpt-conseil-icone svg{width:1.5rem;height:1.5rem;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.cpt-conseil-texte{flex:1 1 14rem;min-width:0}
+.cpt-conseil-texte p{margin:.125rem 0 0;font-size:.9375rem;line-height:1.45}
+.cpt-conseil .bouton{background:var(--avert-encre);border-color:var(--avert-encre);color:var(--avert-fond)}
+.cpt-oeil{flex:0 0 auto;min-height:2rem;padding:0 .5rem;background:none;border:0;border-radius:.5rem;color:var(--lien);font:inherit;font-size:.875rem;font-weight:600;cursor:pointer}
+.cpt-oeil:hover{background:var(--papier)}
+.cpt-liste .cpt-titre{flex:1 1 10rem}
+.cpt-liste .bouton.danger{border-color:transparent;background:transparent}
+.cpt-bloc .bouton{min-height:2.25rem}
+.bouton:disabled{opacity:.45;cursor:not-allowed;text-decoration:none}
+.bouton.danger-plein{background:#a4262c;border-color:#a4262c;color:#fff}
+@media (prefers-color-scheme:dark){.bouton.danger-plein{background:#ff9a9a;border-color:#ff9a9a;color:#2a0b0b}}
+.cpt-voile{position:fixed;top:0;right:0;bottom:0;left:0;z-index:70;display:flex;align-items:center;justify-content:center;padding:1rem;background:rgba(0,0,0,.42)}
+.cpt-feuille{width:min(26rem,100%);padding:var(--e3);background:var(--papier);border:1.5px solid var(--encre-3);border-radius:1.25rem;box-shadow:0 20px 60px rgba(0,0,0,.35);-webkit-animation:cpt-pop .2s ease;animation:cpt-pop .2s ease}
+@-webkit-keyframes cpt-pop{from{opacity:0;-webkit-transform:scale(.97)}to{opacity:1;-webkit-transform:none}}
+@keyframes cpt-pop{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:none}}
+.cpt-feuille h2{margin:0 0 .25rem;font-size:1.375rem;font-weight:700;letter-spacing:-.02em;line-height:1.2}
+.cpt-feuille>p{margin:0 0 var(--e2);color:var(--encre-2);font-size:.9375rem}
+.cpt-feuille .cpt-ligne{flex-wrap:nowrap}
+.cpt-feuille .cpt-ligne label{flex:0 0 6rem}
+.cpt-feuille .cpt-ligne input{flex:1 1 5rem;min-width:0}
+.cpt-erreur{margin:var(--e1) 0 0;color:var(--ed-danger,#a4262c);font-size:.9375rem;font-weight:600}
+@media (prefers-color-scheme:dark){.cpt-erreur{color:#ff9a9a}}
+.cpt-feuille-actions{display:flex;gap:var(--e1);margin-top:var(--e3)}
+.cpt-feuille-actions .bouton{flex:1 1 0}
+@media (prefers-reduced-motion:reduce){.cpt-feuille,.cpt-contenu>.alerte{-webkit-animation:none;animation:none}}
 
 /* ---- Éditeur d'articles ----
    Conçu d'après les Human Interface Guidelines d'Apple : hiérarchie par l'espace plutôt que par des cadres, barre d'outils

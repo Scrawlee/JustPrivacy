@@ -36,13 +36,14 @@
 
   <section class="page page-editeur">
     <div class="cadre">
-      <header><h1 class="moyen"><span class="fr" lang="fr">Éditeur d'articles</span><span class="en" lang="en">Article editor</span></h1></header>
+      <h1 class="cache"><span class="fr" lang="fr">Éditeur d'articles</span><span class="en" lang="en">Article editor</span></h1>
       <div id="prerequis" class="alerte" role="alert">
   <p><strong><span class="fr" lang="fr">JavaScript est requis sur cette page.</span><span class="en" lang="en">JavaScript is required on this page.</span></strong></p>
   <p><span class="fr" lang="fr">Le reste du site fonctionne sans JavaScript, mais cette page en a besoin pour l'éditeur d'articles. Activez JavaScript temporairement pour cette page, ou mettez à jour votre navigateur si vous utilisez une version ancienne, puis rechargez-la.</span><span class="en" lang="en">The rest of the site works without JavaScript, but this page needs it for the article editor. Please enable JavaScript for this page only, or update your browser if it is an old version, then reload.</span></p>
 </div>
-      <div id="app" hidden>
-        <div id="ed-garde" class="alerte" hidden><p><span class="fr" lang="fr">Connectez-vous pour écrire ou proposer un article.</span><span class="en" lang="en">Log in to write or suggest an article.</span> <a href="/connexion"><span class="fr" lang="fr">Se connecter</span><span class="en" lang="en">Log in</span></a></p></div>
+    </div>
+    <div id="app" hidden>
+        <div class="cadre"><div id="ed-garde" class="alerte" hidden><p><span class="fr" lang="fr">Connectez-vous pour écrire ou proposer un article.</span><span class="en" lang="en">Log in to write or suggest an article.</span> <a href="/connexion"><span class="fr" lang="fr">Se connecter</span><span class="en" lang="en">Log in</span></a></p></div></div>
         <div class="ed-app" id="ed-grille" data-nav="ferme" data-cote="ouvert" hidden>
 
           <aside class="ed-nav" id="ed-nav" aria-label="Articles">
@@ -151,7 +152,6 @@
           <div class="ed-feuille-actions"><button class="ed-btn" type="button" id="b-feuille-non"></button><button class="ed-btn primaire" type="button" id="b-feuille-oui"></button></div>
         </div>
       </div>
-    </div>
   </section>
 
 </main>

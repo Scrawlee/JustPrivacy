@@ -223,32 +223,6 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:
 .bouton.danger{color:#a4262c;border-color:#a4262c}
 @media (prefers-color-scheme:dark){.bouton.danger{color:#ff9a9a;border-color:#ff9a9a}}
 
-/* ---- Widget Cap (CAPTCHA) : aux couleurs du site, thème clair/sombre inclus ---- */
-/* Largeur naturelle du widget (jamais étiré sur toute la page) ; dans la carte de connexion il suit la largeur des champs. */
-cap-widget{
-  display:block;width:100%;max-width:22rem;margin-top:var(--e1);
-  --cap-background:var(--papier);
-  --cap-border-color:var(--encre-3);
-  --cap-border-radius:.625rem;
-  --cap-widget-width:100%;
-  --cap-widget-height:3.25rem;
-  --cap-widget-padding:.5rem 1rem;
-  --cap-gap:.875rem;
-  --cap-color:var(--encre);
-  --cap-checkbox-size:1.5rem;
-  --cap-checkbox-border:2px solid var(--encre-2);
-  --cap-checkbox-border-radius:.375rem;
-  --cap-checkbox-background:var(--papier);
-  --cap-checkbox-margin:2px;
-  --cap-font:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
-  --cap-spinner-color:var(--accent);
-  --cap-spinner-background-color:var(--regle);
-  --cap-spinner-thickness:4px;
-}
-
-cap-widget::part(label){font-size:1rem;font-weight:500;color:var(--encre)}
-cap-widget:hover{--cap-border-color:var(--encre)}
-
 /* ---- Pages de connexion et d'inscription ---- */
 .page-auth{padding-top:var(--e4);padding-bottom:var(--e6)}
 .auth{max-width:64rem;margin:0 auto}
@@ -265,15 +239,29 @@ cap-widget:hover{--cap-border-color:var(--encre)}
 .auth-carte input:focus{outline:3px solid var(--focus);outline-offset:1px}
 .aide{color:var(--encre-3);font-size:.875rem;line-height:1.4}
 .aide-texte{color:var(--encre-2)}
-.auth-carte cap-widget{max-width:none;margin-top:0}
-.cap-boite{display:flex;align-items:flex-end;gap:.25rem;padding-right:.5rem;background:var(--papier);border:1.5px solid var(--encre-3);border-radius:.625rem}
-.cap-boite:hover{border-color:var(--encre)}
-.cap-boite cap-widget{flex:1 1 auto;width:auto;min-width:0;--cap-background:transparent;--cap-border-color:transparent;--cap-border-radius:0}
-.cap-badge{position:relative;flex:0 0 auto;display:flex;align-items:center;gap:.375rem;margin-bottom:.9rem;font-size:.75rem;line-height:1;color:var(--encre-2)}
-.cap-q{display:inline-flex;align-items:center;justify-content:center;width:1.25rem;height:1.25rem;border:1.5px solid var(--encre-3);border-radius:50%;background:var(--papier);font-size:.75rem;font-weight:700;color:var(--encre-2);cursor:help}
+/* Case anti-robot : interface maison, le calcul est fait par le solveur de Cap (hébergé chez nous). */
+.cap-ui{position:relative;display:flex;align-items:center;justify-content:space-between;gap:var(--e2);min-height:3.5rem;padding:.5rem .875rem .5rem .5rem;background:var(--papier);border:1.5px solid var(--encre-3);border-radius:.625rem}
+.cap-ui:hover{border-color:var(--encre)}
+.cap-bouton{display:flex;align-items:center;gap:.75rem;flex:1 1 auto;min-width:0;min-height:2.5rem;padding:0 .5rem;background:none;border:0;border-radius:.5rem;color:var(--encre);font:inherit;font-weight:500;text-align:left;cursor:pointer}
+.cap-bouton:focus-visible{outline:3px solid var(--focus);outline-offset:0}
+.cap-case{position:relative;flex:0 0 auto;width:1.5rem;height:1.5rem;border:2px solid var(--encre-2);border-radius:.375rem;background:var(--papier);transition:background-color .15s ease,border-color .15s ease}
+.cap-bouton:hover .cap-case{border-color:var(--accent)}
+.cap-ui[data-state="work"] .cap-case{border-color:var(--regle);border-top-color:var(--accent);border-radius:50%;animation:cap-tourne .8s linear infinite}
+.cap-ui[data-state="work"] .cap-bouton{cursor:progress}
+.cap-ui[data-state="done"] .cap-case{background:var(--accent);border-color:var(--accent)}
+.cap-ui[data-state="done"] .cap-case::after{content:"";position:absolute;left:.4rem;top:.12rem;width:.4rem;height:.75rem;border:solid var(--accent-texte);border-width:0 2.5px 2.5px 0;-webkit-transform:rotate(45deg);transform:rotate(45deg)}
+.cap-ui[data-state="done"] .cap-bouton{cursor:default}
+.cap-ui[data-state="fail"] .cap-case{border-color:#a4262c}
+.cap-ui[data-state="fail"] .cap-etat{color:#a4262c}
+@media (prefers-color-scheme:dark){.cap-ui[data-state="fail"] .cap-case{border-color:#ff9a9a}.cap-ui[data-state="fail"] .cap-etat{color:#ff9a9a}}
+@keyframes cap-tourne{to{-webkit-transform:rotate(360deg);transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.cap-ui[data-state="work"] .cap-case{animation-duration:2.4s}}
+.cap-credit{position:relative;flex:0 0 auto;display:flex;align-items:center;gap:.375rem;font-size:.75rem;line-height:1;color:var(--encre-3)}
+.cap-credit a{color:inherit}
+.cap-q{display:inline-flex;align-items:center;justify-content:center;width:1.25rem;height:1.25rem;border:1.5px solid var(--encre-3);border-radius:50%;font-size:.75rem;font-weight:700;color:var(--encre-2);cursor:help}
 .cap-q:hover,.cap-q:focus{border-color:var(--accent);background:var(--accent);color:var(--accent-texte)}
 .cap-q:focus{outline:3px solid var(--focus);outline-offset:2px}
-.cap-tip{position:absolute;right:0;bottom:calc(100% + .625rem);width:17rem;max-width:calc(100vw - 3.5rem);padding:.625rem .875rem;background:var(--encre);color:var(--papier);border-radius:.5rem;font-size:.875rem;line-height:1.4;font-weight:400;visibility:hidden;opacity:0;transition:opacity .15s ease}
+.cap-tip{position:absolute;right:0;bottom:calc(100% + .875rem);z-index:3;width:17rem;max-width:calc(100vw - 3.5rem);padding:.625rem .875rem;background:var(--encre);color:var(--papier);border-radius:.5rem;font-size:.875rem;line-height:1.4;font-weight:400;visibility:hidden;opacity:0;transition:opacity .15s ease}
 .cap-q:hover + .cap-tip,.cap-q:focus + .cap-tip{visibility:visible;opacity:1}
 .auth-carte .actions{margin-top:var(--e1);gap:var(--e1)}
 .auth-carte .bouton{width:100%;min-height:3rem}

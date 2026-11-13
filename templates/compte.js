@@ -98,9 +98,57 @@
   function on(id, ev, fn) { var e = $(id); if (e) { e.addEventListener(ev, fn, false); } }
 
   // ---- Cap -----------------------------------------------------------------
-  var capToken = '', capEl = $('cap');
+  // Interface de la case anti-robot : la nôtre. Le calcul est celui de Cap (script servi par check.scrawlee.com).
+  var capToken = '', capEl = $('cap'), capObj = null, capBusy = false;
+  var CAPT = {
+    idle: ['Je suis humain', 'I am human'],
+    work: ['Vérification…', 'Verifying…'],
+    done: ['Vérifié', 'Verified'],
+    fail: ['Échec, réessayer', 'Failed, try again']
+  };
+  function capEvent(type, detail) {
+    var ev;
+    try { ev = new w.CustomEvent(type, { detail: detail }); }
+    catch (e) { ev = d.createEvent('CustomEvent'); ev.initCustomEvent(type, false, false, detail); }
+    capEl.dispatchEvent(ev);
+  }
+  function capShow(state, pct) {
+    capEl.setAttribute('data-state', state);
+    var btn = capEl.querySelector('.cap-bouton');
+    btn.setAttribute('aria-checked', state === 'done' ? 'true' : 'false');
+    var f = capEl.querySelector('.cap-etat .fr'), e = capEl.querySelector('.cap-etat .en');
+    var p = (state === 'work' && pct > 0) ? pct : 0;
+    f.textContent = CAPT[state][0] + (p ? ' ' + p + '\u00a0%' : '');
+    e.textContent = CAPT[state][1] + (p ? ' ' + p + '%' : '');
+  }
+  function capSolve() {
+    if (capBusy || capEl.getAttribute('data-state') === 'done') { return; }
+    capBusy = true; capToken = ''; capShow('work', 0);
+    try {
+      if (!capObj) {
+        capObj = new w.Cap({ apiEndpoint: capEl.getAttribute('data-endpoint') });
+        capObj.addEventListener('progress', function (ev) {
+          var n = Math.round((ev && ev.detail && ev.detail.progress) || 0);
+          if (capBusy) { capShow('work', n); }
+        });
+      }
+      capObj.solve().then(function (r) {
+        capBusy = false;
+        if (r && r.token) { capShow('done'); capEvent('solve', { token: r.token }); }
+        else { capShow('idle'); }
+      }, function () {
+        capBusy = false; capShow('fail'); capEvent('error', {});
+      });
+    } catch (err) { capBusy = false; capShow('fail'); fail('captcha_load'); }
+  }
   if (capEl) {
-    if (!w.customElements.get('cap-widget')) { fail('captcha_load'); }
+    if (!w.Cap) { fail('captcha_load'); }
+    capEl.reset = function () {
+      capToken = ''; capBusy = false;
+      if (capObj && typeof capObj.reset === 'function') { try { capObj.reset(); } catch (err) {} }
+      capShow('idle'); capEvent('reset', {});
+    };
+    capEl.querySelector('.cap-bouton').addEventListener('click', capSolve, false);
     capEl.addEventListener('solve', function (e) { capToken = (e.detail && e.detail.token) || ''; }, false);
     capEl.addEventListener('reset', function () { capToken = ''; }, false);
     capEl.addEventListener('error', function () { capToken = ''; }, false);

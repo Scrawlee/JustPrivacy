@@ -217,27 +217,6 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:
 .qr svg{display:block;width:100%;height:auto}
 .bouton.danger{color:#a4262c;border-color:#a4262c}
 @media (prefers-color-scheme:dark){.bouton.danger{color:#ff9a9a;border-color:#ff9a9a}}
-cap-widget{
-display:block;width:100%;max-width:22rem;margin-top:.5rem;margin-top:var(--e1);
---cap-background:var(--papier);
---cap-border-color:var(--encre-3);
---cap-border-radius:.625rem;
---cap-widget-width:100%;
---cap-widget-height:3.25rem;
---cap-widget-padding:.5rem 1rem;
---cap-gap:.875rem;
---cap-color:var(--encre);
---cap-checkbox-size:1.5rem;
---cap-checkbox-border:2px solid var(--encre-2);
---cap-checkbox-border-radius:.375rem;
---cap-checkbox-background:var(--papier);
---cap-checkbox-margin:2px;
---cap-font:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
---cap-spinner-color:var(--accent);
---cap-spinner-background-color:var(--regle);
---cap-spinner-thickness:4px}
-cap-widget::part(label){font-size:1rem;font-weight:500;color:#16161a;color:var(--encre)}
-cap-widget:hover{--cap-border-color:var(--encre)}
 .page-auth{padding-top:2.5rem;padding-top:var(--e4);padding-bottom:6.5rem;padding-bottom:var(--e6)}
 .auth{max-width:64rem;margin:0 auto}
 .auth-intro{margin-bottom:2.5rem;margin-bottom:var(--e4)}
@@ -253,15 +232,28 @@ cap-widget:hover{--cap-border-color:var(--encre)}
 .auth-carte input:focus{outline:3px solid #0c5a44;outline:3px solid var(--focus);outline-offset:1px}
 .aide{color:#67645d;color:var(--encre-3);font-size:.875rem;line-height:1.4}
 .aide-texte{color:#4a4843;color:var(--encre-2)}
-.auth-carte cap-widget{max-width:none;margin-top:0}
-.cap-boite{display:flex;align-items:flex-end;gap:.25rem;padding-right:.5rem;background:#f3f1ea;background:var(--papier);border:1.5px solid #67645d;border:1.5px solid var(--encre-3);border-radius:.625rem}
-.cap-boite:hover{border-color:#16161a;border-color:var(--encre)}
-.cap-boite cap-widget{flex:1 1 auto;width:auto;min-width:0;--cap-background:transparent;--cap-border-color:transparent;--cap-border-radius:0}
-.cap-badge{position:relative;flex:0 0 auto;display:flex;align-items:center;gap:.375rem;margin-bottom:.9rem;font-size:.75rem;line-height:1;color:#4a4843;color:var(--encre-2)}
-.cap-q{display:inline-flex;align-items:center;justify-content:center;width:1.25rem;height:1.25rem;border:1.5px solid #67645d;border:1.5px solid var(--encre-3);border-radius:50%;background:#f3f1ea;background:var(--papier);font-size:.75rem;font-weight:700;color:#4a4843;color:var(--encre-2);cursor:help}
+.cap-ui{position:relative;display:flex;align-items:center;justify-content:space-between;gap:1rem;gap:var(--e2);min-height:3.5rem;padding:.5rem .875rem .5rem .5rem;background:#f3f1ea;background:var(--papier);border:1.5px solid #67645d;border:1.5px solid var(--encre-3);border-radius:.625rem}
+.cap-ui:hover{border-color:#16161a;border-color:var(--encre)}
+.cap-bouton{display:flex;align-items:center;gap:.75rem;flex:1 1 auto;min-width:0;min-height:2.5rem;padding:0 .5rem;background:none;border:0;border-radius:.5rem;color:#16161a;color:var(--encre);font:inherit;font-weight:500;text-align:left;cursor:pointer}
+.cap-bouton:focus-visible{outline:3px solid #0c5a44;outline:3px solid var(--focus);outline-offset:0}
+.cap-case{position:relative;flex:0 0 auto;width:1.5rem;height:1.5rem;border:2px solid #4a4843;border:2px solid var(--encre-2);border-radius:.375rem;background:#f3f1ea;background:var(--papier);transition:background-color .15s ease,border-color .15s ease}
+.cap-bouton:hover .cap-case{border-color:#0c5a44;border-color:var(--accent)}
+.cap-ui[data-state="work"] .cap-case{border-color:#c8c3b6;border-color:var(--regle);border-top-color:#0c5a44;border-top-color:var(--accent);border-radius:50%;animation:cap-tourne .8s linear infinite}
+.cap-ui[data-state="work"] .cap-bouton{cursor:progress}
+.cap-ui[data-state="done"] .cap-case{background:#0c5a44;background:var(--accent);border-color:#0c5a44;border-color:var(--accent)}
+.cap-ui[data-state="done"] .cap-case::after{content:"";position:absolute;left:.4rem;top:.12rem;width:.4rem;height:.75rem;border:solid #f3f1ea;border:solid var(--accent-texte);border-width:0 2.5px 2.5px 0;-webkit-transform:rotate(45deg);transform:rotate(45deg)}
+.cap-ui[data-state="done"] .cap-bouton{cursor:default}
+.cap-ui[data-state="fail"] .cap-case{border-color:#a4262c}
+.cap-ui[data-state="fail"] .cap-etat{color:#a4262c}
+@media (prefers-color-scheme:dark){.cap-ui[data-state="fail"] .cap-case{border-color:#ff9a9a}.cap-ui[data-state="fail"] .cap-etat{color:#ff9a9a}}
+@keyframes cap-tourne{to{-webkit-transform:rotate(360deg);transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.cap-ui[data-state="work"] .cap-case{animation-duration:2.4s}}
+.cap-credit{position:relative;flex:0 0 auto;display:flex;align-items:center;gap:.375rem;font-size:.75rem;line-height:1;color:#67645d;color:var(--encre-3)}
+.cap-credit a{color:inherit}
+.cap-q{display:inline-flex;align-items:center;justify-content:center;width:1.25rem;height:1.25rem;border:1.5px solid #67645d;border:1.5px solid var(--encre-3);border-radius:50%;font-size:.75rem;font-weight:700;color:#4a4843;color:var(--encre-2);cursor:help}
 .cap-q:hover,.cap-q:focus{border-color:#0c5a44;border-color:var(--accent);background:#0c5a44;background:var(--accent);color:#f3f1ea;color:var(--accent-texte)}
 .cap-q:focus{outline:3px solid #0c5a44;outline:3px solid var(--focus);outline-offset:2px}
-.cap-tip{position:absolute;right:0;bottom:calc(100% + .625rem);width:17rem;max-width:calc(100vw - 3.5rem);padding:.625rem .875rem;background:#16161a;background:var(--encre);color:#f3f1ea;color:var(--papier);border-radius:.5rem;font-size:.875rem;line-height:1.4;font-weight:400;visibility:hidden;opacity:0;transition:opacity .15s ease}
+.cap-tip{position:absolute;right:0;bottom:calc(100% + .875rem);z-index:3;width:17rem;max-width:calc(100vw - 3.5rem);padding:.625rem .875rem;background:#16161a;background:var(--encre);color:#f3f1ea;color:var(--papier);border-radius:.5rem;font-size:.875rem;line-height:1.4;font-weight:400;visibility:hidden;opacity:0;transition:opacity .15s ease}
 .cap-q:hover + .cap-tip,.cap-q:focus + .cap-tip{visibility:visible;opacity:1}
 .auth-carte .actions{margin-top:.5rem;margin-top:var(--e1);gap:.5rem;gap:var(--e1)}
 .auth-carte .bouton{width:100%;min-height:3rem}
@@ -319,7 +311,7 @@ cap-widget:hover{--cap-border-color:var(--encre)}
 <p><span class="fr" lang="fr">Vos préférences d'affichage (langue, thème) sont enregistrées localement sur votre appareil via <code>localStorage</code>. Elles ne sont ni envoyées au serveur ni accessibles à des tiers. Vous pouvez les supprimer à tout moment en effaçant les données du site dans votre navigateur.</span><span class="en" lang="en">Your display preferences (language, theme) are stored locally on your device via <code>localStorage</code>. They are not sent to the server or accessible to third parties. You can delete them at any time by clearing site data in your browser.</span></p>
 <h2><span class="fr" lang="fr">Comptes (facultatifs)</span><span class="en" lang="en">Accounts (optional)</span></h2>
 <p><span class="fr" lang="fr">Un compte ne contient qu'un nom d'utilisateur et un mot de passe (conservé uniquement sous forme d'empreinte Argon2id). Aucune adresse e-mail n'est demandée : il n'existe donc aucun moyen de réinitialiser un mot de passe perdu. Si vous activez la double authentification, nous conservons le secret OTP (chiffré), la clé publique de vos passkeys et des codes de secours (empreintes). Aucune adresse IP ni aucun identifiant de navigateur n'est enregistré.</span><span class="en" lang="en">An account holds only a username and a password (stored only as an Argon2id hash). No e-mail address is requested, so a lost password cannot be reset. If you enable two-factor authentication, we store the OTP secret (encrypted), the public key of your passkeys and recovery codes (hashes). No IP address or browser identifier is recorded.</span></p>
-<p><span class="fr" lang="fr">Une fois connecté, un unique cookie de session strictement nécessaire est déposé (HttpOnly, sans traceur). Les pages de connexion et d'inscription chargent le CAPTCHA Cap (code depuis cdn.jsdelivr.net, vérification auprès de check.scrawlee.com) afin de limiter les abus ; aucune autre page n'est concernée.</span><span class="en" lang="en">Once logged in, a single strictly necessary session cookie is set (HttpOnly, no tracker). The login and sign-up pages load the Cap CAPTCHA (code from cdn.jsdelivr.net, verification with check.scrawlee.com) to limit abuse; no other page is concerned.</span></p>
+<p><span class="fr" lang="fr">Une fois connecté, un unique cookie de session strictement nécessaire est déposé (HttpOnly, sans traceur). Les pages de connexion et d'inscription chargent le CAPTCHA Cap (code et vérification servis par notre propre serveur, check.scrawlee.com) afin de limiter les abus ; aucune autre page n'est concernée.</span><span class="en" lang="en">Once logged in, a single strictly necessary session cookie is set (HttpOnly, no tracker). The login and sign-up pages load the Cap CAPTCHA (code and verification served by our own server, check.scrawlee.com) to limit abuse; no other page is concerned.</span></p>
 <p><span class="fr" lang="fr">Les modifications d'articles sont versionnées dans un dépôt git public : le nom d'utilisateur de l'auteur y apparaît dans l'historique, avec une adresse factice. Supprimer votre compte ne réécrit pas cet historique.</span><span class="en" lang="en">Article edits are versioned in a public git repository: the author's username appears in the history, with a placeholder address. Deleting your account does not rewrite that history.</span></p>
 <h2><span class="fr" lang="fr">Base légale du traitement</span><span class="en" lang="en">Legal basis for processing</span></h2>
 <p><span class="fr" lang="fr">Le stockage local des préférences repose sur votre consentement, exprimé par l'utilisation des contrôles de langue et de thème. Le compte, s'il est créé, repose sur l'exécution du service que vous demandez. Aucun autre traitement de données personnelles n'est effectué.</span><span class="en" lang="en">Local storage of preferences is based on your consent, expressed through the use of language and theme controls. An account, if created, rests on performing the service you request. No other personal data processing takes place.</span></p>

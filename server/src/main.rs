@@ -28,9 +28,9 @@ use std::{collections::HashMap, net::SocketAddr, path::PathBuf, sync::{Arc, Mute
 use tower_http::{compression::CompressionLayer, set_header::SetResponseHeaderLayer};
 use webauthn_rs::WebauthnBuilder;
 
-const CSP: &str = "default-src 'self'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://cdn.jsdelivr.net; \
+const CSP: &str = "default-src 'self'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://check.scrawlee.com; \
 style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; \
-connect-src 'self' https://check.scrawlee.com https://cdn.jsdelivr.net; worker-src blob:; \
+connect-src 'self' https://check.scrawlee.com; worker-src blob:; \
 frame-ancestors 'none'; base-uri 'none'; form-action 'self'";
 
 #[tokio::main]

@@ -33,6 +33,14 @@ pub fn normalize_username(raw: &str) -> ApiResult<String> {
     Ok(u)
 }
 
+/// The username as the user typed it (capitals kept). Only called after `normalize_username` accepted the input,
+/// so the lowercase form is valid; this adds an ASCII-only guard so a display name can never differ by more than case.
+pub fn display_name(raw: &str) -> ApiResult<String> {
+    let d = raw.trim();
+    if !d.is_ascii() { return Err(ApiError::bad("invalid_username")); }
+    Ok(d.to_string())
+}
+
 pub fn check_password_policy(pw: &str, username: &str) -> ApiResult<()> {
     let n = pw.chars().count();
     if n < 10 { return Err(ApiError::bad("password_too_short")); }

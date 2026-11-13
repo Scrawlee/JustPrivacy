@@ -398,6 +398,26 @@ impl GitStore {
         Ok(oid.to_string())
     }
 
+    /// Moves every pending proposal of `old` to `new` (used when an account changes its username).
+    pub fn rename_user_proposals(&self, old: &str, new: &str) -> GitResult<usize> {
+        let _guard = self.write_lock.lock().unwrap();
+        let repo = self.repo()?;
+        let mut moved = 0;
+        let names: Vec<String> = repo
+            .references_glob(&format!("refs/heads/users/{old}/*"))?
+            .flatten()
+            .filter_map(|r| r.name().map(str::to_string))
+            .collect();
+        for name in names {
+            let Some(slug) = name.strip_prefix(&format!("refs/heads/users/{old}/")) else { continue };
+            let Ok(target) = Self::proposal_ref(new, slug) else { continue };
+            let mut r = repo.find_reference(&name)?;
+            r.rename(&target, false, "username changed")?;
+            moved += 1;
+        }
+        Ok(moved)
+    }
+
     pub fn delete_proposal(&self, user: &str, slug: &str) -> GitResult<()> {
         let name = Self::proposal_ref(user, slug)?;
         let _guard = self.write_lock.lock().unwrap();

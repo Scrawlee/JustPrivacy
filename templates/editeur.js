@@ -1,6 +1,6 @@
-/* Éditeur d'articles : écrit dans le dépôt git du serveur (API /api/articles et /api/proposals).
-   ES5, aucune dépendance. Les éditeurs et administrateurs publient directement sur main ;
-   les autres comptes enregistrent des propositions (branche users/<nom>/<slug>) relues par un éditeur. */
+/* Éditeur d'articles (API /api/articles et /api/proposals). ES5, aucune dépendance.
+   Les éditeurs et administrateurs publient directement ; les autres comptes enregistrent
+   des propositions relues par un éditeur. */
 (function () {
   var d = document, w = window;
   function $(id) { return d.getElementById(id); }
@@ -304,12 +304,8 @@
     });
   }
 
-  // ---- Version publiée (commit courant de main) ---------------------------------------
-  function showSite(st) {
-    var el = $('ed-site');
-    el.textContent = st && st.commit ? T('Version publiée : ', 'Published version: ') + st.commit.slice(0, 7) : '';
-  }
-  function refreshSite() { api('GET', '/api/site', null, function (err, st) { if (!err) { showSite(st); } }); }
+  // ---- Synchronisation du cache de pages côté serveur ----------------------------------
+  function refreshSite() { api('GET', '/api/site', null, function () {}); }
 
   // ---- Formulaire ---------------------------------------------------------------------
   function fields() { return $('f-meta').querySelectorAll('[data-k]'); }
@@ -362,11 +358,11 @@
     var editor = isEditor(), txt;
     var mine = S.me && c.owner === S.me.username;
     if (c.kind === 'new') {
-      txt = editor ? T('Sera publié sur main.', 'Will be published on main.') : T('Sera enregistré comme proposition, un éditeur le relira.', 'Saved as a suggestion, an editor will review it.');
+      txt = editor ? T('Sera publié sur le site.', 'Will be published on the site.') : T('Sera enregistré comme proposition, un éditeur le relira.', 'Saved as a suggestion, an editor will review it.');
     } else if (c.kind === 'main') {
-      txt = editor ? T('Publié sur main immédiatement.', 'Published on main immediately.') : T('Enregistré comme proposition à relire.', 'Saved as a suggestion for review.');
+      txt = editor ? T('Publié immédiatement.', 'Published immediately.') : T('Enregistré comme proposition à relire.', 'Saved as a suggestion for review.');
     } else {
-      txt = mine ? T('Votre proposition (users/', 'Your suggestion (users/') + c.owner + '/' + c.slug + T('), en attente de relecture.', '), awaiting review.')
+      txt = mine ? T('Votre proposition, en attente de relecture.', 'Your suggestion, awaiting review.')
         : T('Lecture seule : publiez cette proposition ou modifiez-la avant.', 'Read-only: publish this suggestion or edit it first.');
     }
     $('b-save').title = txt + ' (Ctrl+S)';
@@ -523,7 +519,7 @@
       $('m-slug').readOnly = true;
       renderState();
       if (asProposal) { ok(T('Proposition enregistrée. Un éditeur la relira avant publication.', 'Suggestion saved. An editor will review it before publication.')); }
-      else { ok(T('Publié sur main (commit ', 'Published on main (commit ') + data.commit.slice(0, 7) + T('). La page est déjà à jour.', '). The page is already up to date.'), { href: '/articles/' + slug, label: T('Voir la page', 'View page') }); refreshSite(); }
+      else { ok(T('Article publié. La page est à jour.', 'Article published. The page is up to date.'), { href: '/articles/' + slug, label: T('Voir la page', 'View page') }); refreshSite(); }
       loadLists();
       try { w.history.replaceState(null, '', '#' + slug); } catch (e) {}
     });
@@ -565,7 +561,7 @@
         else { fail(err.code); }
         return;
       }
-      ok(T('Proposition publiée sur main (commit ', 'Suggestion published on main (commit ') + data.commit.slice(0, 7) + T('). La page est déjà à jour.', '). The page is already up to date.'), { href: '/articles/' + c.slug, label: T('Voir la page', 'View page') });
+      ok(T('Proposition publiée. La page est à jour.', 'Suggestion published. The page is up to date.'), { href: '/articles/' + c.slug, label: T('Voir la page', 'View page') });
       refreshSite();
       closeDoc();
       loadLists();
@@ -580,7 +576,7 @@
       if (err) { c.kind = 'new'; }
       show();
       S.dirty = true; renderState();
-      ok(T('Vous modifiez la version publiée avec le texte de la proposition : « Publier » l\'enregistre sur main.', 'You are editing the published version with the suggestion\'s text: "Publish" saves it on main.'));
+      ok(T('Vous modifiez la version publiée avec le texte de la proposition : « Publier » la met en ligne.', 'You are editing the published version with the suggestion\'s text: "Publish" puts it online.'));
     });
   }
   function remove() {
@@ -596,16 +592,21 @@
         });
       });
     } else if (c.kind === 'main') {
-      askConfirm({ title: T('Supprimer cet article ?', 'Delete this article?'), text: T('Il disparaît du site ; l\'historique git le conserve.', 'It leaves the site; the git history keeps it.'), ok: T('Supprimer', 'Delete'), destructive: true }, function () {
+      askConfirm({ title: T('Supprimer cet article ?', 'Delete this article?'), text: T('Il disparaît du site.', 'It will be removed from the site.'), ok: T('Supprimer', 'Delete'), destructive: true }, function () {
         api('DELETE', '/api/articles/' + encodeURIComponent(c.slug) + '?base=' + encodeURIComponent(c.version), null, function (err, data) {
           if (err) { if (err.code === 'edit_conflict') { $('ed-conflit').hidden = false; } else { fail(err.code); } return; }
           closeDoc();
-          ok(T('Article supprimé (commit ', 'Article deleted (commit ') + data.commit.slice(0, 7) + ').');
+          ok(T('Article supprimé.', 'Article deleted.'));
           refreshSite();
           loadLists();
         });
       });
     }
+  }
+
+  function fitHeight() {
+    var g = $('ed-grille'), top = g.getBoundingClientRect().top + (w.pageYOffset || 0);
+    g.style.setProperty('--ed-haut', Math.round(top) + 'px');
   }
 
   // ---- Historique ----------------------------------------------------------------------------------------
@@ -614,6 +615,59 @@
     try { return dt.toLocaleString(fr() ? 'fr-FR' : 'en-GB', { dateStyle: 'medium', timeStyle: 'short' }); }
     catch (e) { return dt.toISOString().slice(0, 16).replace('T', ' '); }
   }
+  // Line diff: trims the common head and tail, then an LCS table on what is left.
+  function diffLines(a, b) {
+    var i = 0, ea = a.length, eb = b.length, out = [], head = [], tail = [];
+    while (i < ea && i < eb && a[i] === b[i]) { head.push({ t: 'ctx', s: a[i] }); i++; }
+    while (ea > i && eb > i && a[ea - 1] === b[eb - 1]) { tail.unshift({ t: 'ctx', s: a[ea - 1] }); ea--; eb--; }
+    var x = a.slice(i, ea), y = b.slice(i, eb), n = x.length, m = y.length, r, c, mid = [];
+    if (n * m > 4000000) {
+      for (r = 0; r < n; r++) { mid.push({ t: 'moins', s: x[r] }); }
+      for (c = 0; c < m; c++) { mid.push({ t: 'plus', s: y[c] }); }
+    } else {
+      var L = [];
+      for (r = 0; r <= n; r++) { L.push(new Array(m + 1)); for (c = 0; c <= m; c++) { L[r][c] = 0; } }
+      for (r = n - 1; r >= 0; r--) { for (c = m - 1; c >= 0; c--) { L[r][c] = x[r] === y[c] ? L[r + 1][c + 1] + 1 : Math.max(L[r + 1][c], L[r][c + 1]); } }
+      r = 0; c = 0;
+      while (r < n && c < m) {
+        if (x[r] === y[c]) { mid.push({ t: 'ctx', s: x[r] }); r++; c++; }
+        else if (L[r + 1][c] >= L[r][c + 1]) { mid.push({ t: 'moins', s: x[r] }); r++; }
+        else { mid.push({ t: 'plus', s: y[c] }); c++; }
+      }
+      while (r < n) { mid.push({ t: 'moins', s: x[r++] }); }
+      while (c < m) { mid.push({ t: 'plus', s: y[c++] }); }
+    }
+    out = head.concat(mid, tail);
+    return out;
+  }
+  // Shows only the changed lines with two lines of context around them.
+  function showDiff(title, oldText, newText) {
+    var box = $('ed-diff'), ops = diffLines(oldText ? oldText.split('\n') : [], newText.split('\n')), keep = [], i, j, n = ops.length;
+    for (i = 0; i < n; i++) { keep.push(false); }
+    for (i = 0; i < n; i++) { if (ops[i].t !== 'ctx') { for (j = Math.max(0, i - 2); j <= Math.min(n - 1, i + 2); j++) { keep[j] = true; } } }
+    box.innerHTML = '';
+    var h = d.createElement('p'); h.className = 'ed-diff-titre'; h.textContent = title; box.appendChild(h);
+    var pre = d.createElement('pre'), changed = 0, gap = false;
+    for (i = 0; i < n; i++) {
+      if (ops[i].t !== 'ctx') { changed++; }
+      if (!keep[i]) { gap = true; continue; }
+      if (gap && pre.firstChild) { var sp = d.createElement('span'); sp.className = 'ed-diff-l sep'; sp.textContent = '…'; pre.appendChild(sp); }
+      gap = false;
+      var ln = d.createElement('span'); ln.className = 'ed-diff-l ' + ops[i].t; ln.textContent = ops[i].s || ' '; pre.appendChild(ln);
+    }
+    if (!changed) { pre.textContent = T('Aucune différence.', 'No differences.'); pre.style.padding = '.5rem .75rem'; }
+    box.appendChild(pre);
+    box.hidden = false;
+    try { box.scrollIntoView({ block: 'nearest' }); } catch (e) {}
+  }
+  function fetchRevision(commit, cb) {
+    if (!commit) { cb(''); return; }
+    api('GET', '/api/articles/' + encodeURIComponent(S.cur.slug) + '/revisions/' + commit, null, function (err, data) {
+      if (err) { fail(err.code); return; }
+      cb(data.content);
+    });
+  }
+  function cleanMsg(m) { return (m || '').replace(/\s*\((?:proposition de|suggestion by)[^)]*\)\s*$/i, ''); }
   function history() {
     var c = S.cur;
     if (!c || c.kind !== 'main') { return; }
@@ -621,18 +675,30 @@
       if (err) { fail(err.code); return; }
       var ul = $('l-histo'), revs = data.revisions || [];
       ul.innerHTML = '';
+      $('ed-diff').hidden = true;
       for (var i = 0; i < revs.length; i++) {
-        (function (r) {
+        (function (r, prev) {
           var li = d.createElement('li');
           var info = d.createElement('span');
-          info.textContent = when(r.time) + ' · ' + r.author + ' · ' + (r.message || '') + ' · ' + r.commit.slice(0, 7);
+          info.textContent = when(r.time) + ' · ' + r.author + (cleanMsg(r.message) ? ' · ' + cleanMsg(r.message) : '');
+          var acts = d.createElement('span'); acts.className = 'ed-histo-actions';
+          var bd = d.createElement('button'); bd.type = 'button'; bd.className = 'ed-btn';
+          bd.textContent = T('Voir les changements', 'View changes');
+          on(bd, 'click', function () {
+            fetchRevision(r.commit, function (now) {
+              fetchRevision(prev, function (before) {
+                showDiff(when(r.time) + ' · ' + r.author, before, now);
+              });
+            });
+          });
           var b = d.createElement('button'); b.type = 'button'; b.className = 'ed-btn';
           b.textContent = T('Charger cette version', 'Load this version');
           on(b, 'click', function () { loadRevision(r.commit); });
-          li.appendChild(info); li.appendChild(b); ul.appendChild(li);
-        })(revs[i]);
+          acts.appendChild(bd); acts.appendChild(b);
+          li.appendChild(info); li.appendChild(acts); ul.appendChild(li);
+        })(revs[i], i + 1 < revs.length ? revs[i + 1].commit : null);
       }
-      if (!revs.length) { var e = d.createElement('li'); e.textContent = T('Aucune révision.', 'No revisions.'); ul.appendChild(e); }
+      if (!revs.length) { var e = d.createElement('li'); e.textContent = T('Aucune version précédente.', 'No earlier versions.'); ul.appendChild(e); }
       $('d-histo').hidden = false; $('d-histo').open = true;
     });
   }
@@ -645,7 +711,7 @@
       S.tab = (c.meta.lang === 'en') ? 'en' : 'fr';
       fillForm();
       S.dirty = true; renderState();
-      ok(T('Version ' + commit.slice(0, 7) + ' chargée : enregistrez pour la rétablir.', 'Version ' + commit.slice(0, 7) + ' loaded: save to restore it.'));
+      ok(T('Ancienne version chargée : enregistrez pour la rétablir.', 'Earlier version loaded: save to restore it.'));
     });
   }
 
@@ -728,7 +794,7 @@
     box.hidden = !open;
     $('b-aide').setAttribute('aria-expanded', open ? 'true' : 'false');
   });
-  $('ed-msg').placeholder = T('Message de version (facultatif)', 'Version message (optional)');
+  $('ed-msg').placeholder = T('Note de modification (facultatif)', 'Change note (optional)');
   each($('ed-langues').querySelectorAll('[data-tab]'), function (b) {
     on(b, 'click', function () {
       S.tab = b.getAttribute('data-tab');
@@ -770,10 +836,11 @@
       return;
     }
     S.me = me;
-    $('ed-nom').textContent = me.username;
-    $('ed-avatar').textContent = me.username.charAt(0);
-    $('ed-role').textContent = isEditor() ? T('éditeur · publie sur main', 'editor · publishes on main') : T('compte simple · propose des modifications', 'regular account · suggests changes');
+    $('ed-nom').textContent = me.display_name || me.username;
+    $('ed-avatar').textContent = (me.display_name || me.username).charAt(0);
+    $('ed-role').textContent = isEditor() ? T('éditeur · publie directement', 'editor · publishes directly') : T('compte simple · propose des modifications', 'regular account · suggests changes');
     $('ed-grille').hidden = false; $('ed-grille').removeAttribute('hidden');
+    fitHeight(); on(w, 'resize', fitHeight);
     if (w.innerWidth < 1024) { setNav(true); }
     loadLists(function (okLists) {
       if (!okLists) { return; }

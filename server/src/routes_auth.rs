@@ -73,13 +73,15 @@ async fn signup(
     let ip = ip_key(client_ip(&headers, &peer, st.cfg.trust_proxy_hops));
     limit(&st, format!("signup:{ip}"), 5, Duration::from_secs(3600))?;
     let username = normalize_username(&b.username)?;
+    let display = auth::display_name(&b.username)?;
     check_password_policy(&b.password, &username)?;
     captcha::verify(&st, &b.cap_token).await?;
     let hash = auth::hash_password(&st, b.password).await?;
     let id: Option<(Uuid,)> = sqlx::query_as(
-        "INSERT INTO users (username, password_hash) VALUES ($1, $2) ON CONFLICT (username) DO NOTHING RETURNING id",
+        "INSERT INTO users (username, display_name, password_hash) VALUES ($1, $2, $3) ON CONFLICT (username) DO NOTHING RETURNING id",
     )
     .bind(&username)
+    .bind(&display)
     .bind(&hash)
     .fetch_optional(&st.db)
     .await?;
@@ -227,7 +229,9 @@ async fn logout(State(st): State<Shared>, user: AuthUser) -> ApiResult<Response>
 }
 
 async fn me(State(st): State<Shared>, user: AuthUser) -> ApiResult<Json<Value>> {
-    let (totp,): (bool,) = sqlx::query_as("SELECT totp_enabled FROM users WHERE id = $1").bind(user.id).fetch_one(&st.db).await?;
+    let (totp, display, changeable_at): (bool, Option<String>, Option<chrono::DateTime<chrono::Utc>>) = sqlx::query_as(
+        "SELECT totp_enabled, display_name, username_changed_at + interval '30 days' FROM users WHERE id = $1",
+    ).bind(user.id).fetch_one(&st.db).await?;
     let passkeys: Vec<(Uuid, String, chrono::DateTime<chrono::Utc>, Option<chrono::DateTime<chrono::Utc>>)> =
         sqlx::query_as("SELECT id, name, created_at, last_used_at FROM passkeys WHERE user_id = $1 ORDER BY created_at").bind(user.id).fetch_all(&st.db).await?;
     let tokens: Vec<(Uuid, String, chrono::DateTime<chrono::Utc>, Option<chrono::DateTime<chrono::Utc>>, Option<chrono::DateTime<chrono::Utc>>)> =
@@ -236,6 +240,8 @@ async fn me(State(st): State<Shared>, user: AuthUser) -> ApiResult<Json<Value>> 
     let (sessions,): (i64,) = sqlx::query_as("SELECT count(*) FROM sessions WHERE user_id = $1 AND expires_at > now()").bind(user.id).fetch_one(&st.db).await?;
     Ok(Json(json!({
         "username": user.username,
+        "display_name": display.unwrap_or_else(|| user.username.clone()),
+        "username_changeable_at": changeable_at.filter(|t| *t > chrono::Utc::now()),
         "role": user.role,
         "totp_enabled": totp,
         "passkeys": passkeys.iter().map(|p| json!({ "id": p.0, "name": p.1, "created_at": p.2, "last_used_at": p.3 })).collect::<Vec<_>>(),

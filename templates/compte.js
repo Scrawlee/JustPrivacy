@@ -23,6 +23,7 @@
     invalid_username: ["Nom d'utilisateur invalide : 3 à 32 caractères (lettres, chiffres, point, tiret, tiret bas), commençant par une lettre ou un chiffre.", 'Invalid username: 3 to 32 characters (letters, digits, dot, dash, underscore), starting with a letter or digit.'],
     username_reserved: ["Ce nom d'utilisateur est réservé.", 'This username is reserved.'],
     username_taken: ["Ce nom d'utilisateur est déjà pris.", 'This username is already taken.'],
+    username_cooldown: ["Vous avez déjà changé de nom d'utilisateur il y a moins de 30 jours.", 'You changed your username less than 30 days ago.'],
     password_too_short: ['Mot de passe trop court (10 caractères minimum).', 'Password too short (10 characters minimum).'],
     password_too_long: ['Mot de passe trop long (256 caractères maximum).', 'Password too long (256 characters maximum).'],
     password_is_username: ["Le mot de passe ne doit pas être le nom d'utilisateur.", 'The password must not be the username.'],
@@ -287,7 +288,11 @@
   }
 
   function render() {
-    $('who').textContent = me.username;
+    $('who').textContent = me.display_name || me.username;
+    if (document.activeElement !== $('newname')) { $('newname').value = me.display_name || me.username; }
+    $('name-hint').textContent = me.username_changeable_at
+      ? T('Vous pourrez changer de nom d\'utilisateur à partir du ', 'You can change your username again from ') + date(me.username_changeable_at) + T('. Changer seulement les majuscules reste possible à tout moment.', '. Changing only the capitals is always possible.')
+      : T('Le nom peut être changé une fois tous les 30 jours. Changer seulement les majuscules est libre et ne compte pas.', 'The username can be changed once every 30 days. Changing only the capitals is free and does not count.');
     $('role').textContent = '(' + ({ user: T('compte', 'member'), editor: T('éditeur', 'editor'), admin: 'admin' }[me.role] || me.role) + ')';
     $('totp-state').textContent = me.totp_enabled ? T('Activé.', 'Enabled.') : T('Désactivé.', 'Disabled.');
     $('b-totp-setup').hidden = me.totp_enabled;
@@ -343,6 +348,14 @@
   }
 
   on('b-logout', 'click', function () { api('POST', '/api/auth/logout', {}, function () { w.location.href = '/'; }); });
+
+  $('f-username').addEventListener('submit', function (e) {
+    e.preventDefault(); clearMsg();
+    var pw = reauth(); if (!pw) { return; }
+    api('POST', '/api/account/username', { username: $('newname').value, password: pw }, function (err) {
+      after(err, T('Nom d\'utilisateur enregistré.', 'Username saved.'));
+    });
+  }, false);
 
   $('f-password').addEventListener('submit', function (e) {
     e.preventDefault(); clearMsg();

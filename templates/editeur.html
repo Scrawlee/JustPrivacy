@@ -35,14 +35,15 @@
 <main id="contenu">
 
   <section class="page page-editeur">
-    <div class="cadre cadre-large">
+    <div class="cadre">
       <h1 class="cache"><span class="fr" lang="fr">Éditeur d'articles</span><span class="en" lang="en">Article editor</span></h1>
       <div id="prerequis" class="alerte" role="alert">
   <p><strong><span class="fr" lang="fr">JavaScript est requis sur cette page.</span><span class="en" lang="en">JavaScript is required on this page.</span></strong></p>
   <p><span class="fr" lang="fr">Le reste du site fonctionne sans JavaScript, mais cette page en a besoin pour l'éditeur d'articles. Activez JavaScript temporairement pour cette page, ou mettez à jour votre navigateur si vous utilisez une version ancienne, puis rechargez-la.</span><span class="en" lang="en">The rest of the site works without JavaScript, but this page needs it for the article editor. Please enable JavaScript for this page only, or update your browser if it is an old version, then reload.</span></p>
 </div>
-      <div id="app" hidden>
-        <div id="ed-garde" class="alerte" hidden><p><span class="fr" lang="fr">Connectez-vous pour écrire ou proposer un article.</span><span class="en" lang="en">Log in to write or suggest an article.</span> <a href="/connexion"><span class="fr" lang="fr">Se connecter</span><span class="en" lang="en">Log in</span></a></p></div>
+    </div>
+    <div id="app" hidden>
+        <div class="cadre"><div id="ed-garde" class="alerte" hidden><p><span class="fr" lang="fr">Connectez-vous pour écrire ou proposer un article.</span><span class="en" lang="en">Log in to write or suggest an article.</span> <a href="/connexion"><span class="fr" lang="fr">Se connecter</span><span class="en" lang="en">Log in</span></a></p></div></div>
         <div class="ed-app" id="ed-grille" data-nav="ferme" data-cote="ouvert" hidden>
 
           <aside class="ed-nav" id="ed-nav" aria-label="Articles">
@@ -58,7 +59,6 @@
               <ul class="ed-items" id="l-props"></ul>
               <p class="ed-aucun" id="ed-aucun" hidden><span class="fr" lang="fr">Aucun résultat</span><span class="en" lang="en">No results</span></p>
             </div>
-            <p class="ed-nav-pied" id="ed-site"></p>
             <datalist id="dl-articles"></datalist>
           </aside>
 
@@ -68,8 +68,7 @@
               <div class="ed-vide-centre">
                 <span class="ed-vide-icone"><svg class="ed-svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5"/></svg></span>
                 <h2><span class="fr" lang="fr">Aucun article ouvert</span><span class="en" lang="en">No article open</span></h2>
-                <p><span class="fr" lang="fr">Choisissez un article dans la liste, ou créez-en un. Vos modifications sont enregistrées dans le dépôt git du site.</span><span class="en" lang="en">Pick an article from the list, or create one. Your changes are saved in the site's git repository.</span></p>
-                <p class="ed-vide-git"><svg class="ed-svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="6" cy="6" r="2"/><circle cx="6" cy="18" r="2"/><circle cx="18" cy="9" r="2"/><path d="M6 8v8M18 11c0 4-6 3-12 5"/></svg> <span><span class="fr" lang="fr">Les mêmes articles se clonent avec git : <code>git clone …/git/articles.git</code></span><span class="en" lang="en">The same articles can be cloned with git: <code>git clone …/git/articles.git</code></span></span></p>
+                <p><span class="fr" lang="fr">Choisissez un article dans la liste, ou créez-en un.</span><span class="en" lang="en">Pick an article from the list, or create one.</span></p>
               </div>
             </div>
 
@@ -124,7 +123,7 @@
                       </div>
                       <textarea id="ed-texte" spellcheck="true" aria-label="Texte de l'article · Article text"></textarea>
                       <div class="ed-pied">
-                        <label class="ed-message"><span class="cache"><span class="fr" lang="fr">Message de version (facultatif)</span><span class="en" lang="en">Version message (optional)</span></span><input id="ed-msg" type="text" maxlength="200" autocomplete="off" placeholder="Message de version (facultatif)"></label>
+                        <label class="ed-message"><span class="cache"><span class="fr" lang="fr">Note de modification (facultatif)</span><span class="en" lang="en">Change note (optional)</span></span><input id="ed-msg" type="text" maxlength="200" autocomplete="off" placeholder="Note de modification (facultatif)"></label>
                         <span id="ed-compteur"></span>
                       </div>
                     </section>
@@ -135,6 +134,7 @@
                   <details class="ed-histo-bloc" id="d-histo" hidden>
                     <summary><span class="fr" lang="fr">Historique</span><span class="en" lang="en">History</span></summary>
                     <ul class="ed-histo" id="l-histo"></ul>
+                    <div class="ed-diff" id="ed-diff" hidden></div>
                   </details>
                 </div>
                 <aside class="ed-infos" id="ed-infos" aria-label="Propriétés · Properties">
@@ -153,7 +153,6 @@
           <div class="ed-feuille-actions"><button class="ed-btn" type="button" id="b-feuille-non"></button><button class="ed-btn primaire" type="button" id="b-feuille-oui"></button></div>
         </div>
       </div>
-    </div>
   </section>
 
 </main>
@@ -183,7 +182,7 @@
       </nav>
     </div>
     <div class="pied-barre">
-      <p class="pied-licence">Copyleft · <a class="fr" lang="fr" href="https://creativecommons.org/licenses/by-sa/4.0/deed.fr" rel="noopener noreferrer">CC BY-SA 4.0</a><a class="en" lang="en" href="https://creativecommons.org/licenses/by-sa/4.0/deed.en" rel="noopener noreferrer">CC BY-SA 4.0</a></p>
+      <p class="pied-licence"><span class="fr" lang="fr">Articles : <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.fr" rel="noopener noreferrer">CC BY-SA 4.0</a> · Code : <a href="https://www.gnu.org/licenses/gpl-3.0.fr.html" rel="noopener noreferrer">GPL 3.0</a></span><span class="en" lang="en">Articles: <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.en" rel="noopener noreferrer">CC BY-SA 4.0</a> · Code: <a href="https://www.gnu.org/licenses/gpl-3.0.html" rel="noopener noreferrer">GPL 3.0</a></span></p>
       <div class="reglages">
         <details class="menu-langue">
         <summary><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z"/></svg><span class="cache">Langue · Language : </span><span class="cur-fr" lang="fr">Français</span><span class="cur-en" lang="en">English</span></summary>

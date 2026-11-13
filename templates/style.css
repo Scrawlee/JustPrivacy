@@ -325,8 +325,8 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:
    Conçu d'après les Human Interface Guidelines d'Apple : hiérarchie par l'espace plutôt que par des cadres, barre d'outils
    translucide avec peu d'actions (une seule proritaire), barre latérale à deux niveaux, contrôle segmenté, inspecteur en
    rangées groupées, couleur réservée à la sélection et à l'action principale, cibles de 44 px au toucher. */
-.cadre-large{max-width:100rem}
-.page-editeur{padding-top:var(--e2);padding-bottom:var(--e4)}
+.page-editeur{padding-top:0;padding-bottom:0}
+.page-editeur .alerte{margin:var(--e2) 0}
 .page-editeur{
   --ed-trait:rgba(60,60,67,.17);--ed-champ:rgba(118,118,128,.12);--ed-champ-2:rgba(118,118,128,.2);
   --ed-verre:rgba(243,241,234,.8);--ed-selection:rgba(12,90,68,.13);--ed-ombre:0 .5px 0 rgba(0,0,0,.04),0 1px 3px rgba(0,0,0,.14);
@@ -336,7 +336,7 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:
 :root:has(#t-sombre:checked) .page-editeur{--ed-trait:rgba(235,235,245,.17);--ed-champ:rgba(118,118,128,.28);--ed-champ-2:rgba(118,118,128,.4);--ed-verre:rgba(24,24,22,.72);--ed-selection:rgba(143,211,183,.18);--ed-ombre:0 .5px 0 rgba(255,255,255,.05),0 1px 3px rgba(0,0,0,.5);--ed-danger:#ff8a8a}
 :root:has(#t-clair:checked) .page-editeur{--ed-trait:rgba(60,60,67,.17);--ed-champ:rgba(118,118,128,.12);--ed-champ-2:rgba(118,118,128,.2);--ed-verre:rgba(243,241,234,.8);--ed-selection:rgba(12,90,68,.13);--ed-ombre:0 .5px 0 rgba(0,0,0,.04),0 1px 3px rgba(0,0,0,.14);--ed-danger:#c4282d}
 .ed-app{
-  position:relative;display:block;color:var(--encre);background:var(--papier);border:.5px solid var(--ed-trait);border-radius:.875rem;
+  position:relative;display:block;color:var(--encre);background:var(--papier);border-top:.5px solid var(--ed-trait);
   font:400 .9375rem/1.33 -apple-system,BlinkMacSystemFont,"SF Pro Text","Inter",system-ui,sans-serif;letter-spacing:-.008em;
   -webkit-font-smoothing:antialiased;overflow:hidden
 }
@@ -387,7 +387,6 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:
 .ed-item-sous{display:block;overflow:hidden;color:var(--encre-3);font-size:.75rem;line-height:1.3;text-overflow:ellipsis;white-space:nowrap}
 .ed-badge{position:absolute;top:.4375rem;right:.5rem;padding:0 .4375rem;background:var(--avert-fond);border-radius:999px;color:var(--avert-encre);font-size:.6875rem;font-weight:600;line-height:1.5}
 .ed-aucun{margin:1rem .75rem;color:var(--encre-3);font-size:.875rem}
-.ed-nav-pied{margin:0;padding:.5rem 1rem .75rem;border-top:.5px solid var(--ed-trait);color:var(--encre-3);font-size:.6875rem}
 
 /* espace de travail */
 .ed-espace{position:relative;display:flex;flex-direction:column;min-width:0;min-height:36rem;background:var(--papier)}
@@ -443,10 +442,24 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:
 .ed-apercu .chapeau{max-width:none;margin:0 0 1.25rem;font-size:1.0625rem;line-height:1.5}
 .ed-apercu h2{margin:1.75rem 0 .5rem;font-size:1.3125rem;line-height:1.25}
 .ed-apercu p,.ed-apercu ul{margin-top:.5rem}
-.ed-histo-bloc{border-top:.5px solid var(--ed-trait)}
+.ed-histo-bloc{flex:0 1 auto;max-height:55%;border-top:.5px solid var(--ed-trait);overflow:auto}
 .ed-histo-bloc>summary{padding:.625rem .75rem;font-size:.8125rem;font-weight:600;cursor:pointer}
-.ed-histo{max-height:12rem;margin:0;padding:0 .75rem .5rem;overflow:auto}
+.ed-histo{margin:0;padding:0 .75rem .5rem}
 .ed-histo li{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.25rem 1rem;padding:.5rem 0;border-top:.5px solid var(--ed-trait);font-size:.8125rem}
+
+/* changements entre deux versions */
+.ed-diff{margin:0;padding:.5rem .75rem .75rem;border-top:.5px solid var(--ed-trait)}
+.ed-diff-titre{margin:0 0 .5rem;font-size:.8125rem;font-weight:600}
+.ed-diff pre{margin:0;max-height:16rem;overflow:auto;border-radius:.5rem;background:var(--papier-2);font:.8125rem/1.55 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.ed-diff-l{display:block;padding:0 .75rem;white-space:pre-wrap;overflow-wrap:anywhere}
+.ed-diff-l.plus{background:rgba(52,199,89,.18)}
+.ed-diff-l.moins{background:rgba(255,69,58,.16);text-decoration:line-through;text-decoration-color:rgba(255,69,58,.5)}
+.ed-diff-l.plus::before{content:"+ ";color:#248a3d}
+.ed-diff-l.moins::before{content:"− ";color:var(--ed-danger)}
+.ed-diff-l.ctx{color:var(--encre-3)}
+.ed-diff-l.ctx::before{content:"  "}
+.ed-diff-l.sep{color:var(--encre-3);text-align:center;font-size:.75rem}
+.ed-histo li .ed-histo-actions{display:flex;gap:.375rem}
 
 /* inspecteur : rangées groupées (réglages) */
 .ed-infos{display:none;flex:0 0 19rem;width:19rem;padding:.75rem;background:var(--papier-2);border-left:.5px solid var(--ed-trait);overflow:auto}
@@ -473,8 +486,6 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:
 .ed-vide-centre p{max-width:30rem;margin:0;font-size:.9375rem}
 .ed-vide-icone{display:inline-flex;align-items:center;justify-content:center;width:3.5rem;height:3.5rem;background:var(--ed-champ);border-radius:1rem;color:var(--encre-3)}
 .ed-vide-icone .ed-svg{width:1.75rem;height:1.75rem;stroke-width:1.4}
-.ed-vide-git{display:flex;align-items:center;gap:.5rem;margin-top:1.5rem!important;font-size:.8125rem!important}
-.ed-vide-git code{font-size:.75rem}
 
 /* notifications et feuille de confirmation */
 .ed-toasts{position:fixed;left:50%;bottom:1.25rem;z-index:60;display:flex;flex-direction:column;align-items:center;gap:.5rem;width:min(28rem,calc(100vw - 2rem));-webkit-transform:translateX(-50%);transform:translateX(-50%);pointer-events:none}
@@ -498,7 +509,7 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:
 
 /* grand écran : barre latérale | texte et aperçu | inspecteur */
 @media (min-width:64rem){
-  .ed-app{display:grid;grid-template-columns:15.5rem minmax(0,1fr);height:clamp(38rem,calc(100vh - 8.5rem),60rem)}
+  .ed-app{display:grid;grid-template-columns:15.5rem minmax(0,1fr);height:max(34rem,calc(100vh - var(--ed-haut,4.5rem)));height:max(34rem,calc(100dvh - var(--ed-haut,4.5rem)))}
   .ed-app[data-cote="cache"]{grid-template-columns:0 minmax(0,1fr)}
   .ed-app[data-cote="cache"] .ed-nav{display:none}
   .ed-nav{display:flex;border-right:.5px solid var(--ed-trait);min-height:0}
@@ -507,6 +518,8 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:
   .ed-ecran[data-vue="ecrire"] .ed-apercu-cadre,.ed-ecran[data-vue="apercu"] .ed-ecriture{display:flex}
   .ed-ecran[data-vue="ecrire"] .ed-apercu-cadre,.ed-ecran[data-vue="apercu"] .ed-apercu-cadre{display:block}
   .ed-espace{min-height:0}
+  .ed-ecran{overflow:hidden}
+  #ed-texte{min-height:0}
   .ed-corps{position:relative}
   .ed-infos{position:absolute;top:0;right:0;bottom:0;z-index:4;box-shadow:-8px 0 24px rgba(0,0,0,.08)}
 }

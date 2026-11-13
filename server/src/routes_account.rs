@@ -22,6 +22,7 @@ use webauthn_rs::prelude::RegisterPublicKeyCredential;
 
 pub fn router() -> Router<Shared> {
     Router::new()
+        .route("/account/username", post(change_username))
         .route("/account/password", post(change_password))
         .route("/account/totp/setup", post(totp_setup))
         .route("/account/totp/enable", post(totp_enable))
@@ -50,6 +51,42 @@ async fn require_password(st: &Shared, user: &AuthUser, password: String) -> Api
 }
 
 fn ok() -> Json<Value> { Json(json!({ "ok": true })) }
+
+// ---------------------------------------------------------------- nom d'utilisateur
+
+#[derive(Deserialize)]
+struct ChangeUsername { username: String, password: String }
+
+/// Changing only the capitals is free and instant. Changing the username itself is allowed once every 30 days;
+/// the pending proposals follow the account to its new name.
+async fn change_username(State(st): State<Shared>, user: AuthUser, Json(b): Json<ChangeUsername>) -> ApiResult<Json<Value>> {
+    require_password(&st, &user, b.password).await?;
+    let new = auth::normalize_username(&b.username)?;
+    let display = auth::display_name(&b.username)?;
+    if new == user.username {
+        sqlx::query("UPDATE users SET display_name = $2 WHERE id = $1").bind(user.id).bind(&display).execute(&st.db).await?;
+        return Ok(Json(json!({ "username": new, "display_name": display })));
+    }
+    let res = sqlx::query(
+        "UPDATE users SET username = $2, display_name = $3, username_changed_at = now()
+         WHERE id = $1 AND (username_changed_at IS NULL OR username_changed_at <= now() - interval '30 days')",
+    )
+    .bind(user.id)
+    .bind(&new)
+    .bind(&display)
+    .execute(&st.db)
+    .await;
+    match res {
+        Ok(r) if r.rows_affected() == 1 => {}
+        Ok(_) => return Err(ApiError::conflict("username_cooldown")),
+        Err(sqlx::Error::Database(e)) if e.code().as_deref() == Some("23505") => return Err(ApiError::conflict("username_taken")),
+        Err(e) => return Err(e.into()),
+    }
+    let (git, old, new2) = (st.git.clone(), user.username.clone(), new.clone());
+    let moved = tokio::task::spawn_blocking(move || git.rename_user_proposals(&old, &new2)).await.map_err(ApiError::internal)?;
+    if let Err(e) = moved { tracing::error!("renommage des propositions : {e:?}"); }
+    Ok(Json(json!({ "username": new, "display_name": display })))
+}
 
 // ------------------------------------------------------------------ mot de passe
 

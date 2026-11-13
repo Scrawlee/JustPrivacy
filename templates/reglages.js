@@ -14,9 +14,24 @@
   var pref = (navigator.languages && navigator.languages[0]) || navigator.language || navigator.userLanguage || '';
   if (!saved.langue) { saved.langue = /^fr/i.test(pref) ? 'l-fr' : 'l-en'; }
 
+  // Menu de langue (pied de page) : se referme après un choix ou Échap, et ses entrées se commandent au clavier.
+  function fermer() { each(d.querySelectorAll ? d.querySelectorAll('.menu-langue') : [], function (m) { m.removeAttribute('open'); }); }
+  each(d.querySelectorAll ? d.querySelectorAll('.menu-langue label') : [], function (l) {
+    l.onkeydown = function (e) {
+      var k = e.key || e.keyCode;
+      if (k === 'Enter' || k === ' ' || k === 13 || k === 32) { if (e.preventDefault) { e.preventDefault(); } l.click(); }
+    };
+  });
+  d.addEventListener('keydown', function (e) { if (e.key === 'Escape' || e.keyCode === 27) { fermer(); } }, false);
+  d.addEventListener('click', function (e) {
+    var t = e.target;
+    while (t && t !== d) { if (t.className === 'menu-langue') { return; } t = t.parentNode; }
+    fermer();
+  }, false);
+
   function liaison(r, nom) {
     if (saved[nom] && r.id === saved[nom]) { r.checked = true; }
-    r.onchange = function () { saved[nom] = r.id; memo(); lang(); };
+    r.onchange = function () { saved[nom] = r.id; memo(); lang(); fermer(); };
   }
   var groupes = ['langue', 'theme'];
   for (var g = 0; g < groupes.length; g++) {

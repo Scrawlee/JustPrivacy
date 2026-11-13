@@ -251,7 +251,6 @@ cap-widget{
 .auth{max-width:64rem;margin:0 auto}
 .auth-intro{margin-bottom:var(--e4)}
 .auth-titre{font-size:var(--moyen);font-weight:800;line-height:1.02;letter-spacing:-.04em}
-.auth-chapeau{margin-top:var(--e2);color:var(--encre-2);font-size:1.25rem;line-height:1.45;max-width:26ch}
 .auth-note{margin-top:var(--e3);padding:var(--e2) var(--e3);background:var(--papier-2);border-left:4px solid var(--accent);border-radius:0 .5rem .5rem 0;color:var(--encre-2);font-size:.975rem;line-height:1.55;max-width:34rem}
 .auth-carte{width:100%;max-width:29rem;padding:var(--e3);background:var(--papier-2);border:1px solid var(--regle);border-radius:1rem}
 .auth-carte .formulaire{max-width:none;margin-top:0;gap:var(--e3)}

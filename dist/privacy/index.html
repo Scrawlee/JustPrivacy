@@ -198,6 +198,44 @@ input{width:100%;min-height:2.75rem;padding:.5rem .875rem;font:inherit;color:#16
 .accueil-haut .chapeau{margin-top:0}
 .principes{grid-template-columns:repeat(4,minmax(0,1fr))}
 }
+.formulaire{display:grid;gap:1rem;gap:var(--e2);max-width:44rem;margin-top:1.5rem;margin-top:var(--e3)}
+.formulaire h2{margin:0}
+select,textarea{width:100%;min-height:2.75rem;padding:.5rem .875rem;font:inherit;color:#16161a;color:var(--encre);background:#f3f1ea;background:var(--papier);border:1.5px solid #67645d;border:1.5px solid var(--encre-3);border-radius:.5rem}
+button{font:inherit}
+button:disabled{opacity:.55;cursor:not-allowed}
+.alerte{margin:0 0 1.5rem;margin:0 0 var(--e3);padding:1rem 1.5rem;padding:var(--e2) var(--e3);background:#e9e6dd;background:var(--papier-2);border-left:4px solid #16161a;border-left:4px solid var(--encre)}
+.alerte p+p{margin-top:.5rem;margin-top:var(--e1)}
+.alerte.ok{border-left-color:#0c5a44;border-left-color:var(--accent)}
+.carte{margin-top:2.5rem;margin-top:var(--e4);padding-top:1.5rem;padding-top:var(--e3);border-top:2px solid #16161a;border-top:2px solid var(--encre)}
+.carte h2{font-size:1.375rem;margin:0 0 1rem;margin:0 0 var(--e2)}
+.carte .actions{margin-top:1rem;margin-top:var(--e2)}
+.lignes{margin:1rem 0;margin:var(--e2) 0}
+.lignes li{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.5rem 1rem;gap:var(--e1) var(--e2);padding:.5rem 0;padding:var(--e1) 0;border-bottom:1px solid #c8c3b6;border-bottom:1px solid var(--regle)}
+.codes{display:grid;gap:.5rem;gap:var(--e1);padding:0;margin:1rem 0 0;margin:var(--e2) 0 0;list-style:none}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.95em;word-break:break-all}
+.qr{width:12rem;max-width:100%;margin:1rem 0;margin:var(--e2) 0}
+.qr svg{display:block;width:100%;height:auto}
+.bouton.danger{color:#a4262c;border-color:#a4262c}
+@media (prefers-color-scheme:dark){.bouton.danger{color:#ff9a9a;border-color:#ff9a9a}}
+cap-widget{
+display:block;max-width:44rem;margin-top:.5rem;margin-top:var(--e1);
+--cap-background:var(--papier-2);
+--cap-border-color:var(--encre-3);
+--cap-border-radius:.5rem;
+--cap-widget-width:100%;
+--cap-widget-height:2.75rem;
+--cap-widget-padding:.875rem 1rem;
+--cap-gap:1rem;
+--cap-color:var(--encre);
+--cap-checkbox-size:1.5rem;
+--cap-checkbox-border:2px solid var(--encre);
+--cap-checkbox-border-radius:.25rem;
+--cap-checkbox-background:var(--papier);
+--cap-checkbox-margin:2px;
+--cap-font:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+--cap-spinner-color:var(--accent);
+--cap-spinner-background-color:var(--regle);
+--cap-spinner-thickness:4px}
 @media (min-width:48rem){.cadre{padding-left:3rem;padding-right:3rem}}
 @media (min-width:64rem){.cadre{padding-left:4rem;padding-right:4rem}}
 .theme>*+*,.entree>*+*{margin-top:.5rem}
@@ -222,6 +260,7 @@ input{width:100%;min-height:2.75rem;padding:.5rem .875rem;font:inherit;color:#16
 <a href="/articles">Articles</a>
 <a href="/benchmark">Benchmark</a>
 <a href="/apropos"><span class="fr" lang="fr">À propos</span><span class="en" lang="en">About</span></a>
+<a href="/compte"><span class="fr" lang="fr">Compte</span><span class="en" lang="en">Account</span></a>
 </nav>
 <fieldset class="groupe langues"><legend class="cache">Langue · Language</legend>
 <label for="l-en"><span lang="en">English</span></label>
@@ -234,13 +273,17 @@ input{width:100%;min-height:2.75rem;padding:.5rem .875rem;font:inherit;color:#16
 <header><h1 class="grand"><span class="fr" lang="fr">Confidentialité et CGU</span><span class="en" lang="en">Privacy policy &amp; terms</span></h1></header>
 <div class="lecture corps">
 <h2><span class="fr" lang="fr">Données collectées</span><span class="en" lang="en">Data collected</span></h2>
-<p><span class="fr" lang="fr">Ce site ne dépose aucun cookie, ne charge aucune ressource externe et n'utilise aucun outil de mesure d'audience ou de suivi. Aucune donnée de navigation n'est collectée ni transmise à des tiers.</span><span class="en" lang="en">This website sets no cookies, loads no external resources, and uses no analytics or tracking tools. No browsing data is collected or shared with third parties.</span></p>
+<p><span class="fr" lang="fr">Si vous ne créez pas de compte, ce site ne dépose aucun cookie, ne charge aucune ressource externe et n'utilise aucun outil de mesure d'audience ou de suivi. Aucune donnée de navigation n'est collectée ni transmise à des tiers.</span><span class="en" lang="en">If you do not create an account, this website sets no cookies, loads no external resources, and uses no analytics or tracking tools. No browsing data is collected or shared with third parties.</span></p>
 <h2><span class="fr" lang="fr">Stockage local</span><span class="en" lang="en">Local storage</span></h2>
 <p><span class="fr" lang="fr">Vos préférences d'affichage (langue, thème) sont enregistrées localement sur votre appareil via <code>localStorage</code>. Elles ne sont ni envoyées au serveur ni accessibles à des tiers. Vous pouvez les supprimer à tout moment en effaçant les données du site dans votre navigateur.</span><span class="en" lang="en">Your display preferences (language, theme) are stored locally on your device via <code>localStorage</code>. They are not sent to the server or accessible to third parties. You can delete them at any time by clearing site data in your browser.</span></p>
+<h2><span class="fr" lang="fr">Comptes (facultatifs)</span><span class="en" lang="en">Accounts (optional)</span></h2>
+<p><span class="fr" lang="fr">Un compte ne contient qu'un nom d'utilisateur et un mot de passe (conservé uniquement sous forme d'empreinte Argon2id). Aucune adresse e-mail n'est demandée : il n'existe donc aucun moyen de réinitialiser un mot de passe perdu. Si vous activez la double authentification, nous conservons le secret OTP (chiffré), la clé publique de vos passkeys et des codes de secours (empreintes). Aucune adresse IP ni aucun identifiant de navigateur n'est enregistré.</span><span class="en" lang="en">An account holds only a username and a password (stored only as an Argon2id hash). No e-mail address is requested, so a lost password cannot be reset. If you enable two-factor authentication, we store the OTP secret (encrypted), the public key of your passkeys and recovery codes (hashes). No IP address or browser identifier is recorded.</span></p>
+<p><span class="fr" lang="fr">Une fois connecté, un unique cookie de session strictement nécessaire est déposé (HttpOnly, sans traceur). Les pages de connexion et d'inscription chargent le CAPTCHA Cap (code depuis cdn.jsdelivr.net, vérification auprès de check.scrawlee.com) afin de limiter les abus ; aucune autre page n'est concernée.</span><span class="en" lang="en">Once logged in, a single strictly necessary session cookie is set (HttpOnly, no tracker). The login and sign-up pages load the Cap CAPTCHA (code from cdn.jsdelivr.net, verification with check.scrawlee.com) to limit abuse; no other page is concerned.</span></p>
+<p><span class="fr" lang="fr">Les modifications d'articles sont versionnées dans un dépôt git public : le nom d'utilisateur de l'auteur y apparaît dans l'historique, avec une adresse factice. Supprimer votre compte ne réécrit pas cet historique.</span><span class="en" lang="en">Article edits are versioned in a public git repository: the author's username appears in the history, with a placeholder address. Deleting your account does not rewrite that history.</span></p>
 <h2><span class="fr" lang="fr">Base légale du traitement</span><span class="en" lang="en">Legal basis for processing</span></h2>
-<p><span class="fr" lang="fr">Le stockage local des préférences repose sur votre consentement, exprimé par l'utilisation des contrôles de langue et de thème. Aucun autre traitement de données personnelles n'est effectué.</span><span class="en" lang="en">Local storage of preferences is based on your consent, expressed through the use of language and theme controls. No other personal data processing takes place.</span></p>
+<p><span class="fr" lang="fr">Le stockage local des préférences repose sur votre consentement, exprimé par l'utilisation des contrôles de langue et de thème. Le compte, s'il est créé, repose sur l'exécution du service que vous demandez. Aucun autre traitement de données personnelles n'est effectué.</span><span class="en" lang="en">Local storage of preferences is based on your consent, expressed through the use of language and theme controls. An account, if created, rests on performing the service you request. No other personal data processing takes place.</span></p>
 <h2><span class="fr" lang="fr">Vos droits</span><span class="en" lang="en">Your rights</span></h2>
-<p><span class="fr" lang="fr">Aucune donnée personnelle n'étant collectée ni conservée par ce site, les droits d'accès, de rectification, d'effacement et de portabilité prévus par le RGPD sont sans objet. Vos préférences d'affichage restent sur votre appareil et vous pouvez les supprimer à tout moment depuis votre navigateur.</span><span class="en" lang="en">As no personal data is collected or held by this website, the rights of access, rectification, erasure, and portability under the GDPR have no practical application here. Your display preferences stay on your device and can be deleted at any time from your browser settings.</span></p>
+<p><span class="fr" lang="fr">Sans compte, aucune donnée personnelle n'est collectée ni conservée. Avec un compte, vous pouvez à tout moment modifier votre mot de passe, gérer vos facteurs d'authentification et supprimer votre compte depuis la page Compte (effacement immédiat). Vos préférences d'affichage restent sur votre appareil et vous pouvez les supprimer à tout moment depuis votre navigateur.</span><span class="en" lang="en">Without an account, no personal data is collected or held. With an account, you can at any time change your password, manage your authentication factors and delete your account from the Account page (immediate erasure). Your display preferences stay on your device and can be deleted at any time from your browser settings.</span></p>
 <p><span class="fr" lang="fr">Pour toute question, contactez <a href="mailto:justprivacy.eu@proton.me">justprivacy.eu@proton.me</a>.</span><span class="en" lang="en">For any question, contact <a href="mailto:justprivacy.eu@proton.me">justprivacy.eu@proton.me</a>.</span></p>
 <h2><span class="fr" lang="fr">Conditions d'utilisation</span><span class="en" lang="en">Terms of use</span></h2>
 <p><span class="fr" lang="fr">L'accès au site est libre et gratuit. Les contenus sont publiés sous licence <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.fr" rel="noopener noreferrer">CC BY-SA 4.0</a> : vous pouvez les partager et les adapter à condition de créditer l'auteur et de conserver la même licence.</span><span class="en" lang="en">Access to the website is free and open. Content is published under the <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.en" rel="noopener noreferrer">CC BY-SA 4.0</a> license: you may share and adapt it, provided you credit the author and keep the same license.</span></p>

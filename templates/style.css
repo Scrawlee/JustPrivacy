@@ -201,6 +201,50 @@ input{width:100%;min-height:2.75rem;padding:.5rem .875rem;font:inherit;color:var
   .principes{grid-template-columns:repeat(4,minmax(0,1fr))}
 }
 
+
+/* ---- Comptes ---- */
+.formulaire{display:grid;gap:var(--e2);max-width:44rem;margin-top:var(--e3)}
+.formulaire h2{margin:0}
+select,textarea{width:100%;min-height:2.75rem;padding:.5rem .875rem;font:inherit;color:var(--encre);background:var(--papier);border:1.5px solid var(--encre-3);border-radius:.5rem}
+button{font:inherit}
+button:disabled{opacity:.55;cursor:not-allowed}
+.alerte{margin:0 0 var(--e3);padding:var(--e2) var(--e3);background:var(--papier-2);border-left:4px solid var(--encre)}
+.alerte p+p{margin-top:var(--e1)}
+.alerte.ok{border-left-color:var(--accent)}
+.carte{margin-top:var(--e4);padding-top:var(--e3);border-top:2px solid var(--encre)}
+.carte h2{font-size:1.375rem;margin:0 0 var(--e2)}
+.carte .actions{margin-top:var(--e2)}
+.lignes{margin:var(--e2) 0}
+.lignes li{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:var(--e1) var(--e2);padding:var(--e1) 0;border-bottom:1px solid var(--regle)}
+.codes{display:grid;gap:var(--e1);padding:0;margin:var(--e2) 0 0;list-style:none}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.95em;word-break:break-all}
+.qr{width:12rem;max-width:100%;margin:var(--e2) 0}
+.qr svg{display:block;width:100%;height:auto}
+.bouton.danger{color:#a4262c;border-color:#a4262c}
+@media (prefers-color-scheme:dark){.bouton.danger{color:#ff9a9a;border-color:#ff9a9a}}
+
+/* ---- Widget Cap (CAPTCHA) : aux couleurs du site, thème clair/sombre inclus ---- */
+cap-widget{
+  display:block;max-width:44rem;margin-top:var(--e1);
+  --cap-background:var(--papier-2);
+  --cap-border-color:var(--encre-3);
+  --cap-border-radius:.5rem;
+  --cap-widget-width:100%;
+  --cap-widget-height:2.75rem;
+  --cap-widget-padding:.875rem 1rem;
+  --cap-gap:1rem;
+  --cap-color:var(--encre);
+  --cap-checkbox-size:1.5rem;
+  --cap-checkbox-border:2px solid var(--encre);
+  --cap-checkbox-border-radius:.25rem;
+  --cap-checkbox-background:var(--papier);
+  --cap-checkbox-margin:2px;
+  --cap-font:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --cap-spinner-color:var(--accent);
+  --cap-spinner-background-color:var(--regle);
+  --cap-spinner-thickness:4px;
+}
+
 /* ---- Compatibilité anciens navigateurs ---- */
 @media (min-width:48rem){.cadre{padding-left:3rem;padding-right:3rem}}
 @media (min-width:64rem){.cadre{padding-left:4rem;padding-right:4rem}}

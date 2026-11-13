@@ -1,0 +1,37 @@
+[package]
+name = "justprivacy-server"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+axum = { version = "0.8", features = ["macros"] }
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "signal", "process", "fs", "sync", "time"] }
+tower-http = { version = "0.6", features = ["compression-gzip", "set-header", "limit"] }
+sqlx = { version = "0.8", default-features = false, features = ["runtime-tokio", "postgres", "migrate", "macros", "uuid", "chrono", "json"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+uuid = { version = "1", features = ["v4", "serde"] }
+chrono = { version = "0.4", features = ["serde"] }
+argon2 = "0.5"
+rand = "0.8"
+sha2 = "0.10"
+base64 = "0.22"
+chacha20poly1305 = "0.10"
+totp-rs = { version = "5", features = ["otpauth"] }
+qrcodegen = "1"
+webauthn-rs = { version = "0.5" }
+url = "2"
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+git2 = { version = "0.20", default-features = false }
+flate2 = "1"
+mime_guess = "2"
+thiserror = "2"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+subtle = "2"
+hex = "0.4"
+
+[profile.release]
+lto = "thin"
+strip = true

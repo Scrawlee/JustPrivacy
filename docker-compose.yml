@@ -1,0 +1,40 @@
+# Déploiement Dokploy (type « Compose ») : application Rust + PostgreSQL.
+# Dans Dokploy, définir les variables d'environnement (voir .env.example) et attacher le
+# domaine au service « app », port 8080 (HTTPS via Traefik).
+services:
+  app:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://justprivacy:${POSTGRES_PASSWORD}@db:5432/justprivacy
+      PUBLIC_URL: ${PUBLIC_URL}
+      CAP_SECRET: ${CAP_SECRET}
+      CAP_SITEVERIFY_URL: ${CAP_SITEVERIFY_URL:-https://check.scrawlee.com/5c7f97279d/siteverify}
+      APP_SECRET: ${APP_SECRET:-}
+      TRUST_PROXY_HOPS: ${TRUST_PROXY_HOPS:-1}
+    volumes:
+      - app-data:/data      # dépôt git des articles, site construit, clé de chiffrement
+    expose:
+      - "8080"
+
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: justprivacy
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: justprivacy
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U justprivacy -d justprivacy"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  app-data:
+  db-data:

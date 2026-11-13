@@ -19,6 +19,7 @@ import os
 import re
 import shutil
 import sys
+import argparse
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 CONTENT_DIR = os.path.join(ROOT, 'content', 'articles')
@@ -297,7 +298,8 @@ def validate():
         if not os.path.exists(os.path.join(FONTS_DIR, fname)):
             errors.append('Missing font: fonts/%s' % fname)
     for tname in ('style.css', 'reglages.js', 'home.html', 'articles.html',
-                  'article.html', 'benchmark.html', 'about.html', 'legal.html', 'privacy.html'):
+                  'article.html', 'benchmark.html', 'about.html', 'legal.html', 'privacy.html',
+                  'connexion.html', 'inscription.html', 'compte.html', 'compte.js'):
         if not os.path.exists(os.path.join(TEMPLATES_DIR, tname)):
             errors.append('Missing template: templates/%s' % tname)
     if not os.path.isdir(CONTENT_DIR):
@@ -359,6 +361,7 @@ def render_page(template_name, replacements):
     page = page.replace('{{NAV_ARTICLES}}', '')
     page = page.replace('{{NAV_BENCHMARK}}', '')
     page = page.replace('{{NAV_APROPOS}}', '')
+    page = page.replace('{{NAV_COMPTE}}', '')
     page = add_inline_fallbacks(page, STATIC_VARS)
     return minify_html(page)
 
@@ -613,9 +616,30 @@ def build():
     priv_vars['META_DESCRIPTION'] = 'Privacy policy and terms of use for JustPrivacy.'
     write_file(os.path.join(DIST_DIR, 'privacy', 'index.html'), render_page('privacy.html', priv_vars))
 
+    # Comptes : pages qui exigent JavaScript (Cap, WebAuthn) ; le reste du site n'en dépend pas.
+    account_js = strip_js_comments(read_file(os.path.join(TEMPLATES_DIR, 'compte.js')))
+    for tpl, url, title, nav in (
+            ('connexion.html', 'connexion', 'Connexion – Log in – JustPrivacy', ''),
+            ('inscription.html', 'inscription', 'Inscription – Sign up – JustPrivacy', ''),
+            ('compte.html', 'compte', 'Mon compte – My account – JustPrivacy', ' aria-current="page"')):
+        v = dict(base_vars)
+        v['TITLE'] = title
+        v['META_DESCRIPTION'] = 'Compte JustPrivacy : un nom d\'utilisateur et un mot de passe, rien d\'autre.'
+        v['JS_COMPTE'] = account_js
+        v['NAV_COMPTE'] = nav
+        write_file(os.path.join(DIST_DIR, url, 'index.html'), render_page(tpl, v))
+
     total = sum(1 for _, _, files in os.walk(DIST_DIR) for f in files if f.endswith('.html'))
     print('Build complete: %d pages in dist/' % total)
 
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Génère le site statique JustPrivacy.')
+    parser.add_argument('--content', help='dossier des articles .md (défaut : content/articles)')
+    parser.add_argument('--out', help='dossier de sortie (défaut : dist)')
+    args = parser.parse_args()
+    if args.content:
+        CONTENT_DIR = os.path.abspath(args.content)
+    if args.out:
+        DIST_DIR = os.path.abspath(args.out)
     build()

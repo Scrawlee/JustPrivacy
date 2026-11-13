@@ -198,6 +198,44 @@ input{width:100%;min-height:2.75rem;padding:.5rem .875rem;font:inherit;color:#16
 .accueil-haut .chapeau{margin-top:0}
 .principes{grid-template-columns:repeat(4,minmax(0,1fr))}
 }
+.formulaire{display:grid;gap:1rem;gap:var(--e2);max-width:44rem;margin-top:1.5rem;margin-top:var(--e3)}
+.formulaire h2{margin:0}
+select,textarea{width:100%;min-height:2.75rem;padding:.5rem .875rem;font:inherit;color:#16161a;color:var(--encre);background:#f3f1ea;background:var(--papier);border:1.5px solid #67645d;border:1.5px solid var(--encre-3);border-radius:.5rem}
+button{font:inherit}
+button:disabled{opacity:.55;cursor:not-allowed}
+.alerte{margin:0 0 1.5rem;margin:0 0 var(--e3);padding:1rem 1.5rem;padding:var(--e2) var(--e3);background:#e9e6dd;background:var(--papier-2);border-left:4px solid #16161a;border-left:4px solid var(--encre)}
+.alerte p+p{margin-top:.5rem;margin-top:var(--e1)}
+.alerte.ok{border-left-color:#0c5a44;border-left-color:var(--accent)}
+.carte{margin-top:2.5rem;margin-top:var(--e4);padding-top:1.5rem;padding-top:var(--e3);border-top:2px solid #16161a;border-top:2px solid var(--encre)}
+.carte h2{font-size:1.375rem;margin:0 0 1rem;margin:0 0 var(--e2)}
+.carte .actions{margin-top:1rem;margin-top:var(--e2)}
+.lignes{margin:1rem 0;margin:var(--e2) 0}
+.lignes li{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.5rem 1rem;gap:var(--e1) var(--e2);padding:.5rem 0;padding:var(--e1) 0;border-bottom:1px solid #c8c3b6;border-bottom:1px solid var(--regle)}
+.codes{display:grid;gap:.5rem;gap:var(--e1);padding:0;margin:1rem 0 0;margin:var(--e2) 0 0;list-style:none}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.95em;word-break:break-all}
+.qr{width:12rem;max-width:100%;margin:1rem 0;margin:var(--e2) 0}
+.qr svg{display:block;width:100%;height:auto}
+.bouton.danger{color:#a4262c;border-color:#a4262c}
+@media (prefers-color-scheme:dark){.bouton.danger{color:#ff9a9a;border-color:#ff9a9a}}
+cap-widget{
+display:block;max-width:44rem;margin-top:.5rem;margin-top:var(--e1);
+--cap-background:var(--papier-2);
+--cap-border-color:var(--encre-3);
+--cap-border-radius:.5rem;
+--cap-widget-width:100%;
+--cap-widget-height:2.75rem;
+--cap-widget-padding:.875rem 1rem;
+--cap-gap:1rem;
+--cap-color:var(--encre);
+--cap-checkbox-size:1.5rem;
+--cap-checkbox-border:2px solid var(--encre);
+--cap-checkbox-border-radius:.25rem;
+--cap-checkbox-background:var(--papier);
+--cap-checkbox-margin:2px;
+--cap-font:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+--cap-spinner-color:var(--accent);
+--cap-spinner-background-color:var(--regle);
+--cap-spinner-thickness:4px}
 @media (min-width:48rem){.cadre{padding-left:3rem;padding-right:3rem}}
 @media (min-width:64rem){.cadre{padding-left:4rem;padding-right:4rem}}
 .theme>*+*,.entree>*+*{margin-top:.5rem}
@@ -222,6 +260,7 @@ input{width:100%;min-height:2.75rem;padding:.5rem .875rem;font:inherit;color:#16
 <a href="/articles">Articles</a>
 <a href="/benchmark">Benchmark</a>
 <a href="/apropos" aria-current="page"><span class="fr" lang="fr">À propos</span><span class="en" lang="en">About</span></a>
+<a href="/compte"><span class="fr" lang="fr">Compte</span><span class="en" lang="en">Account</span></a>
 </nav>
 <fieldset class="groupe langues"><legend class="cache">Langue · Language</legend>
 <label for="l-en"><span lang="en">English</span></label>

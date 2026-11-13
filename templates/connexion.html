@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="{{META_DESCRIPTION}}">
+<title>{{TITLE}}</title>
+<!-- [dev-css] -->
+<style>
+@font-face{font-family:"Inter";font-style:normal;font-weight:400 800;font-display:swap;src:url(../fonts/inter-latin-ext.woff2) format("woff2");unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C4,U+2113,U+2C60-2C7F,U+A720-A7FF}
+@font-face{font-family:"Inter";font-style:normal;font-weight:400 800;font-display:swap;src:url(../fonts/inter-latin.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+</style>
+<link rel="stylesheet" href="style.css">
+<!-- [/dev-css] -->
+</head>
+<body>
+<input class="bas" type="radio" name="langue" id="l-en" checked>
+<input class="bas" type="radio" name="langue" id="l-fr">
+<div class="site">
+
+<a class="saut" href="#contenu"><span class="fr" lang="fr">Aller au contenu</span><span class="en" lang="en">Skip to content</span></a>
+
+<header class="cadre entete">
+  <a class="marque" href="/">JustPrivacy</a>
+  <nav class="nav" aria-label="Navigation">
+    <a href="/articles"{{NAV_ARTICLES}}>Articles</a>
+    <a href="/benchmark"{{NAV_BENCHMARK}}>Benchmark</a>
+    <a href="/apropos"{{NAV_APROPOS}}><span class="fr" lang="fr">À propos</span><span class="en" lang="en">About</span></a>
+    <a href="/compte"{{NAV_COMPTE}}><span class="fr" lang="fr">Compte</span><span class="en" lang="en">Account</span></a>
+  </nav>
+  <fieldset class="groupe langues"><legend class="cache">Langue · Language</legend>
+    <label for="l-en"><span lang="en">English</span></label>
+    <label for="l-fr"><span lang="fr">Français</span></label>
+  </fieldset>
+</header>
+
+<main id="contenu">
+
+  <section class="page">
+    <div class="cadre">
+      <header><h1 class="moyen"><span class="fr" lang="fr">Connexion</span><span class="en" lang="en">Log in</span></h1></header>
+      <div class="lecture corps">
+        <div id="prerequis" class="alerte" role="alert">
+  <p><strong><span class="fr" lang="fr">JavaScript est requis sur cette page.</span><span class="en" lang="en">JavaScript is required on this page.</span></strong></p>
+  <p><span class="fr" lang="fr">Le reste du site fonctionne sans JavaScript, mais cette page en a besoin pour la vérification anti-robot (Cap) et la double authentification. Activez JavaScript temporairement pour cette page, ou mettez à jour votre navigateur si vous utilisez une version ancienne, puis rechargez-la.</span><span class="en" lang="en">The rest of the site works without JavaScript, but this page needs it for the anti-bot check (Cap) and two-factor authentication. Please enable JavaScript for this page only, or update your browser if it is an old version, then reload.</span></p>
+</div>
+        <div id="app" hidden>
+          <p id="msg" class="alerte" role="alert" hidden></p>
+          <form id="f-login" class="formulaire" novalidate>
+            <div class="champ"><label for="username"><span class="fr" lang="fr">Nom d'utilisateur</span><span class="en" lang="en">Username</span></label><input id="username" name="username" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" ></div>
+            <div class="champ"><label for="password"><span class="fr" lang="fr">Mot de passe</span><span class="en" lang="en">Password</span></label><input id="password" name="password" type="password" autocomplete="current-password" autocapitalize="none" spellcheck="false" ></div>
+            <cap-widget id="cap" data-cap-api-endpoint="https://check.scrawlee.com/5c7f97279d/"></cap-widget>
+            <div class="actions"><button class="bouton" type="submit"><span class="fr" lang="fr">Se connecter</span><span class="en" lang="en">Log in</span></button></div>
+          </form>
+          <form id="f-mfa" class="formulaire" novalidate hidden>
+            <h2><span class="fr" lang="fr">Seconde étape</span><span class="en" lang="en">Second step</span></h2>
+            <div id="mfa-totp">
+              <p><span class="fr" lang="fr">Saisissez le code à 6 chiffres de votre application, ou l'un de vos codes de secours.</span><span class="en" lang="en">Enter the 6-digit code from your app, or one of your recovery codes.</span></p>
+              <div class="champ"><label for="code"><span class="fr" lang="fr">Code OTP ou code de secours</span><span class="en" lang="en">OTP or recovery code</span></label><input id="code" name="code" type="text" autocomplete="one-time-code" autocapitalize="none" spellcheck="false" inputmode="text"></div>
+              <div class="actions"><button class="bouton" type="submit"><span class="fr" lang="fr">Valider</span><span class="en" lang="en">Confirm</span></button></div>
+            </div>
+            <div id="mfa-passkey" class="actions">
+              <button class="bouton secondaire" type="button" id="b-passkey"><span class="fr" lang="fr">Utiliser une passkey</span><span class="en" lang="en">Use a passkey</span></button>
+            </div>
+          </form>
+          <p class="meta"><span class="fr" lang="fr">Pas encore de compte ?</span><span class="en" lang="en">No account yet?</span> <a href="/inscription"><span class="fr" lang="fr">Créer un compte</span><span class="en" lang="en">Create an account</span></a></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="pied">
+  <div class="cadre">
+    <div class="pied-colonnes">
+      <div class="pied-id">
+        <p class="marque">JustPrivacy</p>
+        <p>Because it's a right.</p>
+      </div>
+      <nav>
+        <p class="pied-nav-titre"><span class="fr" lang="fr">Contenu</span><span class="en" lang="en">Content</span></p>
+        <ul class="pied-nav-liste">
+          <li><a href="/articles">Articles</a></li>
+          <li><a href="/benchmark">Benchmark</a></li>
+          <li><a href="/apropos"><span class="fr" lang="fr">À propos</span><span class="en" lang="en">About</span></a></li>
+        </ul>
+      </nav>
+      <nav>
+        <p class="pied-nav-titre"><span class="fr" lang="fr">Projet</span><span class="en" lang="en">Project</span></p>
+        <ul class="pied-nav-liste">
+          <li><a href="/mentions"><span class="fr" lang="fr">Mentions légales</span><span class="en" lang="en">Legal notice</span></a></li>
+          <li><a href="/privacy"><span class="fr" lang="fr">Confidentialité et CGU</span><span class="en" lang="en">Privacy &amp; terms</span></a></li>
+          <li><a href="https://codeberg.org/org/JustPrivacy" rel="noopener noreferrer"><span class="fr" lang="fr">Code source</span><span class="en" lang="en">Source code</span><svg class="icone-ext" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a></li>
+        </ul>
+      </nav>
+    </div>
+    <div class="pied-barre">
+      <p class="pied-licence">Copyleft · <a class="fr" lang="fr" href="https://creativecommons.org/licenses/by-sa/4.0/deed.fr" rel="noopener noreferrer">CC BY-SA 4.0</a><a class="en" lang="en" href="https://creativecommons.org/licenses/by-sa/4.0/deed.en" rel="noopener noreferrer">CC BY-SA 4.0</a></p>
+      <div class="reglages">
+        <fieldset class="groupe groupe-theme"><legend class="cache"><span class="fr" lang="fr">Thème</span><span class="en" lang="en">Theme</span></legend>
+        <input class="bas" type="radio" name="theme" id="t-clair"><label for="t-clair"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><span class="cache"><span class="fr" lang="fr">Clair</span><span class="en" lang="en">Light</span></span></label>
+        <input class="bas" type="radio" name="theme" id="t-systeme" checked><label for="t-systeme"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg><span class="cache"><span class="fr" lang="fr">Système</span><span class="en" lang="en">System</span></span></label>
+        <input class="bas" type="radio" name="theme" id="t-sombre"><label for="t-sombre"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z"/></svg><span class="cache"><span class="fr" lang="fr">Sombre</span><span class="en" lang="en">Dark</span></span></label>
+      </fieldset>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@cap.js/widget@0.1.63"></script>
+<script>{{JS}}</script>
+<script>{{JS_COMPTE}}</script>
+</body>
+</html>

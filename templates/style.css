@@ -101,7 +101,7 @@ a{transition:color .15s ease,text-decoration-color .15s ease}
 .menu-langue summary::-webkit-details-marker{display:none}
 .menu-langue summary:hover{border-color:var(--encre)}
 .menu-langue summary svg{margin-right:.5rem;width:1.125rem;height:1.125rem;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.menu-langue summary::after{content:"";width:.45rem;height:.45rem;margin:-.2rem 0 0 .25rem;border:solid currentColor;border-width:0 2px 2px 0;-webkit-transform:rotate(45deg);transform:rotate(45deg);transition:transform .15s ease}
+.menu-langue summary::after{content:"";width:.45rem;height:.45rem;margin:-.2rem 0 0 .5rem;border:solid currentColor;border-width:0 2px 2px 0;-webkit-transform:rotate(45deg);transform:rotate(45deg);transition:transform .15s ease}
 .menu-langue[open] summary::after{margin-top:.2rem;-webkit-transform:rotate(-135deg);transform:rotate(-135deg)}
 .cur-fr,.cur-en{display:none}
 #l-fr:checked ~ .site .cur-fr,#l-en:checked ~ .site .cur-en{display:inline}

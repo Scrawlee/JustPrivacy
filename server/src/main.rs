@@ -119,6 +119,9 @@ async fn run() -> Result<(), String> {
         .nest("/api", api)
         .merge(githttp::router())
         .route("/healthz", get(|| async { "ok" }))
+        .route("/favicon.svg", get(|| async { icon("image/svg+xml", include_bytes!("../../templates/favicon.svg")) }))
+        .route("/favicon.ico", get(|| async { icon("image/x-icon", include_bytes!("../../templates/favicon.ico")) }))
+        .route("/apple-touch-icon.png", get(|| async { icon("image/png", include_bytes!("../../templates/apple-touch-icon.png")) }))
         .fallback(get(site_page).layer(CompressionLayer::new()))
         .layer(SetResponseHeaderLayer::if_not_present(header::X_CONTENT_TYPE_OPTIONS, HeaderValue::from_static("nosniff")))
         .layer(SetResponseHeaderLayer::if_not_present(header::X_FRAME_OPTIONS, HeaderValue::from_static("DENY")))
@@ -135,6 +138,15 @@ async fn run() -> Result<(), String> {
         .with_graceful_shutdown(async { let _ = tokio::signal::ctrl_c().await; })
         .await
         .map_err(|e| e.to_string())
+}
+
+/// Site icons: embedded in the binary, cached for a day.
+fn icon(content_type: &'static str, body: &'static [u8]) -> Response {
+    let mut r = body.into_response();
+    let h = r.headers_mut();
+    h.insert(header::CONTENT_TYPE, HeaderValue::from_static(content_type));
+    h.insert(header::CACHE_CONTROL, HeaderValue::from_static("public, max-age=86400"));
+    r
 }
 
 /// Chemin demandé → chemin de page normalisé (sans barre finale) ; `None` : chemin refusé.

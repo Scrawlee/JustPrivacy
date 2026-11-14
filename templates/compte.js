@@ -3,16 +3,8 @@
 (function () {
   var d = document, w = window;
   function $(id) { return d.getElementById(id); }
-  var app = $('app'), pre = $('prerequis');
-  if (!app || !pre) { return; }
-
-  // Prérequis du navigateur : on ne révèle l'interface que s'il sait tout faire.
-  var needsCap = !!$('cap');
-  var capable = !!(w.XMLHttpRequest && w.JSON && d.querySelector && w.addEventListener && d.createElement);
-  if (needsCap) { capable = capable && !!(w.WebAssembly && w.Worker && w.customElements); }
-  if (!capable) { return; }
-  pre.hidden = true;
-  pre.style.display = 'none';
+  var app = $('app');
+  if (!app) { return; }
   app.hidden = false;
   app.removeAttribute('hidden');
 
@@ -149,7 +141,8 @@
     } catch (err) { capBusy = false; capShow('fail'); fail('captcha_load'); }
   }
   if (capEl) {
-    if (!w.Cap) { fail('captcha_load'); }
+    // The check script (served by check.scrawlee.com) did not load: send the visitor to the dedicated page.
+    if (!w.Cap) { w.location.replace('/compatibilite'); return; }
     capEl.reset = function () {
       capToken = ''; capBusy = false;
       if (capObj && typeof capObj.reset === 'function') { try { capObj.reset(); } catch (err) {} }

@@ -6,6 +6,7 @@
 <meta name="color-scheme" content="light dark">
 <meta name="description" content="{{META_DESCRIPTION}}">
 <title>{{TITLE}}</title>
+<noscript><meta http-equiv="refresh" content="0;url=/compatibilite"></noscript>
 <!-- [dev-css] -->
 <style>
 @font-face{font-family:"Inter";font-style:normal;font-weight:400 800;font-display:swap;src:url(../fonts/inter-latin-ext.woff2) format("woff2");unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C4,U+2113,U+2C60-2C7F,U+A720-A7FF}
@@ -47,10 +48,6 @@
           </aside>
         </div>
         <div class="auth-carte">
-          <div id="prerequis" class="alerte" role="alert">
-  <p><strong><span class="fr" lang="fr">JavaScript est requis sur cette page.</span><span class="en" lang="en">JavaScript is required on this page.</span></strong></p>
-  <p><span class="fr" lang="fr">Le reste du site fonctionne sans JavaScript, mais cette page en a besoin pour la vérification anti-robot (Cap) et la double authentification. Activez JavaScript temporairement pour cette page, ou mettez à jour votre navigateur si vous utilisez une version ancienne, puis rechargez-la.</span><span class="en" lang="en">The rest of the site works without JavaScript, but this page needs it for the anti-bot check (Cap) and two-factor authentication. Please enable JavaScript for this page only, or update your browser if it is an old version, then reload.</span></p>
-</div>
           <div id="app">
             <p id="msg" class="alerte" role="alert" hidden></p>
             <form id="f-signup" class="formulaire" novalidate onsubmit="return false">
@@ -61,6 +58,7 @@
                 <button type="button" class="cap-bouton" role="checkbox" aria-checked="false" aria-describedby="cap-tip"><span class="cap-case" aria-hidden="true"><svg class="cap-svg" viewBox="0 0 24 24" focusable="false"><rect class="cap-carre" x="2" y="2" width="20" height="20" rx="5.5"/><g class="cap-tourne"><circle class="cap-piste" cx="12" cy="12" r="9"/><circle class="cap-anneau" cx="12" cy="12" r="9"/></g><path class="cap-coche" d="M7.2 12.6l3.3 3.3 6.4-7.1"/><path class="cap-croix" d="M8.2 8.2l7.6 7.6M15.8 8.2l-7.6 7.6"/></svg></span><span class="cap-etat" aria-live="polite"><span class="fr" lang="fr">Je suis humain</span><span class="en" lang="en">I am human</span></span></button>
                 <div class="cap-credit"><a href="https://trycap.dev" rel="noopener noreferrer">Cap</a><span>(selfhost)</span><span class="cap-q" tabindex="0" aria-label="À propos de Cap / About Cap">?</span><span id="cap-tip" class="cap-tip" role="tooltip"><span class="fr" lang="fr">Cap est hébergé par nos soins. Il ne dépose aucun cookie et ne sert pas à vous suivre : il vérifie seulement que vous êtes humain.</span><span class="en" lang="en">Cap is hosted by us. It sets no cookie and does not track you: it only checks that you are human.</span></span></div>
               </div>
+              <p class="aide cap-secours"><a href="/compatibilite"><span class="fr" lang="fr">La vérification ne se charge pas ?</span><span class="en" lang="en">The check does not load?</span></a></p>
               <div class="actions"><button class="bouton" type="submit"><span class="fr" lang="fr">Créer mon compte</span><span class="en" lang="en">Create my account</span></button></div>
             </form>
             <p class="auth-pied meta"><span class="fr" lang="fr">Déjà un compte ?</span><span class="en" lang="en">Already have an account?</span> <a href="/connexion"><span class="fr" lang="fr">Se connecter</span><span class="en" lang="en">Log in</span></a></p>

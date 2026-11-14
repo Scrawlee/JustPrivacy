@@ -22,6 +22,7 @@ const LOGIN: &str = template!("connexion.html");
 const SIGNUP: &str = template!("inscription.html");
 const ACCOUNT: &str = template!("compte.html");
 const EDITOR: &str = template!("editeur.html");
+const COMPAT: &str = template!("compat.html");
 const STYLE: &str = template!("style.css");
 const JS_SETTINGS: &str = template!("reglages.js");
 const JS_ACCOUNT: &str = template!("compte.js");
@@ -685,6 +686,7 @@ fn static_page(path: &str) -> Option<String> {
         "/apropos" => page(ABOUT, "À propos – About – JustPrivacy", "JustPrivacy is an independent resource on privacy and digital rights.", vec![("NAV_APROPOS", CURRENT.into())]),
         "/mentions" => page(LEGAL, "Mentions légales – Legal notice – JustPrivacy", "Legal notice for JustPrivacy.", vec![]),
         "/privacy" => page(PRIVACY, "Confidentialité et CGU – Privacy & terms – JustPrivacy", "Privacy policy and terms of use for JustPrivacy.", vec![]),
+        "/compatibilite" => page(COMPAT, "Navigateur non compatible – Unsupported browser – JustPrivacy", "The anti-bot check could not load: what to do.", vec![]),
         "/connexion" => page(LOGIN, "Connexion – Log in – JustPrivacy", ACCOUNT_DESC, vec![("JS_COMPTE", ASSETS.js_account.clone())]),
         "/inscription" => page(SIGNUP, "Inscription – Sign up – JustPrivacy", ACCOUNT_DESC, vec![("JS_COMPTE", ASSETS.js_account.clone())]),
         "/compte" => page(ACCOUNT, "Mon compte – My account – JustPrivacy", ACCOUNT_DESC, vec![("JS_COMPTE", ASSETS.js_account.clone()), ("NAV_COMPTE", CURRENT.into())]),
@@ -820,7 +822,7 @@ mod tests {
         assert!(render_route("/articles/inconnu", &s).is_none());
         assert!(render_route("/benchmark", &s).unwrap().tags.is_empty());
         assert!(render_route("/editeur", &s).unwrap().html.contains("ed-grille"));
-        for p in ["/apropos", "/mentions", "/privacy", "/connexion", "/inscription", "/compte"] {
+        for p in ["/apropos", "/mentions", "/privacy", "/compatibilite", "/connexion", "/inscription", "/compte"] {
             assert!(render_route(p, &s).is_some(), "{p}");
         }
     }

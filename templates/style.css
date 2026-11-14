@@ -232,6 +232,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
 .lignes li{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:var(--e1) var(--e2);padding:var(--e1) 0;border-bottom:1px solid var(--regle)}
 .codes{display:grid;gap:var(--e1);padding:0;margin:var(--e2) 0 0;list-style:none}
 code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.95em;word-break:break-all}
+.corps p code,.corps li code{word-break:normal;overflow-wrap:anywhere}
 .qr{width:12rem;max-width:100%;margin:var(--e2) 0}
 .qr svg{display:block;width:100%;height:auto}
 .bouton.danger{color:#a4262c;border-color:#a4262c}

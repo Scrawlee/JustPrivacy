@@ -4,11 +4,8 @@
 (function () {
   var d = document, w = window;
   function $(id) { return d.getElementById(id); }
-  var app = $('app'), pre = $('prerequis');
-  if (!app || !pre) { return; }
-  if (!(w.XMLHttpRequest && w.JSON && d.querySelector && w.addEventListener && d.createElement)) { return; }
-  pre.hidden = true;
-  pre.style.display = 'none';
+  var app = $('app');
+  if (!app) { return; }
   app.hidden = false;
   app.removeAttribute('hidden');
 

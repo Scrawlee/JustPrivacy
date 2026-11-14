@@ -23,7 +23,7 @@ résultat gardé en mémoire), l'API de comptes (`/api`) et le dépôt git des a
   commit et ne purge que les pages concernées : l'article, la liste, l'accueil et les articles qui le citent en « voir aussi ».
   Plus rien à reconstruire : la modification est visible dès la requête suivante (`GET /api/site` : commit courant et compteurs).
 
-## Éditeur web (`/editeur`)
+## Éditeur web (`/editor`)
 
 Page réservée aux comptes connectés, qui lit et écrit dans le même dépôt git (`/api/articles`, `/api/proposals`) :
 

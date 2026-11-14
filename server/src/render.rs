@@ -23,6 +23,7 @@ const SIGNUP: &str = template!("inscription.html");
 const ACCOUNT: &str = template!("compte.html");
 const EDITOR: &str = template!("editeur.html");
 const COMPAT: &str = template!("compat.html");
+const NOT_FOUND: &str = template!("notfound.html");
 const STYLE: &str = template!("style.css");
 const JS_SETTINGS: &str = template!("reglages.js");
 const JS_ACCOUNT: &str = template!("compte.js");
@@ -679,18 +680,24 @@ fn page(template: &str, title: &str, desc: &str, extra: Vec<(&'static str, Strin
     render_template(template, vars)
 }
 
+/// The dedicated 404 page (rendered once).
+pub fn not_found_page() -> &'static str {
+    static HTML: LazyLock<String> = LazyLock::new(|| page(NOT_FOUND, "Page introuvable – Page not found – JustPrivacy", "This page does not exist.", vec![]));
+    &HTML
+}
+
 /// Pages qui ne dépendent d'aucun article : identiques tant que le binaire ne change pas.
 fn static_page(path: &str) -> Option<String> {
     Some(match path {
         "/benchmark" => page(BENCHMARK, "Benchmark – JustPrivacy", "Free AI assistants benchmark: tested the way you use them, on everyday tasks.", vec![("NAV_BENCHMARK", CURRENT.into())]),
-        "/apropos" => page(ABOUT, "À propos – About – JustPrivacy", "JustPrivacy is an independent resource on privacy and digital rights.", vec![("NAV_APROPOS", CURRENT.into())]),
-        "/mentions" => page(LEGAL, "Mentions légales – Legal notice – JustPrivacy", "Legal notice for JustPrivacy.", vec![]),
+        "/about" => page(ABOUT, "À propos – About – JustPrivacy", "JustPrivacy is an independent resource on privacy and digital rights.", vec![("NAV_APROPOS", CURRENT.into())]),
+        "/legal" => page(LEGAL, "Mentions légales – Legal notice – JustPrivacy", "Legal notice for JustPrivacy.", vec![]),
         "/privacy" => page(PRIVACY, "Confidentialité et CGU – Privacy & terms – JustPrivacy", "Privacy policy and terms of use for JustPrivacy.", vec![]),
-        "/compatibilite" => page(COMPAT, "Navigateur non compatible – Unsupported browser – JustPrivacy", "The anti-bot check could not load: what to do.", vec![]),
-        "/connexion" => page(LOGIN, "Connexion – Log in – JustPrivacy", ACCOUNT_DESC, vec![("JS_COMPTE", ASSETS.js_account.clone())]),
-        "/inscription" => page(SIGNUP, "Inscription – Sign up – JustPrivacy", ACCOUNT_DESC, vec![("JS_COMPTE", ASSETS.js_account.clone())]),
-        "/compte" => page(ACCOUNT, "Mon compte – My account – JustPrivacy", ACCOUNT_DESC, vec![("JS_COMPTE", ASSETS.js_account.clone()), ("NAV_COMPTE", CURRENT.into())]),
-        "/editeur" => page(EDITOR, "Éditeur d'articles – Article editor – JustPrivacy", "Éditeur d'articles JustPrivacy.", vec![("JS_EDITEUR", ASSETS.js_editor.clone())]),
+        "/compatibility" => page(COMPAT, "Navigateur non compatible – Unsupported browser – JustPrivacy", "The anti-bot check could not load: what to do.", vec![]),
+        "/login" => page(LOGIN, "Connexion – Log in – JustPrivacy", ACCOUNT_DESC, vec![("JS_COMPTE", ASSETS.js_account.clone())]),
+        "/signup" => page(SIGNUP, "Inscription – Sign up – JustPrivacy", ACCOUNT_DESC, vec![("JS_COMPTE", ASSETS.js_account.clone())]),
+        "/account" => page(ACCOUNT, "Mon compte – My account – JustPrivacy", ACCOUNT_DESC, vec![("JS_COMPTE", ASSETS.js_account.clone()), ("NAV_COMPTE", CURRENT.into())]),
+        "/editor" => page(EDITOR, "Éditeur d'articles – Article editor – JustPrivacy", "Éditeur d'articles JustPrivacy.", vec![("JS_EDITEUR", ASSETS.js_editor.clone())]),
         _ => return None,
     })
 }
@@ -732,7 +739,7 @@ pub fn render_route(path: &str, set: &ArticleSet) -> Option<Rendered> {
             let body = article_body(a, set, &mut tags);
             tags.sort();
             tags.dedup();
-            let edit = format!("<span aria-hidden=\"true\">·</span> <a href=\"/editeur#{slug}\">{}</a>", bi("Modifier", "Edit"));
+            let edit = format!("<span aria-hidden=\"true\">·</span> <a href=\"/editor#{slug}\">{}</a>", bi("Modifier", "Edit"));
             let lang_attr = if matches!(a.lang.as_str(), "fr" | "en") { format!(" lang=\"{}\"", a.lang) } else { String::new() };
             Some(Rendered {
                 html: page(ARTICLE, &title, &desc, vec![
@@ -817,12 +824,13 @@ mod tests {
         assert!(list.html.contains("Droits") && list.html.contains("Lire"));
         let acces = render_route("/articles/acces", &s).unwrap();
         assert_eq!(acces.tags, vec!["article:acces", "article:perm"]);
-        assert!(acces.html.contains("Voir aussi\u{a0}: Permissions") && acces.html.contains("href=\"/editeur#acces\""));
+        assert!(acces.html.contains("Voir aussi\u{a0}: Permissions") && acces.html.contains("href=\"/editor#acces\""));
         assert!(acces.html.contains("<h2 id=\"avant-decrire\">"));
         assert!(render_route("/articles/inconnu", &s).is_none());
+        assert!(not_found_page().contains("404") && not_found_page().contains("noindex"));
         assert!(render_route("/benchmark", &s).unwrap().tags.is_empty());
-        assert!(render_route("/editeur", &s).unwrap().html.contains("ed-grille"));
-        for p in ["/apropos", "/mentions", "/privacy", "/compatibilite", "/connexion", "/inscription", "/compte"] {
+        assert!(render_route("/editor", &s).unwrap().html.contains("ed-grille"));
+        for p in ["/about", "/legal", "/privacy", "/compatibility", "/login", "/signup", "/account"] {
             assert!(render_route(p, &s).is_some(), "{p}");
         }
     }
@@ -853,7 +861,7 @@ mod tests {
             files.iter().map(|e| (e.path().file_stem().unwrap().to_string_lossy().into_owned(), std::fs::read_to_string(e.path()).unwrap())).collect()
         };
         let set = ArticleSet::new(&raw);
-        let mut routes: Vec<String> = ["/", "/articles", "/benchmark", "/apropos", "/mentions", "/privacy", "/connexion", "/inscription", "/compte", "/editeur"].iter().map(|s| s.to_string()).collect();
+        let mut routes: Vec<String> = ["/", "/articles", "/benchmark", "/about", "/legal", "/privacy", "/login", "/signup", "/account", "/editor"].iter().map(|s| s.to_string()).collect();
         routes.extend(raw.iter().map(|(s, _)| format!("/articles/{s}")));
         for route in routes {
             let file = if route == "/" { format!("{dir}/index.html") } else { format!("{dir}{route}/index.html") };

@@ -6,7 +6,7 @@
 <meta name="color-scheme" content="light dark">
 <meta name="description" content="{{META_DESCRIPTION}}">
 <title>{{TITLE}}</title>
-<noscript><meta http-equiv="refresh" content="0;url=/compatibilite"></noscript>
+<noscript><meta http-equiv="refresh" content="0;url=/compatibility"></noscript>
 <!-- [dev-css] -->
 <style>
 @font-face{font-family:"Inter";font-style:normal;font-weight:400 800;font-display:swap;src:url(../fonts/inter-latin-ext.woff2) format("woff2");unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C4,U+2113,U+2C60-2C7F,U+A720-A7FF}
@@ -27,8 +27,8 @@
   <nav class="nav" aria-label="Navigation">
     <a href="/articles"{{NAV_ARTICLES}}>Articles</a>
     <a href="/benchmark"{{NAV_BENCHMARK}}>Benchmark</a>
-    <a href="/apropos"{{NAV_APROPOS}}><span class="fr" lang="fr">À propos</span><span class="en" lang="en">About</span></a>
-    <a href="/compte"{{NAV_COMPTE}}><span class="fr" lang="fr">Compte</span><span class="en" lang="en">Account</span></a>
+    <a href="/about"{{NAV_APROPOS}}><span class="fr" lang="fr">À propos</span><span class="en" lang="en">About</span></a>
+    <a href="/account"{{NAV_COMPTE}}><span class="fr" lang="fr">Compte</span><span class="en" lang="en">Account</span></a>
   </nav>
 </header>
 
@@ -50,7 +50,6 @@
                 <button type="button" class="cap-bouton" role="checkbox" aria-checked="false" aria-describedby="cap-tip"><span class="cap-case" aria-hidden="true"><svg class="cap-svg" viewBox="0 0 24 24" focusable="false"><rect class="cap-carre" x="2" y="2" width="20" height="20" rx="5.5"/><g class="cap-tourne"><circle class="cap-piste" cx="12" cy="12" r="9"/><circle class="cap-anneau" cx="12" cy="12" r="9"/></g><path class="cap-coche" d="M7.2 12.6l3.3 3.3 6.4-7.1"/><path class="cap-croix" d="M8.2 8.2l7.6 7.6M15.8 8.2l-7.6 7.6"/></svg></span><span class="cap-etat" aria-live="polite"><span class="fr" lang="fr">Je suis humain</span><span class="en" lang="en">I am human</span></span></button>
                 <div class="cap-credit"><a href="https://trycap.dev" rel="noopener noreferrer">Cap</a><span>(selfhost)</span><span class="cap-q" tabindex="0" aria-label="À propos de Cap / About Cap">?</span><span id="cap-tip" class="cap-tip" role="tooltip"><span class="fr" lang="fr">Cap est hébergé par nos soins. Il ne dépose aucun cookie et ne sert pas à vous suivre : il vérifie seulement que vous êtes humain.</span><span class="en" lang="en">Cap is hosted by us. It sets no cookie and does not track you: it only checks that you are human.</span></span></div>
               </div>
-              <p class="aide cap-secours"><a href="/compatibilite"><span class="fr" lang="fr">La vérification ne se charge pas ?</span><span class="en" lang="en">The check does not load?</span></a></p>
               <div class="actions"><button class="bouton" type="submit"><span class="fr" lang="fr">Se connecter</span><span class="en" lang="en">Log in</span></button></div>
             </form>
             <form id="f-mfa" class="formulaire" novalidate hidden>
@@ -64,7 +63,7 @@
                 <button class="bouton secondaire" type="button" id="b-passkey"><span class="fr" lang="fr">Utiliser une passkey</span><span class="en" lang="en">Use a passkey</span></button>
               </div>
             </form>
-            <p class="auth-pied meta"><span class="fr" lang="fr">Pas encore de compte ?</span><span class="en" lang="en">No account yet?</span> <a href="/inscription"><span class="fr" lang="fr">Créer un compte</span><span class="en" lang="en">Create an account</span></a></p>
+            <p class="auth-pied meta"><span class="fr" lang="fr">Pas encore de compte ?</span><span class="en" lang="en">No account yet?</span> <a href="/signup"><span class="fr" lang="fr">Créer un compte</span><span class="en" lang="en">Create an account</span></a></p>
           </div>
         </div>
       </div>
@@ -85,13 +84,13 @@
         <ul class="pied-nav-liste">
           <li><a href="/articles">Articles</a></li>
           <li><a href="/benchmark">Benchmark</a></li>
-          <li><a href="/apropos"><span class="fr" lang="fr">À propos</span><span class="en" lang="en">About</span></a></li>
+          <li><a href="/about"><span class="fr" lang="fr">À propos</span><span class="en" lang="en">About</span></a></li>
         </ul>
       </nav>
       <nav>
         <p class="pied-nav-titre"><span class="fr" lang="fr">Projet</span><span class="en" lang="en">Project</span></p>
         <ul class="pied-nav-liste">
-          <li><a href="/mentions"><span class="fr" lang="fr">Mentions légales</span><span class="en" lang="en">Legal notice</span></a></li>
+          <li><a href="/legal"><span class="fr" lang="fr">Mentions légales</span><span class="en" lang="en">Legal notice</span></a></li>
           <li><a href="/privacy"><span class="fr" lang="fr">Confidentialité et CGU</span><span class="en" lang="en">Privacy &amp; terms</span></a></li>
           <li><a href="https://codeberg.org/org/JustPrivacy" rel="noopener noreferrer"><span class="fr" lang="fr">Code source</span><span class="en" lang="en">Source code</span><svg class="icone-ext" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a></li>
         </ul>

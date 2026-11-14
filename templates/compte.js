@@ -142,7 +142,7 @@
   }
   if (capEl) {
     // The check script (served by check.scrawlee.com) did not load: send the visitor to the dedicated page.
-    if (!w.Cap) { w.location.replace('/compatibilite'); return; }
+    if (!w.Cap) { w.location.replace('/compatibility'); return; }
     capEl.reset = function () {
       capToken = ''; capBusy = false;
       if (capObj && typeof capObj.reset === 'function') { try { capObj.reset(); } catch (err) {} }
@@ -200,7 +200,7 @@
           $('code').focus();
           return;
         }
-        w.location.href = '/compte';
+        w.location.href = '/account';
       });
     }, false);
     fMfa.addEventListener('submit', function (e) {
@@ -209,7 +209,7 @@
       api('POST', '/api/auth/mfa/totp', { ticket: ticket, code: $('code').value }, function (err) {
         busy(fMfa, false);
         if (err) { fail(err); if (err === 'ticket_expired') { w.location.reload(); } return; }
-        w.location.href = '/compte';
+        w.location.href = '/account';
       });
     }, false);
     on('b-passkey', 'click', function () {
@@ -228,7 +228,7 @@
             signature: buf2b(r.signature), userHandle: r.userHandle ? buf2b(r.userHandle) : null } };
           api('POST', '/api/auth/mfa/passkey/finish', { ticket: ticket, credential: cred }, function (err2) {
             if (err2) { fail(err2); return; }
-            w.location.href = '/compte';
+            w.location.href = '/account';
           });
         }, function (e2) { fail(waErr(e2)); });
       });
@@ -249,7 +249,7 @@
       api('POST', '/api/auth/signup', { username: u, password: p, cap_token: tok }, function (err) {
         capReset(); busy(fSignup, false);
         if (err) { fail(err); return; }
-        w.location.href = '/compte';
+        w.location.href = '/account';
       });
     }, false);
   }
@@ -261,7 +261,7 @@
   function after(err, okText) {
     if (err) {
       fail(err);
-      if (err === 'unauthenticated') { w.location.href = '/connexion'; }
+      if (err === 'unauthenticated') { w.location.href = '/login'; }
       return false;
     }
     good(okText);
@@ -371,7 +371,7 @@
       call(pw, function (err, okText, extra) {
         finish(err);
         if (err === 'wrong_password') { return; }
-        if (err) { fail(err); if (err === 'unauthenticated') { w.location.href = '/connexion'; } return; }
+        if (err) { fail(err); if (err === 'unauthenticated') { w.location.href = '/login'; } return; }
         if (extra) { extra(); }
         if (okText) { good(okText); }
         load();
@@ -471,7 +471,7 @@
 
   function load() {
     api('GET', '/api/me', null, function (err, data) {
-      if (err === 'unauthenticated') { w.location.href = '/connexion'; return; }
+      if (err === 'unauthenticated') { w.location.href = '/login'; return; }
       if (err) { fail(err); return; }
       me = data; render();
     });

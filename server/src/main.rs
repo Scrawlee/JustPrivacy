@@ -146,7 +146,11 @@ fn page_path(raw: &str) -> Option<String> {
 }
 
 fn not_found() -> Response {
-    (StatusCode::NOT_FOUND, "Page introuvable").into_response()
+    let mut r = (StatusCode::NOT_FOUND, render::not_found_page()).into_response();
+    let h = r.headers_mut();
+    h.insert(header::CONTENT_TYPE, HeaderValue::from_static("text/html; charset=utf-8"));
+    h.insert(header::CONTENT_SECURITY_POLICY, HeaderValue::from_static(CSP));
+    r
 }
 
 /// Sert les pages du site : rendues depuis git à la première demande, puis gardées en mémoire (voir `pages.rs`).

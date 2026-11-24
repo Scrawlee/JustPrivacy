@@ -16,7 +16,7 @@ const IDLE_DAYS: i64 = 14;
 
 // ---------------------------------------------------------------- identifiants
 
-const RESERVED: &[&str] = &["admin", "administrator", "root", "system", "support", "moderator", "justprivacy", "git", "api", "null", "undefined"];
+const RESERVED: &[&str] = &["admin", "administrator", "root", "system", "support", "moderator", "git", "api", "null", "undefined"];
 
 pub fn normalize_username(raw: &str) -> ApiResult<String> {
     let u = raw.trim().to_lowercase();
